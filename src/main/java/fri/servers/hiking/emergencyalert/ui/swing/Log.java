@@ -6,7 +6,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import javax.swing.JTextArea;
 
-public final class Log
+public final class Log 
 {
     public static void setOut(JTextArea output) {
 //        OutputStream outStream = new OutputStream() {
