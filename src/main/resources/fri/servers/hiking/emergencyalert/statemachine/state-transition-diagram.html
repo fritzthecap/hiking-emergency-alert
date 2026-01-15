@@ -1,0 +1,100 @@
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>State-Transition Diagram</title>
+        
+        <style>
+            table {
+              border-collapse: collapse;
+            }
+            table td {
+              padding: 0.5em;
+              border: 2px solid gray;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <h2>State-Transition Diagram</h2>
+        
+        <p>
+            Following table crosses all possible states with all possible events.
+            Horizontal column-headers are states, vertical row headers are arriving events. 
+            Cells contain follower states according to the arriving event. 
+        </p>
+        <p>
+            <b>Example:</b> when event <i>COMING_HOME</i> arrives in state <i>OnTheWay</i>, 
+            the automaton changes to state <i>HomeAgain<i>.
+        </p>
+            
+        <table>
+            <tr> <!--header -->
+                    <th>&rarr; State<br/>&darr; Event</th>
+                    <th>HikerRegistered</th>
+                    <th>HikeActivated</th>
+                    <th>OnTheWay</th>
+                    <th>OverdueAlert</th>
+                    <th>HomeAgain / AlertConfirmed</th>
+            </tr>
+            
+            <tr> <!--states -->
+                <th>REGISTRATION (user)</th> <!--event -->
+                <td>&rarr; HikerRegistered (or update)</td>
+                <td>&#128683;</td>
+                <td>&#128683;</td>
+                <td>&#128683;</td>
+                <td>&rarr; HikerRegistered</td>
+            </tr>
+            <tr>
+                <th>ACTIVATION (user)</th> <!--event -->
+                <td>&rarr; HikeActivated</td>
+                <td>&rarr; HikeActivated (update)</td>
+                <td>&#128683;</td>
+                <td>&#128683;</td>
+                <td>&rarr; HikeActivated</td>
+            </tr>
+            <tr>
+                <th>SETTING_OFF (timer)</th> <!--event -->
+                <td>&#128683;</td>
+                <td>&rarr; OnTheWay</td>
+                <td>&#128683;</td>
+                <td>&#128683;</td>
+                <td>&#128683;</td>
+            </tr>
+            <tr>
+                <th>COMING_HOME (user)</th> <!--event -->
+                <td>&#128683;</td>
+                <td>&#128683;</td>
+                <td>&rarr; HomeAgain</td>
+                <td>&rarr; HomeAgain</td>
+                <td>&#128077;</td>
+            </tr>
+            <tr>
+                <th>OVERDUE_ALERT (timer)</th> <!--event -->
+                <td>&#128683;</td>
+                <td>&#128683;</td>
+                <td>&rarr; OverdueAlert</td>
+                <td>&rarr; OverdueAlert</td>
+                <td>&#128683;</td>
+            </tr>
+            <tr>
+                <th>ALERT_CONFIRMED (user)</th>
+                <td>&#128683;</td>
+                <td>&#128683;</td>
+                <td>&#128683;</td>
+                <td>&rarr; AlertConfirmed</td>
+                <td>&#128077; / &#128078;</td>
+            </tr>
+        </table>
+        
+        <p>Symbols:</p>
+        <table>
+            <tr><td>&#128683;</td><td>Illegal state, implementation error</td></tr>
+            <tr><td>&#128077; / &#128078;</td><td>Legal end states</td></tr>
+        </table>
+            
+        
+    </body>
+
+</html>

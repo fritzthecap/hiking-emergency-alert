@@ -1,0 +1,11 @@
+
+System.out and .err redirection to either logger or Swing window.
+
+The mail text needs $macros for plannedBeginTime, endTime
+    and name of "to"-contact person, maybe MAIL-ID.
+    
+Implement Swing UserInterface and use it in AlertHomeServer.
+
+Implement read, edit and write JSON files about Hikes.
+
+Write more unit tests with greenmail like StateMachineTest2.

@@ -1,0 +1,53 @@
+{
+  "route": "From Mount Everest to Kilimanjaro via Antarctica.",
+  "routeImages": [
+    "/media/images/planned-routes/everest-to-kilimanjaro.png"
+  ],
+  "plannedBegin": "2026-01-13 08:00",
+  "plannedHome": "2026-01-13 08:01",
+  "alertIntervalMinutes": 2,
+  "confirmationPollingMinutes": 1,
+  "alert": {
+    "helpRequestTitle": "Hiking emergency - I need help!",
+    "helpRequestText": "I had an accident while hiking and need help. Below you find a description of my planned route.",
+    "procedureTodos": [
+      "First try to reach me by phone: 123456789.",
+      "If I do not respond, please call the local emergency services.",
+      "Ask them for a mail-address and forward this mail to them.",
+      "If they have none, tell them my trail from description below.",
+      "IMPORTANT: when you could organize help, please send a response-mail. The MAIL-ID above must be contained in it. Sending RE-mail prevents further contacts to be notified."
+    ],
+    "passingToNextText": "As you did not respond in time, another alert has been sent to the next contact person. You can ignore the preceding mail.",
+    "addressOfHiker": "Hikerstreet 1, A-1234 Hikertown, Antarctica",
+    "hikerContact": {
+      "mailAddress": "example.user@provider.org",
+      "firstName": "John",
+      "lastName": "Doe",
+      "absent": false,
+      "alertContacts": [
+        {
+          "mailAddress": "example.user@provider.org",
+          "firstName": "First",
+          "lastName": "Person",
+          "absent": false
+        },
+        {
+          "mailAddress": "example.user@provider.org",
+          "firstName": "Second",
+          "lastName": "Person",
+          "absent": false
+        }
+      ]
+    },
+    "mailConfiguration": {
+      "mailUser": "example.user@provider.org",
+      "receiveMailProtocol": "pop3",
+      "receiveMailHost": "pop.provider.org",
+      "receiveMailPort": 110,
+      "sendMailProtocol": "smtp",
+      "sendMailHost": "smtp.provider.org",
+      "sendMailPort": 25,
+      "sendMailFromAccount": "example.user@provider.org"
+    }
+  }
+}
