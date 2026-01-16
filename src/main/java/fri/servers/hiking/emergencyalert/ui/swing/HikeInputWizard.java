@@ -6,6 +6,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -39,6 +41,17 @@ public class HikeInputWizard extends JPanel
         this.stateMachine = stateMachine;
         
         buildUi();
+        
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (page.windowClosing()) {
+                    frame.dispose(); // exits only when no thread is running!
+                    System.exit(0);
+                }
+            }
+        });
     }
 
     private void buildUi() {
@@ -114,10 +127,6 @@ public class HikeInputWizard extends JPanel
         repaint();
         
         setButtonsEnabled();
-        
-        frame.setDefaultCloseOperation(page.frameCanBeClosed()
-                ? JFrame.EXIT_ON_CLOSE
-                : JFrame.DO_NOTHING_ON_CLOSE);
     }
     
     private void setButtonsEnabled() {

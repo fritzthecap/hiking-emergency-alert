@@ -73,24 +73,16 @@ public abstract class AbstractWizardPage extends JPanel
     }
 
     /**
-     * Called when user closed the window. Does nothing. 
+     * Called when user closed the window.
      * To be overridden for saving data.
+     * @return true for let window exit.
      */
-    public void windowClosing() {
+    public boolean windowClosing() {
+        return true;
     }
 
     /** @return the next wizard page, to be implemented by sub-classes. */
     protected abstract AbstractWizardPage nextPage();
-    
-    /**
-     * Some wizard pages may want to avoid application exit
-     * through the top right window close button.
-     * This default implementation returns true.
-     * @return true when application may still exit on this page, else false.
-     */
-    public boolean frameCanBeClosed() {
-        return true;
-    }
     
     private AbstractWizardPage setPreviousPage(AbstractWizardPage wizardPage) {
         this.previousPage = wizardPage;

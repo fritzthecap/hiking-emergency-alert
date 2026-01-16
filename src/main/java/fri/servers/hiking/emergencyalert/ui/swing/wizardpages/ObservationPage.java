@@ -22,6 +22,7 @@ import fri.servers.hiking.emergencyalert.util.DateUtil;
 public class ObservationPage extends AbstractWizardPage
 {
     private JTextArea consoleArea;
+    private boolean canClose = false;
     
     @Override
     protected AbstractWizardPage nextPage() {
@@ -34,10 +35,9 @@ public class ObservationPage extends AbstractWizardPage
         return false;
     }
     
-    /** @return false, exit only through "Home Again" button. */
     @Override
-    public boolean frameCanBeClosed() {
-        return false;
+    public boolean windowClosing() {
+        return canClose;
     }
     
     void setConsole(JTextArea consoleArea) {
@@ -75,6 +75,8 @@ Emergency alert mails will be sent starting from""");
             @Override
             public void actionPerformed(ActionEvent e) {
                 homeAgain.setForeground(Color.GREEN.darker().darker());
+                canClose = true;
+                
                 getData().getUserInterface().comingHome();
             }
         });

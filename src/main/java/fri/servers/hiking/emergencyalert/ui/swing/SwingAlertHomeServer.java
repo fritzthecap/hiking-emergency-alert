@@ -21,8 +21,6 @@ public class SwingAlertHomeServer extends SwingUserInterface
                 this);
         
         final JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // until ACTVATION
-        
         final HikeInputWizard hikeInputWizard = new HikeInputWizard(frame, stateMachine);
         frame.getContentPane().add(hikeInputWizard);
         
@@ -36,13 +34,5 @@ public class SwingAlertHomeServer extends SwingUserInterface
         frame.setSize(new Dimension(900, 600));
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-    }
-    
-    /** Called when clicking "Home Again", sets the frame close-able again. */
-    @Override
-    public void comingHome() {
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // enable window close again
-        
-        super.comingHome();
     }
 }
