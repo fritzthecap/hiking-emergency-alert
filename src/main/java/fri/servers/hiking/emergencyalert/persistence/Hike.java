@@ -19,6 +19,7 @@ public class Hike
     private Date plannedBegin; // timer starts here
     private Date plannedHome; // timer begins alerting here
     private Integer alertIntervalMinutes = 60; // alerting interval
+    private Float alertIntervalShrinking = 1.0f; // how the interval gets smaller over time
     private int confirmationPollingMinutes = 2; // confirmation polling interval
     private Alert alert;
     
@@ -52,6 +53,12 @@ public class Hike
     }
     public void setAlertIntervalMinutes(Integer messageIntervalMinutes) {
         this.alertIntervalMinutes = messageIntervalMinutes;
+    }
+    public Float getAlertIntervalShrinking() {
+        return alertIntervalShrinking;
+    }
+    public void setAlertIntervalShrinking(Float alertIntervalShrinking) {
+        this.alertIntervalShrinking = alertIntervalShrinking;
     }
     public int getConfirmationPollingMinutes() {
         return confirmationPollingMinutes;

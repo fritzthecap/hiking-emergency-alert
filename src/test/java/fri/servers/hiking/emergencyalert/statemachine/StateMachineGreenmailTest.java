@@ -54,7 +54,7 @@ class StateMachineGreenmailTest extends AbstractGreenmailTest
         };
         
         final StateMachine stateMachine = new StateMachine(hike, mailer, timer, user);
-        user.registerAlert(hike.getAlert()); // publish alert change
+        user.registerHike(hike); // publish alert change
         user.activateHike(hike); // publish hike change
         
         // from here on timer should spool further events, wait for stateMachine to terminate

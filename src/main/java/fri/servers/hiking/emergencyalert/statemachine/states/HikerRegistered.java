@@ -7,7 +7,7 @@ public class HikerRegistered extends AbstractState
 {
     @Override
     public AbstractState registration(Context context) {
-        context.updateAlert();
+        context.updateHike();
         return this; // just answer valid event
     }
     

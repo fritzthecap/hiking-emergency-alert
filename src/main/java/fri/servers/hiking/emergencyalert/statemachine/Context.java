@@ -6,9 +6,9 @@ import fri.servers.hiking.emergencyalert.mail.Mail;
 import fri.servers.hiking.emergencyalert.mail.MailException;
 import fri.servers.hiking.emergencyalert.mail.MailSendException;
 import fri.servers.hiking.emergencyalert.mail.Mailer;
-import fri.servers.hiking.emergencyalert.persistence.Alert;
 import fri.servers.hiking.emergencyalert.persistence.Contact;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.Validation;
 import fri.servers.hiking.emergencyalert.time.HikeTimer;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
@@ -22,7 +22,7 @@ public class Context
     private final StateMachine stateMachine;
     private final Mailer mailer;
     private final HikeTimer timer;
-    private final UserInterface user;
+    private final UserInterface userInterface;
     
     private Hike hike;
     private Event event;
@@ -35,11 +35,11 @@ public class Context
         this.stateMachine = Objects.requireNonNull(stateMachine);
         (this.mailer = Objects.requireNonNull(mailer)).stopConfirmationPolling();
         (this.timer = Objects.requireNonNull(timer)).stop(); // make sure it is not running due to crash
-        (this.user = Objects.requireNonNull(user)).setEventDispatcher(stateMachine);
+        (this.userInterface = Objects.requireNonNull(user)).setEventDispatcher(stateMachine);
     }
     
     protected Context(Context context) {
-        this(context.hike, context.stateMachine, context.mailer, context.timer, context.user);
+        this(context.hike, context.stateMachine, context.mailer, context.timer, context.userInterface);
     }
     
     /** StateMachine visible only. */
@@ -53,18 +53,26 @@ public class Context
 
     /** StateMachine received a parameter for pending event. */
     void setEventParameter(Object parameter) {
-        eventParameter = Objects.requireNonNull(parameter);
+        eventParameter = parameter;
     }
     
+    // exposing private fields
+    
+    /** @return null when StateMachine is already running, else the observed Hike. */
+    public Hike getHike() {
+        if (stateMachine.isRunning())
+            return null; // don't let change running data
+        return hike;
+    }
+    
+    /** @return the user interface. */
+    public UserInterface getUserInterface() {
+        return userInterface;
+    }
+    
+    // event methods
 
-    /** REGISTRATION, called when an registration-event arrives. */
-    public void updateAlert() {
-        final Alert updatedAlert = (Alert) Objects.requireNonNull(eventParameter);
-        hike.setAlert(updatedAlert);
-        System.out.println("Updated Alert.");
-    }
-    
-    /** ACTIVATION, called when an activation-event arrives. */
+    /** REGISTRATION, ACTIVATION, called when an registration- or activation-event arrives. */
     public void updateHike() {
         final Hike updatedHike = (Hike) Objects.requireNonNull(eventParameter);
         hike = updatedHike;
@@ -73,6 +81,8 @@ public class Context
     
     /** ACTIVATION, starts the timer that observes the planned hike times and fires time-events. */
     public void startHikeTimer() {
+        new Validation().assertHike(hike);
+        
         if (timer.isRunning())
             throw new IllegalStateException("Timer can be started just once!");
         
@@ -101,6 +111,7 @@ public class Context
         mailer.stopConfirmationPolling();
     }
     
+    /** @return true when timer is already running, i.e. ACTIVATION took place. */
     public boolean isRunning() {
         return timer.isRunning() || mailer.isPolling();
     }
@@ -153,7 +164,7 @@ public class Context
 
     /** ALERT_CONFIRMED, passes the alert-confirmation mail to user. */
     public void alertConfirmed() {
-        user.showConfirmMail((Mail) eventParameter);
+        userInterface.showConfirmMail((Mail) eventParameter);
     }
 
     

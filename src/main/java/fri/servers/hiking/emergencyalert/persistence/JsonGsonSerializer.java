@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonWriter;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 
@@ -47,9 +48,14 @@ public class JsonGsonSerializer<T>
     }
     
     /** De-serialize a Java-object from given JSON string. */
-    public T fromJson(String json, Class<? extends T> clazz) {
-        final Gson gson = gson();
-        return gson.fromJson(json, clazz);
+    public T fromJson(String json, Class<? extends T> clazz) throws IOException {
+        try {
+            final Gson gson = gson();
+            return gson.fromJson(json, clazz);
+        }
+        catch (JsonSyntaxException e) {
+            throw new IOException(e);
+        }
     }
     
     

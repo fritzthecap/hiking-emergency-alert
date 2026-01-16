@@ -1,6 +1,5 @@
 package fri.servers.hiking.emergencyalert.ui.swing;
 
-import java.awt.Component;
 import java.awt.Font;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -11,11 +10,11 @@ import fri.servers.hiking.emergencyalert.util.DateUtil;
 
 public class SwingUserInterface extends UserInterface
 {
-    private Component dialogParentWindow;
+    protected final JFrame frame;
     
     public SwingUserInterface() {
-        dialogParentWindow = buildUi();
-        interactiveAuthenticator = new InteractiveAuthenticator(dialogParentWindow);
+        frame = buildUi();
+        interactiveAuthenticator = new InteractiveAuthenticator(frame);
     }
     
     /**
@@ -41,7 +40,7 @@ public class SwingUserInterface extends UserInterface
         mailInfoComponent.setFont(new Font(Font.MONOSPACED, Font.BOLD, 15));
         
         JOptionPane.showMessageDialog(
-                dialogParentWindow, 
+                frame, 
                 mailInfoComponent, 
                 "Alert Confirmation Arrived", 
                 JOptionPane.INFORMATION_MESSAGE);

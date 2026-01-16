@@ -1,12 +1,11 @@
 package fri.servers.hiking.emergencyalert.apps;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Scanner;
 import fri.servers.hiking.emergencyalert.Version;
 import fri.servers.hiking.emergencyalert.mail.impl.MailerImpl;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.statemachine.Event;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
@@ -14,7 +13,6 @@ import fri.servers.hiking.emergencyalert.time.HikeTimer;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
 import fri.servers.hiking.emergencyalert.ui.swing.SwingAlertHomeServer;
 import fri.servers.hiking.emergencyalert.ui.swing.SwingUserInterface;
-import fri.servers.hiking.emergencyalert.util.Platform;
 
 /**
  * Application that should be started before you go on a hike.
@@ -53,12 +51,9 @@ public class AlertHomeServer
                     new AlertHomeServer(json.toString());
                 }
                 else {
-                    final Path jsonFile = Path.of(argument);
-                    if (Files.isRegularFile(jsonFile))
-                        new AlertHomeServer(Files
-                                .readString(jsonFile, Platform.CHARSET)
-                                .replace(Platform.NEWLINE, "\n")
-                            );
+                    final String json = new HikeFileManager().load(argument);
+                    if (json != null)
+                        new AlertHomeServer(json);
                     else
                         syntax("Error: not a file: "+argument);
                 }
@@ -78,28 +73,33 @@ public class AlertHomeServer
         System.out.println("    For JSON structure see Java-class Hike, which is the top of the data hierarchy.");
     }
     
-    // instance
     
     /** @param hikeJson JSON containing the hike to start, or null to run Swing UI. */
     public AlertHomeServer(String hikeJson) throws IOException {
-        System.out.println("Hiking-Emergency-Alert Version "+Version.get());
+        final String title = "Hiking-Emergency-Alert Version "+Version.get();
+        System.out.println(title);
         
         if (hikeJson == null)
-            new SwingAlertHomeServer().show();
+            new SwingAlertHomeServer().show(title);
+            // complete UserInterface to edit and run Hike
         else
-            startStateMachine(hikeJson);
+            run(hikeJson, new SwingUserInterface());
+            // minimal UserInterface with interactive password dialog
     }
-    
-    private void startStateMachine(String json) throws IOException {
+
+    /**
+     * @param hikeJson required, JSON containing Hike data.
+     * @param user at least a minimal UserInterface that will
+     *      serve as password authenticator and alert-confirmation notifier.
+     * @throws IOException when JSON is invalid.
+     */
+    private void run(String hikeJson, UserInterface user) throws IOException {
         // read hike data
-        final Hike hike = new JsonGsonSerializer<Hike>().fromJson(json, Hike.class);
-        
-        // build a UserInterface with interactive password dialog
-        final UserInterface user = new SwingUserInterface();
+        final Hike hike = new JsonGsonSerializer<Hike>().fromJson(hikeJson, Hike.class);
         
         // configure and start a StateMachine
         final StateMachine stateMachine = new StateMachine(hike, new MailerImpl(), new HikeTimer(), user);
-        stateMachine.dispatchEvent(Event.REGISTRATION, hike.getAlert());
+        stateMachine.dispatchEvent(Event.REGISTRATION, hike);
         stateMachine.dispatchEvent(Event.ACTIVATION, hike); // starts timer
         
         // app ends when last timer-thread terminates, 

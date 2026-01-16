@@ -3,7 +3,6 @@ package fri.servers.hiking.emergencyalert.statemachine;
 import java.util.Objects;
 import fri.servers.hiking.emergencyalert.mail.Mailer;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
-import fri.servers.hiking.emergencyalert.persistence.Validation;
 import fri.servers.hiking.emergencyalert.statemachine.states.AlertConfirmed;
 import fri.servers.hiking.emergencyalert.statemachine.states.HikerRegistered;
 import fri.servers.hiking.emergencyalert.statemachine.states.HomeAgain;
@@ -43,7 +42,6 @@ public class StateMachine implements
      * @param timer maintains planned time-events of the hike.
      */
     public StateMachine(Hike hike, Mailer mailer, HikeTimer timer, UserInterface user) {
-        new Validation().assertHike(hike);
         Objects.requireNonNull(user).setEventDispatcher(this);
         context = newContext(hike, this, mailer, timer, user);
     }
@@ -78,11 +76,23 @@ public class StateMachine implements
         return new Context(hike, stateMachine, mailer, timer, user);
     }
     
+    /** @return the current state. */
     public final AbstractState getState() {
         return state;
     }
     
-    public boolean isRunning() {
+    /** @return null when StateMachine is already running, else the observed Hike. */
+    public final Hike getHike() {
+        return context.getHike();
+    }
+    
+    /** @return the user interface. */
+    public final UserInterface getUserInterface() {
+        return context.getUserInterface();
+    }
+    
+    /** @return true when timer is already running, i.e. ACTIVATION took place. */
+    public final boolean isRunning() {
         return context.isRunning();
     }
 }

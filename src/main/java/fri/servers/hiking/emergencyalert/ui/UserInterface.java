@@ -2,7 +2,6 @@ package fri.servers.hiking.emergencyalert.ui;
 
 import java.util.Objects;
 import fri.servers.hiking.emergencyalert.mail.Mail;
-import fri.servers.hiking.emergencyalert.persistence.Alert;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.Event;
 import jakarta.mail.Authenticator;
@@ -46,11 +45,11 @@ public abstract class UserInterface
     public abstract void showConfirmMail(Mail alertConfirmationMail);
     
     /** Gives the StateMachine the hiker's personal data. */
-    public void registerAlert(Alert alert) {
-        eventDispatcher.dispatchEvent(Event.REGISTRATION, alert);
+    public void registerHike(Hike hike) {
+        eventDispatcher.dispatchEvent(Event.REGISTRATION, hike);
     }
     
-    /** Gives the StateMachine the hike-data. */
+    /** Gives the StateMachine the hike-data and starts timer. */
     public void activateHike(Hike hike) {
         eventDispatcher.dispatchEvent(Event.ACTIVATION, hike);
     }

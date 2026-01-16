@@ -1,13 +1,14 @@
 package fri.servers.hiking.emergencyalert.persistence;
 
 import static org.junit.jupiter.api.Assertions.*;
+import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 /** Test for the library "Gson". */
 class GsonSerializationTest extends AbstractJsonSerializationTest
 {
     @Test
-    void javaJsonRoundTripShouldWork() {
+    void javaJsonRoundTripShouldWork() throws IOException {
         final Hike hike = buildTestHike();
         
         final String uniqueMailId = hike.uniqueMailId;
