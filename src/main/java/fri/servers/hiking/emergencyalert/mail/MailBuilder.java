@@ -99,7 +99,8 @@ public class MailBuilder
             }
             textBuilder.append("\n");
         }
-        textBuilder.append("Route:\n"+hike.getRoute()+"\n");
+        if (hike.getRoute() != null)
+            textBuilder.append("Route:\n"+hike.getRoute()+"\n");
         footer(hike, textBuilder);
         
         return textBuilder.toString();
@@ -127,11 +128,11 @@ public class MailBuilder
 
     private void footer(Hike hike, final StringBuilder sb) {
         sb.append("\n----------------------------------------\n");
-        sb.append(hike.getAlert().getHikerContact().getFirstName()+" "+
-                hike.getAlert().getHikerContact().getLastName()+"\n");
+        sb.append(hike.getAlert().getNameOfHiker()+"\n");
         if (isEmpty(hike.getAlert().getAddressOfHiker()) == false)
             sb.append(hike.getAlert().getAddressOfHiker()+"\n");
-        sb.append(hike.getAlert().getHikerContact().getMailAddress());
+        if (isEmpty(hike.getAlert().getMailOfHiker()) == false)
+            sb.append(hike.getAlert().getMailOfHiker());
         sb.append("\n----------------------------------------\n");
         sb.append("Sent by Hiking-Emergency-Alert automaton version "+Version.get());
     }

@@ -8,7 +8,6 @@ import fri.servers.hiking.emergencyalert.mail.Mail;
 import fri.servers.hiking.emergencyalert.mail.MailException;
 import fri.servers.hiking.emergencyalert.mail.MailSendException;
 import fri.servers.hiking.emergencyalert.mail.Mailer;
-import fri.servers.hiking.emergencyalert.persistence.Alert;
 import fri.servers.hiking.emergencyalert.persistence.Contact;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
@@ -25,7 +24,7 @@ class StateMachineFakeMailTest
     void numberAndContentOfSentMails() throws Exception {
         final Hike hike = TestData.newHike();
         hike.setRouteImages(null); // attachment file would not be found
-        final List<Contact> contacts = hike.getAlert().getHikerContact().getAlertContacts();
+        final List<Contact> contacts = hike.getAlert().getAlertContacts();
         final int numberOfContacts = contacts.size();
         
         final List<Mail> sentMails = new ArrayList<>(); // collect sent mails
@@ -44,6 +43,7 @@ class StateMachineFakeMailTest
         
         // simulate user-changes during running state-machine
         final Hike changedHike = TestData.newHike();
+        changedHike.setRouteImages(null); // attachment file would not be found
         
         // do not change number of contacts, see numberOfContacts above!
         changedHike.getAlert().setAddressOfHiker("Walkerstreet 1, D-1234 Walkertown, Germany");

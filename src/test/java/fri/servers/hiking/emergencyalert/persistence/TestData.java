@@ -58,25 +58,17 @@ public class TestData
         final Alert alert = new Alert();
         alert.setHelpRequestTitle(helpRequestTitle);
         alert.setHelpRequestText(helpRequestText);
-        alert.setAddressOfHiker(addressOfHiker);
         alert.setProcedureTodos(List.of(procedureTodos));
         alert.setPassingToNextText(passingToNextText);
+        alert.setMailOfHiker("me.myself@alert.org");
+        alert.setNameOfHiker("Me Myself");
+        alert.setAddressOfHiker(addressOfHiker);
         
-        final Contact hikerContact = buildHikerContact();
-        hikerContact.setAlertContacts(buildAlertContacts());
-        alert.setHikerContact(hikerContact);
+        alert.setAlertContacts(buildAlertContacts());
         
         alert.setMailConfiguration(buildMailConfiguration());
         
         return alert;
-    }
-    
-    private Contact buildHikerContact() {
-        final Contact hikerContact = new Contact();
-        hikerContact.setFirstName("Me");
-        hikerContact.setLastName("Myself");
-        hikerContact.setMailAddress("me.myself@alert.org");
-        return hikerContact;
     }
 
     private List<Contact> buildAlertContacts() {

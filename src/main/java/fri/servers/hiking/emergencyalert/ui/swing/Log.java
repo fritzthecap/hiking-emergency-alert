@@ -7,7 +7,7 @@ import javax.swing.JTextArea;
 
 public final class Log 
 {
-    public static void redirectOutAndErrStreams(final JTextArea outputArea) {
+    public static void redirectOutAndErr(final JTextArea outputArea) {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream() {
             @Override
             public void flush() throws IOException {

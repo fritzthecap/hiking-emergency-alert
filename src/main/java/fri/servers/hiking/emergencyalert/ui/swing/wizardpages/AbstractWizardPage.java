@@ -14,6 +14,7 @@ import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 public abstract class AbstractWizardPage extends JPanel
 {
     private StateMachine stateMachine;
+    private AbstractWizardPage nextPage;
     private AbstractWizardPage previousPage;
 
     /** Constructor visible to sub-classes only. */
@@ -46,15 +47,17 @@ public abstract class AbstractWizardPage extends JPanel
     
     /** @return true when there is a next page to this. */
     public boolean hasNextPage() {
-        return nextPage() != null;
+        if (nextPage != null)
+            return true;
+        return (nextPage = nextPage()) != null;
     }
     
     /** @return the next wizard page on "Next" button click. */
     public AbstractWizardPage getNextPage() {
-        final AbstractWizardPage nextPage = nextPage();
-        if (nextPage != null)
-            nextPage.setData(stateMachine).setPreviousPage(this); // pass this' data to next page
-        return nextPage;
+        final AbstractWizardPage next = (nextPage != null) ? nextPage : nextPage();
+        if (next != null)
+            next.setData(stateMachine).setPreviousPage(this); // pass this' data to next page
+        return next;
     }
 
     /** @return true when there is a previous page to this. */

@@ -81,7 +81,7 @@ public class StateMachine implements
         return state;
     }
     
-    /** @return null when StateMachine is already running, else the observed Hike. */
+    /** @return the observed Hike. */
     public final Hike getHike() {
         return context.getHike();
     }

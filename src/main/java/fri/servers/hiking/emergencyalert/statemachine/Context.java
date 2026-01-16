@@ -10,6 +10,7 @@ import fri.servers.hiking.emergencyalert.persistence.Contact;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.persistence.Validation;
 import fri.servers.hiking.emergencyalert.time.HikeTimer;
+import fri.servers.hiking.emergencyalert.time.IntervalModel;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 
@@ -58,10 +59,8 @@ public class Context
     
     // exposing private fields
     
-    /** @return null when StateMachine is already running, else the observed Hike. */
+    /** @return the observed Hike. */
     public Hike getHike() {
-        if (stateMachine.isRunning())
-            return null; // don't let change running data
         return hike;
     }
     
@@ -100,7 +99,7 @@ public class Context
         timer.start(
                 hike.getPlannedBegin(),
                 hike.getPlannedHome(), 
-                hike.getAlertIntervalMinutes(),
+                new IntervalModel(hike),
                 stateMachine);
     }
 
@@ -130,14 +129,13 @@ public class Context
     public void sendAlertMessage() {
         final boolean isFirstCall = (contactIndex == 0);
         
-        final List<Contact> alertContacts = hike.getAlert().getHikerContact().getAlertContacts();
+        final List<Contact> alertContacts = hike.getAlert().getAlertContacts();
         // search next non-absent contact
         while (contactIndex < alertContacts.size() && alertContacts.get(contactIndex).isAbsent())
             contactIndex++;
         
         if (alertContacts.size() > contactIndex) { // having a next non-absent contact
             final Contact previousContact = (isFirstCall == false) ? alertContacts.get(contactIndex - 1) : null;
-            
             final Contact currentContact = alertContacts.get(contactIndex);
             
             if (sendAlertMessage(currentContact)) { // mail sending worked

@@ -24,8 +24,8 @@ public class HikeTimer extends Scheduler
     }
     
     private EventDispatcher dispatcher;
+    private IntervalModel intervalModel;
     
-    private int messageIntervalMinutes;
     private Date nextOverdueAlertTime;
     
     /**
@@ -33,14 +33,21 @@ public class HikeTimer extends Scheduler
      * This can be called just once!
      * @param plannedBegin the planned start date/time from Hike.
      * @param plannedHome the planned end date/time from Hike
-     * @param messageIntervalMinutes the amount of minutes that
+     * @param alertIntervalMinutes the amount of minutes that
      *      should be waited until the next contact gets messaged.
+     * @param alertIntervalShrinking between 0.3 and 1.0,
+     *      after every alert this will be applied on alertIntervalMinutes.
      */
-    public void start(final Date plannedBegin, final Date plannedHome, int messageIntervalMinutes, EventDispatcher eventDispatcher) {
-        assertStart(plannedBegin, plannedHome, messageIntervalMinutes); // excludes nulls
+    public void start(
+            final Date plannedBegin, 
+            final Date plannedHome, 
+            IntervalModel intervalModel,
+            EventDispatcher eventDispatcher)
+    {
+        assertStart(plannedBegin, plannedHome); // excludes nulls
         
         this.nextOverdueAlertTime = plannedHome;
-        this.messageIntervalMinutes = messageIntervalMinutes;
+        this.intervalModel = intervalModel;
         this.dispatcher = Objects.requireNonNull(eventDispatcher);
         
         final TimerTask settingOff = new TimerTask() {
@@ -81,7 +88,7 @@ public class HikeTimer extends Scheduler
     }
     
     
-    private void assertStart(Date plannedBegin, Date plannedHome, long messageIntervalMinutes) {
+    private void assertStart(Date plannedBegin, Date plannedHome) {
         if (isRunning())
             throw new IllegalStateException(
                 "Timer is running, can not start again, start-events on a running StateMachine would cause errors!");
@@ -90,19 +97,18 @@ public class HikeTimer extends Scheduler
         
         if (Objects.requireNonNull(plannedHome).before(DateUtil.now()))
             throw new IllegalArgumentException("Planned home-time is before current time: "+plannedHome);
-        
-        if (messageIntervalMinutes <= 0)
-            throw new IllegalArgumentException("Invalid messageIntervalMinutes: "+messageIntervalMinutes);
     }
     
     private TimerTask createOverdueTask() {
         return new TimerTask() {
             @Override
             public void run() {
+                // send an alert
                 dispatcher.dispatchEvent(Event.OVERDUE_ALERT);
                 
+                // schedule next alert
                 synchronizedOnScheduler(scheduler -> {
-                    nextOverdueAlertTime = DateUtil.addMinutes(nextOverdueAlertTime, messageIntervalMinutes);
+                    nextOverdueAlertTime = DateUtil.addMinutes(nextOverdueAlertTime, intervalModel.nextIntervalMinutes());
                     scheduler.schedule(createOverdueTask(), nextOverdueAlertTime);
                 });
             }

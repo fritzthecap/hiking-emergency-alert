@@ -17,13 +17,13 @@ import jakarta.mail.PasswordAuthentication;
 import jakarta.mail.Session;
 
 /** Overrides all mail Session allocations. Uses the given timer for polling. */
-public class GreenmaiTestMailer extends MailerImpl
+public class GreenmailTestMailer extends MailerImpl
 {
     private final String user;
     private final String password;
     private final Timer pollingTimer;
     
-    public GreenmaiTestMailer(String user, String password, Timer pollingTimer) {
+    public GreenmailTestMailer(String user, String password, Timer pollingTimer) {
         this.user = user;
         this.password = password;
         this.pollingTimer = pollingTimer;

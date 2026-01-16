@@ -30,17 +30,16 @@ class AbstractJsonSerializationTest extends TestData
     }
     
     protected void assertTestAlert(Alert alert, Alert alertFromJson) {
-        assertEquals(alert.getAddressOfHiker(), alertFromJson.getAddressOfHiker());
         assertEquals(alert.getHelpRequestText(), alertFromJson.getHelpRequestText());
         assertEquals(alert.getProcedureTodos(), alertFromJson.getProcedureTodos());
         assertEquals(alert.getPassingToNextText(), alertFromJson.getPassingToNextText());
         
-        assertEquals(alert.getHikerContact().getFirstName(), alertFromJson.getHikerContact().getFirstName());
-        assertEquals(alert.getHikerContact().getLastName(), alertFromJson.getHikerContact().getLastName());
-        assertEquals(alert.getHikerContact().getMailAddress(), alertFromJson.getHikerContact().getMailAddress());
+        assertEquals(alert.getNameOfHiker(), alertFromJson.getNameOfHiker());
+        assertEquals(alert.getMailOfHiker(), alertFromJson.getMailOfHiker());
+        assertEquals(alert.getAddressOfHiker(), alertFromJson.getAddressOfHiker());
         
-        final List<Contact> alertContacts = alert.getHikerContact().getAlertContacts();
-        final List<Contact> alertContactsFromJson = alertFromJson.getHikerContact().getAlertContacts();
+        final List<Contact> alertContacts = alert.getAlertContacts();
+        final List<Contact> alertContactsFromJson = alertFromJson.getAlertContacts();
         assertEquals(alertContacts.size(), alertContactsFromJson.size());
         
         for (int i = 0; i < alertContacts.size(); i++) {

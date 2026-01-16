@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.Event;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 
@@ -48,8 +49,13 @@ class HikeTimerTest
             }
         };
         
+        final Hike hike = new Hike();
+        hike.setAlertIntervalMinutes(OVERDUE_ALERT_MINUTES);
+        hike.setAlertIntervalShrinking(1.0f);
+        hike.setUseContactDetectionMinutes(Boolean.FALSE);
+        
         System.err.println("This is a test lasting "+TEST_MINUTES+" minutes! Starting timer at "+DateUtil.now());
-        timer.start(plannedBegin, plannedHome, OVERDUE_ALERT_MINUTES, dispatcher);
+        timer.start(plannedBegin, plannedHome, new IntervalModel(hike), dispatcher);
         
         while (timer.isRunning()) // wait for timer background thread to be stopped
             Thread.sleep(1000);

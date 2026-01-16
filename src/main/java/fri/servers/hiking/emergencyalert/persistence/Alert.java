@@ -1,5 +1,6 @@
 package fri.servers.hiking.emergencyalert.persistence;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Alert
@@ -8,9 +9,14 @@ public class Alert
     private String helpRequestText;
     private List<String> procedureTodos;
     private String passingToNextText;
+    
+    private String mailOfHiker;
+    private String nameOfHiker;
     private String addressOfHiker;
-    private Contact hikerContact;
-    private MailConfiguration mailConfiguration;
+    
+    private List<Contact> alertContacts = new ArrayList<>();
+
+    private MailConfiguration mailConfiguration = new MailConfiguration();
     
     public String getHelpRequestTitle() {
         return helpRequestTitle;
@@ -36,22 +42,34 @@ public class Alert
     public void setPassingToNextText(String passingToNextText) {
         this.passingToNextText = passingToNextText;
     }
+    public String getMailOfHiker() {
+        return mailOfHiker;
+    }
+    public void setMailOfHiker(String mailOfHiker) {
+        this.mailOfHiker = mailOfHiker;
+    }
+    public String getNameOfHiker() {
+        return nameOfHiker;
+    }
+    public void setNameOfHiker(String nameOfHiker) {
+        this.nameOfHiker = nameOfHiker;
+    }
     public String getAddressOfHiker() {
         return addressOfHiker;
     }
     public void setAddressOfHiker(String addressOfHiker) {
         this.addressOfHiker = addressOfHiker;
     }
-    public Contact getHikerContact() {
-        return hikerContact;
-    }
-    public void setHikerContact(Contact hikerContact) {
-        this.hikerContact = hikerContact;
-    }
     public MailConfiguration getMailConfiguration() {
         return mailConfiguration;
     }
     public void setMailConfiguration(MailConfiguration mailConfiguration) {
         this.mailConfiguration = mailConfiguration;
+    }
+    public List<Contact> getAlertContacts() {
+        return alertContacts;
+    }
+    public void setAlertContacts(List<Contact> alertContacts) {
+        this.alertContacts = alertContacts;
     }
 }

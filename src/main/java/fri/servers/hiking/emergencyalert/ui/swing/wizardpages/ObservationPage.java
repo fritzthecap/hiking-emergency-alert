@@ -49,9 +49,9 @@ public class ObservationPage extends AbstractWizardPage
         
         final String instructions = i18n("""
 This window can be closed only by stopping the hike observation!
-Click the 'Home Again' button as soon as you retun from your hike.
+Click the 'Home Again' button as soon as you return from your hike.
 Emergency alert mails will be sent starting from""");
-        final JTextArea instructionsArea = new JTextArea(instructions+formatHikeEndDate());
+        final JTextArea instructionsArea = new JTextArea(instructions+" "+formatHikeEndDate());
         instructionsArea.setBorder(BorderFactory.createEmptyBorder(SPACE, SPACE, SPACE, SPACE));
         instructionsArea.setEditable(false);
         instructionsArea.setOpaque(false);
@@ -60,6 +60,7 @@ Emergency alert mails will be sent starting from""");
         final JTextArea consoleArea = new JTextArea();
         consoleArea.setEditable(false);
         add(new JScrollPane(consoleArea), BorderLayout.CENTER);
+        Log.redirectOutAndErr(consoleArea);
         
         final JButton homeAgain = new JButton(i18n("Home Again"));
         homeAgain.setForeground(Color.RED);
@@ -71,8 +72,6 @@ Emergency alert mails will be sent starting from""");
         buttonPanel.add(homeAgain);
         
         add(buttonPanel, BorderLayout.SOUTH);
-        
-        Log.redirectOutAndErrStreams(consoleArea);
         
         homeAgain.addActionListener(new ActionListener() {
             @Override

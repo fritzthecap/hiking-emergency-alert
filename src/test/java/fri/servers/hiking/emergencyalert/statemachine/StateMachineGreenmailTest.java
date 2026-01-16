@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import fri.servers.hiking.emergencyalert.mail.AbstractGreenmailTest;
-import fri.servers.hiking.emergencyalert.mail.GreenmaiTestMailer;
+import fri.servers.hiking.emergencyalert.mail.GreenmailTestMailer;
 import fri.servers.hiking.emergencyalert.mail.Mail;
 import fri.servers.hiking.emergencyalert.mail.MailBuilder;
 import fri.servers.hiking.emergencyalert.mail.Mailer;
@@ -39,7 +39,7 @@ class StateMachineGreenmailTest extends AbstractGreenmailTest
         final Hike hike = TestData.newHike();
         hike.setRouteImages(null); // attachment file would not be found
         
-        final Mailer mailer = new GreenmaiTestMailer(
+        final Mailer mailer = new GreenmailTestMailer(
                 MAIL_USER, 
                 MAIL_PASSWORD, 
                 new ImpatientTimer().newTimer()); // must be another instance than HikeTimer!
@@ -67,7 +67,7 @@ class StateMachineGreenmailTest extends AbstractGreenmailTest
     private void assertResults(Hike hike) throws MessagingException, IOException {
         final MimeMessage[] receivedMails = greenMail.getReceivedMessages();
         
-        final List<Contact> alertContacts = hike.getAlert().getHikerContact().getAlertContacts();
+        final List<Contact> alertContacts = hike.getAlert().getAlertContacts();
         final int expectedMails = (alertContacts.size() + 1); // plus 1 passing-to-next mail
         assertEquals(expectedMails, receivedMails.length);
         

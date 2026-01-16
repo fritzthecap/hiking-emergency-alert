@@ -25,13 +25,9 @@ public class Validation
                     "The hike's planned begin at "+DateUtil.toString(hike.getPlannedBegin())+
                     " is not before end at "+DateUtil.toString(hike.getPlannedHome()));
             
-        if (StringUtil.isEmpty(hike.getAlert().getHikerContact().getMailAddress()))
-            throw new IllegalArgumentException(
-                    "Having no mail address of hiker!");
-        
         int nonAbsentCount = 0;
-        for (Contact contact : hike.getAlert().getHikerContact().getAlertContacts())
-            if (contact.isAbsent() == false)
+        for (Contact contact : hike.getAlert().getAlertContacts())
+            if ( ! contact.isAbsent() )
                 nonAbsentCount++;
         
         if (nonAbsentCount <= 0)

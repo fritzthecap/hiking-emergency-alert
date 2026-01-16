@@ -3,25 +3,34 @@ package fri.servers.hiking.emergencyalert.persistence;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import fri.servers.hiking.emergencyalert.util.DateUtil;
 
 /** Top of the hiking data hierarchy. */
 public class Hike
 {
     /** 
-     * Will be in mail text, identifies mails referring to a certain Hike.
+     * MAIL-ID, will be in mail text, identifies mails referring to a certain Hike.
      * Would be something like "ace5f4c0-b02b-4d8c-acc9-0bb7e8702560" (length 36).
      * Is transient to avoid GSON serialization and deserialization.
      */
     public final transient String uniqueMailId = UUID.randomUUID().toString();
 
+    /** Date-oriented suggestion for plannedBegin and PlannedHome. */
+    private final transient Date todayAtZero = DateUtil.eraseHours(new Date());
+    
     private String route; // description text
     private List<String> routeImages; // paths of image files
-    private Date plannedBegin; // timer starts here
-    private Date plannedHome; // timer begins alerting here
+    
+    private Date plannedBegin = todayAtZero; // timer starts here
+    private Date plannedHome = todayAtZero; // timer begins alerting here
+    
     private Integer alertIntervalMinutes = 60; // alerting interval
     private Float alertIntervalShrinking = 1.0f; // how the interval gets smaller over time
+    private Boolean useContactDetectionMinutes = Boolean.FALSE;
+    
     private int confirmationPollingMinutes = 2; // confirmation polling interval
-    private Alert alert;
+    
+    private Alert alert = new Alert();
     
     public String getRoute() {
         return route;
@@ -59,6 +68,12 @@ public class Hike
     }
     public void setAlertIntervalShrinking(Float alertIntervalShrinking) {
         this.alertIntervalShrinking = alertIntervalShrinking;
+    }
+    public Boolean isUseContactDetectionMinutes() {
+        return useContactDetectionMinutes;
+    }
+    public void setUseContactDetectionMinutes(Boolean useContactDetectionMinutes) {
+        this.useContactDetectionMinutes = useContactDetectionMinutes;
     }
     public int getConfirmationPollingMinutes() {
         return confirmationPollingMinutes;

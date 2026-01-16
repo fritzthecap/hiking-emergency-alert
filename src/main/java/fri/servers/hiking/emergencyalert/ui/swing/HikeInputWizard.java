@@ -82,12 +82,12 @@ public class HikeInputWizard extends JPanel
             }
         });
         
-        final JPanel grid = new JPanel(new GridLayout(1, 2, 12, 0)); // give buttons same size
+        final JPanel grid = new JPanel(new GridLayout(1, 2, 12, 0)); // gives buttons same size
         grid.add(previousButton);
         grid.add(nextButton);
         
-        final JPanel panel = new JPanel(new FlowLayout()); // center buttons
-        final int SPACE = 14;
+        final JPanel panel = new JPanel(new FlowLayout()); // centers buttons
+        final int SPACE = 10;
         panel.setBorder(BorderFactory.createEmptyBorder(SPACE, SPACE, SPACE, SPACE));
         panel.add(grid);
         

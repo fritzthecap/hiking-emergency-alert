@@ -1,14 +1,12 @@
 package fri.servers.hiking.emergencyalert.persistence;
 
-import java.util.List;
-
 public class Contact
 {
     private String mailAddress;
     private String firstName;
     private String lastName;
-    private Boolean absent = Boolean.FALSE;
-    private List<Contact> alertContacts; // children
+    private Boolean absent = Boolean.FALSE; // will be ignored on mail sending
+    private int detectionMinutes = 60; // how long this person needs to detect a mail
     
     public String getMailAddress() {
         return mailAddress;
@@ -28,16 +26,16 @@ public class Contact
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-    public List<Contact> getAlertContacts() {
-        return alertContacts;
-    }
-    public void setAlertContacts(List<Contact> alertContacts) {
-        this.alertContacts = alertContacts;
-    }
     public Boolean isAbsent() {
         return absent;
     }
     public void setAbsent(Boolean absent) {
         this.absent = absent;
+    }
+    public int getDetectionMinutes() {
+        return detectionMinutes;
+    }
+    public void setDetectionMinutes(int detectionMinutes) {
+        this.detectionMinutes = detectionMinutes;
     }
 }
