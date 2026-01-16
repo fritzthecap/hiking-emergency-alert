@@ -21,7 +21,7 @@ import fri.servers.hiking.emergencyalert.ui.swing.wizardpages.LanguagePage;
 import fri.servers.hiking.emergencyalert.ui.swing.wizardpages.MailConfigurationPage;
 
 /**
- * Lets write and edit <code>Alert</code> and <code>Hike</code> data.
+ * Lets edit <code>Hike</code> data and then start that hike.
  */
 public class HikeInputWizard extends JPanel
 {

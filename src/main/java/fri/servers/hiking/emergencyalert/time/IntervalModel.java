@@ -19,11 +19,10 @@ public class IntervalModel
         this.alertIntervalShrinking = hike.getAlertIntervalShrinking();
         this.contactDetectionMinutes = new ArrayList<>();
         
-        for (Contact contact : hike.getAlert().getAlertContacts())
-            if ( ! contact.isAbsent() )
-                contactDetectionMinutes.add((contact.getDetectionMinutes() > 0)
-                        ? contact.getDetectionMinutes()
-                        : alertIntervalMinutes);
+        for (Contact contact : hike.getAlert().getNonAbsentContacts())
+            contactDetectionMinutes.add((contact.getDetectionMinutes() > 0)
+                    ? contact.getDetectionMinutes()
+                    : alertIntervalMinutes);
         
         this.useContactDetectionMinutes = hike.isUseContactDetectionMinutes();
     }

@@ -128,14 +128,10 @@ public class Context
      */
     public void sendAlertMessage() {
         final boolean isFirstCall = (contactIndex == 0);
-        
-        final List<Contact> alertContacts = hike.getAlert().getAlertContacts();
-        // search next non-absent contact
-        while (contactIndex < alertContacts.size() && alertContacts.get(contactIndex).isAbsent())
-            contactIndex++;
+        final List<Contact> alertContacts = hike.getAlert().getNonAbsentContacts();
         
         if (alertContacts.size() > contactIndex) { // having a next non-absent contact
-            final Contact previousContact = (isFirstCall == false) ? alertContacts.get(contactIndex - 1) : null;
+            final Contact previousContact = (isFirstCall ? null : alertContacts.get(contactIndex - 1));
             final Contact currentContact = alertContacts.get(contactIndex);
             
             if (sendAlertMessage(currentContact)) { // mail sending worked

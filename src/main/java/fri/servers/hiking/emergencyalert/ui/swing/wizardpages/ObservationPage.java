@@ -13,7 +13,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
-import fri.servers.hiking.emergencyalert.ui.swing.Log;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 
 /**
@@ -22,14 +21,11 @@ import fri.servers.hiking.emergencyalert.util.DateUtil;
  */
 public class ObservationPage extends AbstractWizardPage
 {
+    private JTextArea consoleArea;
+    
     @Override
     protected AbstractWizardPage nextPage() {
         return null; // makes "Next" button disabled
-    }
-    
-    @Override
-    protected void populateUi(Hike hike) {
-        buildUi();
     }
     
     /** @return false, don't let go to "Previous" page. */
@@ -44,7 +40,12 @@ public class ObservationPage extends AbstractWizardPage
         return false;
     }
     
-    private void buildUi() {
+    void setConsole(JTextArea consoleArea) {
+        this.consoleArea = consoleArea;
+    }
+    
+    @Override
+    protected void populateUi(Hike hike) {
         final int SPACE = 16;
         
         final String instructions = i18n("""
@@ -57,10 +58,7 @@ Emergency alert mails will be sent starting from""");
         instructionsArea.setOpaque(false);
         add(instructionsArea, BorderLayout.NORTH);
         
-        final JTextArea consoleArea = new JTextArea();
-        consoleArea.setEditable(false);
         add(new JScrollPane(consoleArea), BorderLayout.CENTER);
-        Log.redirectOutAndErr(consoleArea);
         
         final JButton homeAgain = new JButton(i18n("Home Again"));
         homeAgain.setForeground(Color.RED);

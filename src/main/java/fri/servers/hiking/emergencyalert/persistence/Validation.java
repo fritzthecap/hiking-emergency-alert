@@ -25,12 +25,7 @@ public class Validation
                     "The hike's planned begin at "+DateUtil.toString(hike.getPlannedBegin())+
                     " is not before end at "+DateUtil.toString(hike.getPlannedHome()));
             
-        int nonAbsentCount = 0;
-        for (Contact contact : hike.getAlert().getAlertContacts())
-            if ( ! contact.isAbsent() )
-                nonAbsentCount++;
-        
-        if (nonAbsentCount <= 0)
+        if (hike.getAlert().getNonAbsentContacts().size() <= 0)
             throw new IllegalArgumentException(
                     "Having no contacts to notify about accident, either all are absent or list is empty!");
             

@@ -72,4 +72,12 @@ public class Alert
     public void setAlertContacts(List<Contact> alertContacts) {
         this.alertContacts = alertContacts;
     }
+    
+    public List<Contact> getNonAbsentContacts() {
+        final List<Contact> nonAbsent = new ArrayList<>();
+        for (Contact contact : alertContacts)
+            if ( ! contact.isAbsent() )
+                nonAbsent.add(contact);
+        return nonAbsent;
+    }
 }
