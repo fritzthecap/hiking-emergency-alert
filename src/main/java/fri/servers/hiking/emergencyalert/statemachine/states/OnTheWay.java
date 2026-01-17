@@ -2,14 +2,12 @@ package fri.servers.hiking.emergencyalert.statemachine.states;
 
 import fri.servers.hiking.emergencyalert.statemachine.AbstractState;
 import fri.servers.hiking.emergencyalert.statemachine.Context;
-import fri.servers.hiking.emergencyalert.util.DateUtil;
 
 public class OnTheWay extends AbstractState
 {
     @Override
     public AbstractState comingHome(Context context) {
-        context.stop();
-        System.out.println("You are back, congratulations to this successful hike! It is "+DateUtil.nowString());
+        context.comingHomeInTime();
         return new HomeAgain();
     }
     

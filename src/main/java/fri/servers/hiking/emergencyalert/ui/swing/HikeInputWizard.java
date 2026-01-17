@@ -21,6 +21,7 @@ import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.ui.swing.wizardpages.AbstractWizardPage;
 import fri.servers.hiking.emergencyalert.ui.swing.wizardpages.LanguagePage;
 import fri.servers.hiking.emergencyalert.ui.swing.wizardpages.MailConfigurationPage;
+import fri.servers.hiking.emergencyalert.ui.swing.wizardpages.ObservationPage;
 
 /**
  * Lets edit <code>Hike</code> data and then start that hike.
@@ -54,6 +55,15 @@ public class HikeInputWizard extends JPanel
         });
     }
 
+    /**
+     * UserInterface received the alert confirmation mail notification.
+     * ObservationPage must change its state now.
+     * A dialog rendering the mail will be shown afterwards by calling class.
+     */
+    public void alertConfirmed() {
+        ((ObservationPage) page).alertConfirmed();
+    }
+
     private void buildUi() {
         final String defaultHikeJson = readDefaultHikeJson();
         if (defaultHikeJson != null) {
@@ -80,20 +90,19 @@ public class HikeInputWizard extends JPanel
     
     private JPanel buildButtonBar() {
         this.previousButton = new JButton("< "+i18n("Previous"));
-        previousButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setPage(page.getPreviousPage());
-            }
-        });
-        
         this.nextButton = new JButton(i18n("Next")+" >");
-        nextButton.addActionListener(new ActionListener() {
+        final ActionListener skipListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setPage(page.getNextPage());
+                final AbstractWizardPage newPage = (e.getSource() == nextButton)
+                        ? page.getNextPage()
+                        : page.getPreviousPage();
+                if (newPage != null)
+                    setPage(newPage);
             }
-        });
+        };
+        previousButton.addActionListener(skipListener);
+        nextButton.addActionListener(skipListener);
         
         final JPanel grid = new JPanel(new GridLayout(1, 2, 12, 0)); // gives buttons same size
         grid.add(previousButton);

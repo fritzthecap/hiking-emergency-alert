@@ -3,7 +3,6 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizardpages;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
@@ -16,6 +15,7 @@ public abstract class AbstractWizardPage extends JPanel
     private StateMachine stateMachine;
     private AbstractWizardPage nextPage;
     private AbstractWizardPage previousPage;
+    private boolean builtUi;
 
     /** Constructor visible to sub-classes only. */
     protected AbstractWizardPage() {
@@ -29,8 +29,12 @@ public abstract class AbstractWizardPage extends JPanel
     }
     
     /** Required post-constructor call! */
-    public AbstractWizardPage setData(StateMachine stateMachine) {
+    public final AbstractWizardPage setData(StateMachine stateMachine) {
         this.stateMachine = stateMachine;
+        if (builtUi == false) {
+            buildUi();
+            builtUi = true;
+        }
         populateUi(stateMachine.getHike());
         return this;
     }
@@ -40,13 +44,18 @@ public abstract class AbstractWizardPage extends JPanel
         return stateMachine;
     }
     
-    /** Sub-classes must fill their UI with data, the Hike has been passed. */
+    /** This is called just once for each wizard-page. Sub-classes must fill their UI with fields. */
+    protected void buildUi() {
+        //add(new JLabel(getClass().getSimpleName(), JLabel.CENTER)); // TODO remove this, make method abstract!
+    }
+    
+    /** On every page change sub-classes must fill their fields with data from the given Hike. */
     protected void populateUi(Hike hike) {
-        add(new JLabel(getClass().getSimpleName(), JLabel.CENTER));
+        //add(new JLabel("MAIL-ID: "+hike.uniqueMailId), BorderLayout.NORTH); // TODO remove this, make method abstract!
     }
     
     /** @return true when there is a next page to this. */
-    public boolean hasNextPage() {
+    public final boolean hasNextPage() {
         if (nextPage != null)
             return true;
         return (nextPage = nextPage()) != null;
@@ -56,12 +65,12 @@ public abstract class AbstractWizardPage extends JPanel
     public AbstractWizardPage getNextPage() {
         final AbstractWizardPage next = (nextPage != null) ? nextPage : nextPage();
         if (next != null)
-            next.setData(stateMachine).setPreviousPage(this); // pass this' data to next page
+            next.setPreviousPage(this).setData(stateMachine); // pass this' data to next page
         return next;
     }
 
     /** @return true when there is a previous page to this. */
-    public boolean hasPreviousPage() {
+    public final boolean hasPreviousPage() {
         return previousPage != null;
     }
     
@@ -74,8 +83,7 @@ public abstract class AbstractWizardPage extends JPanel
 
     /**
      * Called when user closed the window.
-     * To be overridden for saving data.
-     * @return true for let window exit.
+     * @return true for let window exit. To be overridden for saving data.
      */
     public boolean windowClosing() {
         return true;

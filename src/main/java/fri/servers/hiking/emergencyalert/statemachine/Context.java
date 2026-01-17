@@ -69,7 +69,7 @@ public class Context
         return userInterface;
     }
     
-    // event methods
+    // event- and service-methods
 
     /** REGISTRATION, ACTIVATION, called when an registration- or activation-event arrives. */
     public void updateHike() {
@@ -103,6 +103,11 @@ public class Context
                 stateMachine);
     }
 
+    /** @return true when timer is running, i.e. ACTIVATION already took place. */
+    public boolean isRunning() {
+        return timer.isRunning() || mailer.isPolling();
+    }
+    
     /** COMING_HOME or ALERT_CONFIRMED, stops all timers and thus all observations. */
     public void stop() {
         System.out.println("Timer stopped at "+DateUtil.nowString());
@@ -110,14 +115,9 @@ public class Context
         mailer.stopConfirmationPolling();
     }
     
-    /** @return true when timer is already running, i.e. ACTIVATION took place. */
-    public boolean isRunning() {
-        return timer.isRunning() || mailer.isPolling();
-    }
-    
     /**
      * OVERDUE_ALERT, sends an alert message to current contact.
-     * This gets called by default in 1 hour intervals.
+     * Gets called by default in 1-hour intervals.
      * <ol>
      * <li>Set next (or first) contact as current</li>
      * <li>Send alert message to current contact</li>
@@ -149,48 +149,62 @@ public class Context
                 }
             }
         }
-        else { // being 1 hour after last contact, no more contacts, stop timers
+        else { // 1 hour after last contact, it makes no sense to poll anymore
+            stop();
             System.out.println("Having no more contacts to alert at "+DateUtil.nowString());
-            
-            stop(); // 1 hour after last contact, it makes no sense to poll anymore
         }
     }
 
     /** ALERT_CONFIRMED, passes the alert-confirmation mail to user. */
     public void alertConfirmed() {
+        stop();
         userInterface.showConfirmMail((Mail) eventParameter);
+    }
+
+    /** 'Home Again' button pushed in OverdueAlert state. */
+    public void comingHomeInTime() {
+        stop();
+        System.out.println("You are back in time, congratulations! It is "+DateUtil.nowString());
+    }
+
+    /** 'Home Again' button pushed in OnTheWay state. */
+    public void comingHomeTooLate() {
+        stop();
+        System.out.println("You are back too late, it is "+DateUtil.nowString()+". Mail has been sent to contact(s).");
     }
 
     
     private boolean sendAlertMessage(final Contact contact) {
+        return sendMail("alert", contact);
+    }
+    
+    private void sendPassingToNext(final Contact previousContact) {
+        sendMail("passing-to-next", previousContact);
+    }
+
+    private boolean sendMail(String mailType, final Contact contact) {
         try {
-            System.out.println("Trying to send alert to "+contact.getMailAddress()+" at "+DateUtil.nowString());
+            System.out.println("Trying to send "+mailType+" to "+contact.getMailAddress()+" at "+DateUtil.nowString());
             mailer.sendAlert(contact, hike);
             System.out.println("Sending succeeded!");
             return true;
         }
         catch (MailSendException e) {
-            failureRepeat("alert", () -> sendAlertMessage(contact), e);
+            failureRepeat(
+                    mailType,
+                    (mailType.equals("alert")
+                        ? () -> sendAlertMessage(contact)
+                        : () -> sendPassingToNext(contact)),
+                    e);
             return false;
         }
     }
     
-    private void sendPassingToNext(final Contact previousContact) {
-        try {
-            System.out.println("Trying to send passing-to-next to "+previousContact.getMailAddress()+" at "+DateUtil.nowString());
-            mailer.sendPassingToNext(previousContact, hike);
-            System.out.println("Sending succeeded!");
-        }
-        catch (MailSendException e) {
-            failureRepeat("passing-to-next", () -> sendPassingToNext(previousContact), e);
-        }
-    }
-
     private void failureRepeat(String mailType, Runnable runnable, MailSendException e) {
-        System.out.println("Sending "+mailType+" failed, repeating in "+FAILURE_REPEAT_MINUTES+" minutes, error was "+e);
-        timer.repeatFailedEvent( // this will not be queued when timer is no more running
-            runnable,
-            FAILURE_REPEAT_MINUTES
-        );
+        System.out.println("Sending "+mailType+" mail failed, error was "+e);
+        System.out.println("Repeating in "+FAILURE_REPEAT_MINUTES+" minutes.");
+        
+        timer.repeatFailedEvent(runnable, FAILURE_REPEAT_MINUTES);
+        // this will NOT repeat when timer has been stopped meanwhile!
     }
 }

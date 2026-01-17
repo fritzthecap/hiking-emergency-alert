@@ -1,12 +1,7 @@
 package fri.servers.hiking.emergencyalert.ui.swing.wizardpages;
 
-import javax.swing.JTextArea;
-import fri.servers.hiking.emergencyalert.mail.Mail;
-import fri.servers.hiking.emergencyalert.mail.MailBuilder;
-import fri.servers.hiking.emergencyalert.persistence.Contact;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
-import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
-import fri.servers.hiking.emergencyalert.ui.swing.Log;
+import static fri.servers.hiking.emergencyalert.util.Language.i18n;
+import javax.swing.JOptionPane;
 
 /**
  * Shows all data to user and asks for activation.
@@ -21,28 +16,32 @@ public class ActivationPage extends AbstractWizardPage
     
     @Override
     public AbstractWizardPage getNextPage() {
-        final ObservationPage page = (ObservationPage) super.getNextPage();
+        final String message = 
+                i18n("Are you sure that you want to start the hike now?");
+        final int response = JOptionPane.showConfirmDialog(
+                this,
+                message,
+                "Confirm Hike Begin",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
         
-        final JTextArea consoleArea = new JTextArea();
-        consoleArea.setEditable(false);
-        Log.redirectOutAndErr(consoleArea);
-        
-        page.setConsole(consoleArea);
-        
-        final StateMachine stateMachine = getData();
-        stateMachine.getUserInterface().activateHike(stateMachine.getHike());
-        
-        return page;
+        if (response != JOptionPane.YES_OPTION)
+            return null;
+
+        return super.getNextPage();
     }
-    
-    @Override
-    protected void populateUi(Hike hike) {
-        final Contact contact = hike.getAlert().getNonAbsentContacts().get(0);
-        
-        final MailBuilder mailBuilder = new MailBuilder(contact, hike);
-        final Mail alertMail = mailBuilder.buildAlertMail();
-        final Mail passingToNext = mailBuilder.buildPassingToNextMail();
-        
-        final String text = "";
-    }
+
+//    protected void buildUi() {
+//    }
+
+//    @Override
+//    protected void populateUi(Hike hike) {
+//        final Contact contact = hike.getAlert().getNonAbsentContacts().get(0);
+//        
+//        final MailBuilder mailBuilder = new MailBuilder(contact, hike);
+//        final Mail alertMail = mailBuilder.buildAlertMail();
+//        final Mail passingToNextMail = mailBuilder.buildPassingToNextMail();
+//        
+//        final String text = "";
+//    }
 }
