@@ -1,17 +1,28 @@
 package fri.servers.hiking.emergencyalert.mail;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import fri.servers.hiking.emergencyalert.mail.impl.MailConnectionCheck;
+import fri.servers.hiking.emergencyalert.mail.impl.ConnectionCheck;
 import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
 import fri.servers.hiking.emergencyalert.ui.swing.SwingUserInterface;
 
 class MailConnectionCheckTest
 {
+    record HostPortProtocol(String host, int port, String protocol)
+    {
+    }
+    
     @Test
     @Disabled("because needs password dialog")
     void mailConnectionShouldWork() {
+        boolean popTest = driveTest(new HostPortProtocol("pop.chello.at", 110, "pop3"));
+        boolean imapTest = driveTest(new HostPortProtocol("pop.chello.at", 143, "imap"));
+        assertTrue(popTest);
+        assertTrue(imapTest);
+    }
+    
+    private boolean driveTest(HostPortProtocol test) {
         final MailConfiguration mailConfiguration = new MailConfiguration();
         
         mailConfiguration.setMailUser("fritz.ritzberger@chello.at");
@@ -21,13 +32,21 @@ class MailConnectionCheckTest
         mailConfiguration.setSendMailHost("smtp.chello.at");
         mailConfiguration.setSendMailPort(25);
         
-        mailConfiguration.setReceiveMailProtocol("imap");
-        mailConfiguration.setReceiveMailHost("pop.chello.at");
-        mailConfiguration.setReceiveMailPort(143);
+        mailConfiguration.setReceiveMailProtocol(test.protocol);
+        mailConfiguration.setReceiveMailHost(test.host);
+        mailConfiguration.setReceiveMailPort(test.port);
         
         new SwingUserInterface(); // needed to initialize password dialog
-        final MailConnectionCheck check = new MailConnectionCheck(mailConfiguration);
+        final ConnectionCheck check = new ConnectionCheck(mailConfiguration);
         
-        assertDoesNotThrow(() -> check.tryToConnect());
+        try {
+            final boolean success = check.trySendAndReceive();
+            return success;
+        }
+        catch (MailException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
+
 }

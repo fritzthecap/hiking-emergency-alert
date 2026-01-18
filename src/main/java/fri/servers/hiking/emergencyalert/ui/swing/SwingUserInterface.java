@@ -7,6 +7,7 @@ import javax.swing.JTextArea;
 import fri.servers.hiking.emergencyalert.mail.Mail;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
+import jakarta.mail.Authenticator;
 
 public class SwingUserInterface extends UserInterface
 {
@@ -14,7 +15,13 @@ public class SwingUserInterface extends UserInterface
     
     public SwingUserInterface() {
         frame = buildUi();
-        interactiveAuthenticator = new InteractiveAuthenticator(frame);
+        
+        interactiveAuthenticatorFactory = new InteractiveAuthenticatorFactory() {
+            @Override
+            public Authenticator newAuthenticator() {
+                return new InteractiveAuthenticator(frame);
+            }
+        };
     }
     
     /**

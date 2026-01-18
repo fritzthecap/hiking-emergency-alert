@@ -21,11 +21,15 @@ public class MailerImpl implements Mailer
     private Set<SendResult> alertSendResults = new HashSet<>();
     
     @Override
-    public void ensureMailConnection(MailConfiguration mailConfiguration) throws MailException {
-        final MailConnectionCheck check = newMailConnectionCheck(mailConfiguration);
+    public boolean ensureMailConnection(MailConfiguration mailConfiguration, int maximumWaitSeconds)
+            throws MailException
+    {
+        final ConnectionCheck check = newMailConnectionCheck(mailConfiguration);
         try {
-            check.tryToConnect(); // was successful when no exception was thrown
+            final boolean roundTripDone = check.trySendAndReceive(); // true when mail was deleted
             this.authenticator = check.getValidAuthenticator(); // now we have a reusable password holder
+            
+            return roundTripDone;
         }
         catch (MailException e) {
             throw e;
@@ -78,8 +82,8 @@ public class MailerImpl implements Mailer
     }
     
     /** Factory method for MailConnectionCheck, to be overridden by unit-tests. */
-    protected MailConnectionCheck newMailConnectionCheck(MailConfiguration mailConfiguration) {
-        return new MailConnectionCheck(mailConfiguration);
+    protected ConnectionCheck newMailConnectionCheck(MailConfiguration mailConfiguration) {
+        return new ConnectionCheck(mailConfiguration);
     }
 
     /** Factory method for ConfirmationPolling, to be overridden by unit-tests. */

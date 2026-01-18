@@ -12,8 +12,14 @@ import jakarta.mail.Authenticator;
  */
 public abstract class UserInterface
 {
+    /** Make sure that always a new authenticator gets delivered, to avoid cached wrong passwords! */
+    protected static interface InteractiveAuthenticatorFactory
+    {
+        Authenticator newAuthenticator();
+    }
+    
     /** Accessible to sub-classes only. */
-    protected static Authenticator interactiveAuthenticator;
+    protected static InteractiveAuthenticatorFactory interactiveAuthenticatorFactory;
     
     /**
      * Call this to get a password dialog. 
@@ -21,7 +27,9 @@ public abstract class UserInterface
      * before to get a non-null interactive authenticator!
      */
     public static Authenticator getInteractiveAthenticator() {
-        return interactiveAuthenticator;
+        return (interactiveAuthenticatorFactory != null)
+                ? interactiveAuthenticatorFactory.newAuthenticator()
+                : null;
     }
         
     /** Gateway to StateMachine. */

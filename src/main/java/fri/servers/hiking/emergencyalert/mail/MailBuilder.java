@@ -22,11 +22,11 @@ public class MailBuilder
     /** @return the 'from' address for mails to be sent to contacts. */
     public static String from(Hike hike) {
         String from = hike.getAlert().getMailConfiguration().getSendMailFromAccount();
-        if (StringUtil.isNotEmpty(from) && from.contains("@")) // any mail address has @
+        if (MailUtil.isMailAddress(from))
             return from;
         
         from = hike.getAlert().getMailConfiguration().getMailUser();
-        if (StringUtil.isNotEmpty(from) && from.contains("@")) 
+        if (MailUtil.isMailAddress(from)) 
             return from;
         
         throw new IllegalArgumentException(

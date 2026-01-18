@@ -1,5 +1,7 @@
 package fri.servers.hiking.emergencyalert.persistence;
 
+import fri.servers.hiking.emergencyalert.mail.MailUtil;
+
 public class MailConfiguration
 {
     private String mailUser; // mail.user, required
@@ -12,6 +14,8 @@ public class MailConfiguration
     private String sendMailHost; // mail.smtp.host, required
     private int sendMailPort = 25; // optional, 25 is SMTP default port
     private String sendMailFromAccount; // optional, mail.smtp.from, usually the same as mailUser
+    
+    private int maximumConnectionTestSeconds = 5;
     
     /** Usually this is the same as sendMailFromAccount. */
     public String getMailUser() {
@@ -66,5 +70,20 @@ public class MailConfiguration
     /** Usually this is the same as mailUser. */
     public void setSendMailFromAccount(String sendMailFromAccount) {
         this.sendMailFromAccount = sendMailFromAccount;
+    }
+    
+    public int getMaximumConnectionTestSeconds() {
+        return maximumConnectionTestSeconds;
+    }
+    public void setMaximumConnectionTestSeconds(int maximumConnectionTestSeconds) {
+        this.maximumConnectionTestSeconds = maximumConnectionTestSeconds;
+    }
+    
+    public String getMailFromAdress() {
+        if (MailUtil.isMailAddress(mailUser))
+            return mailUser;
+        if (MailUtil.isMailAddress(sendMailFromAccount))
+            return sendMailFromAccount;
+        return null;
     }
 }

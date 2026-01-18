@@ -3,7 +3,9 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizardpages;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import javax.swing.BorderFactory;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 
@@ -64,8 +66,10 @@ public abstract class AbstractWizardPage extends JPanel
     /** @return the next wizard page on "Next" button click. */
     public AbstractWizardPage getNextPage() {
         final AbstractWizardPage next = (nextPage != null) ? nextPage : nextPage();
-        if (next != null)
+        if (next != null) {
+            commitData();
             next.setPreviousPage(this).setData(stateMachine); // pass this' data to next page
+        }
         return next;
     }
 
@@ -76,9 +80,15 @@ public abstract class AbstractWizardPage extends JPanel
     
     /** @return the previous wizard page on "Previous" button click. */
     public AbstractWizardPage getPreviousPage() {
-        if (hasPreviousPage())
+        if (hasPreviousPage()) {
+            commitData();
             previousPage.setData(stateMachine); // every page could possibly change the hike pointer!
+        }
         return previousPage;
+    }
+
+    /** Called when going forward or backward to another page. Commit UI fields into Hike data! */
+    protected void commitData() {
     }
 
     /**
@@ -91,6 +101,10 @@ public abstract class AbstractWizardPage extends JPanel
 
     /** @return the next wizard page, to be implemented by sub-classes. */
     protected abstract AbstractWizardPage nextPage();
+    
+    protected JFrame getFrame() {
+        return (JFrame) SwingUtilities.windowForComponent(this);
+    }
     
     private AbstractWizardPage setPreviousPage(AbstractWizardPage wizardPage) {
         this.previousPage = wizardPage;

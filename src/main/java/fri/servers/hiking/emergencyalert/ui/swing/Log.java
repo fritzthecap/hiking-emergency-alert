@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import javax.swing.JTextArea;
 
+/**
+ * Redirect System.out and System.err to some UI window.
+ */
 public final class Log 
 {
     private static class RedirectingOutputStream extends ByteArrayOutputStream

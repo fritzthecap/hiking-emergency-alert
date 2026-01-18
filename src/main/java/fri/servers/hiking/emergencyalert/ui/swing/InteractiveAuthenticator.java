@@ -34,7 +34,7 @@ public class InteractiveAuthenticator extends Authenticator
      * and put into <code>getDefaultUserName()</code>, so we can use it here.
      */
     @Override
-    protected PasswordAuthentication getPasswordAuthentication()    {
+    public PasswordAuthentication getPasswordAuthentication()    {
         if (user != null && user.length() > 0 && password != null && password.length() > 0)
             return new PasswordAuthentication(user, password);
             // user and password were already entered interactively
@@ -98,7 +98,8 @@ public class InteractiveAuthenticator extends Authenticator
             // is showing ...
             
             dialog.dispose();
-            return JOptionPane.OK_OPTION == (Integer) pane.getValue();
+            return (pane.getValue() != null && 
+                    ((Integer) pane.getValue()).intValue() == JOptionPane.OK_OPTION);
         }
         
         public String getUser() {

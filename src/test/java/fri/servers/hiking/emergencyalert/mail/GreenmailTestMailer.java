@@ -6,7 +6,8 @@ import java.util.Set;
 import java.util.Timer;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import fri.servers.hiking.emergencyalert.mail.impl.ConfirmationPolling;
-import fri.servers.hiking.emergencyalert.mail.impl.MailConnectionCheck;
+import fri.servers.hiking.emergencyalert.mail.impl.InboxVisitorConnection;
+import fri.servers.hiking.emergencyalert.mail.impl.ConnectionCheck;
 import fri.servers.hiking.emergencyalert.mail.impl.MailSessionFactory.SessionWithAuthenticator;
 import fri.servers.hiking.emergencyalert.mail.impl.MailerImpl;
 import fri.servers.hiking.emergencyalert.mail.impl.SendConnection;
@@ -30,8 +31,8 @@ public class GreenmailTestMailer extends MailerImpl
     }
     
     @Override
-    protected MailConnectionCheck newMailConnectionCheck(MailConfiguration mailConfiguration) {
-        return new MailConnectionCheck(mailConfiguration) // a receive connection
+    protected ConnectionCheck newMailConnectionCheck(MailConfiguration mailConfiguration) {
+        return new ConnectionCheck(mailConfiguration) // a receive connection
         {
             @Override
             protected SessionWithAuthenticator newSession(

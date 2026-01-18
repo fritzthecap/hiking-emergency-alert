@@ -17,7 +17,12 @@ public final class DateUtil
 
     /** @return the minute-precise now-date as text. */
     public static String nowString() {
-        return DateUtil.toString(DateUtil.now());
+        return nowString(false);
+    }
+    
+    /** @return the minute- or second-precise now-date as text. */
+    public static String nowString(boolean withSeconds) {
+        return DateUtil.toString(DateUtil.now(), withSeconds);
     }
     
     /** @return the minute of given date. */

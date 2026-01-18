@@ -1,10 +1,27 @@
 package fri.servers.hiking.emergencyalert.ui.swing.util;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.table.*;
+import static fri.servers.hiking.emergencyalert.util.Language.i18n;
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.Vector;
+import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultListSelectionModel;
+import javax.swing.JButton;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.table.DefaultTableModel;
 
 /**
  * Properties Dialog, that lets edit names and values of a properties map.
@@ -13,14 +30,45 @@ import javax.swing.table.*;
 public class PropertiesEditDialog extends PropertiesViewDialog
 {
     private JButton ok, cancel;
-    private boolean canceled = true;
     private JPopupMenu popup;
     private JMenuItem delete, insert;
 
-    public PropertiesEditDialog(JFrame frame, boolean modal, Properties properties, String title) {
-        super(frame, modal, properties, title);
+    public PropertiesEditDialog(Frame parent, Properties properties, String title) {
+        super(parent, properties, title);
+    }
+    
+    @Override
+    protected Container buildUi() {
+        final Container contentPane = super.buildUi();
+
+        ((DefaultCellEditor) table.getDefaultEditor(String.class)).setClickCountToStart(1);
         
-        ActionListener actionListener = new ActionListener() {
+        final JPanel buttonPanel = new JPanel(); // centers buttons
+        buttonPanel.add(ok = new JButton(i18n("Ok")));
+        buttonPanel.add(cancel = new JButton(i18n("Cancel")));
+        contentPane.add(buttonPanel, BorderLayout.SOUTH);
+        final ActionListener actionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() == ok)
+                    ok();
+                else if (e.getSource() == cancel)
+                    close();
+            }
+        };
+        ok.addActionListener(actionListener);
+        cancel.addActionListener(actionListener);
+        
+        if (model.getRowCount() <= 0) // add an empty row
+            insertRowAt("", "", 0);
+
+        buildActions();
+        
+        return contentPane;
+    }
+
+    private void buildActions() {
+        final ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() == insert)
@@ -30,23 +78,21 @@ public class PropertiesEditDialog extends PropertiesViewDialog
             }
         };
         popup = new JPopupMenu();
-        popup.add(insert = new JMenuItem("Insert"));
+        popup.add(insert = new JMenuItem(i18n("Insert")));
         insert.addActionListener(actionListener);
-        popup.add(delete = new JMenuItem("Delete"));
+        popup.add(delete = new JMenuItem(i18n("Delete")));
         delete.addActionListener(actionListener);
         
-        MouseListener mouseListener = new MouseAdapter() {
+        final MouseListener mouseListener = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if (e.isPopupTrigger()) {
+                if (e.isPopupTrigger())
                     showPopup(e);
-                }
             }
             @Override
             public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
+                if (e.isPopupTrigger())
                     showPopup(e);
-                }
             }
         };
         table.addMouseListener(mouseListener);
@@ -63,96 +109,86 @@ public class PropertiesEditDialog extends PropertiesViewDialog
         });
     }
 
+    /** Do nothing to enable editing. */
     @Override
-    protected Container buildGUI() {
-        Container container = super.buildGUI();
-
-        table.setDefaultEditor(String.class, new DefaultCellEditor(new JTextField()));
-        
-        ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == ok)
-                    ok();
-                else if (e.getSource() == cancel)
-                    close();
-            }
-        };
-        JPanel panel = new JPanel();
-        panel.add(ok = new JButton("Ok"));
-        ok.addActionListener(actionListener);
-        panel.add(cancel = new JButton("Cancel"));
-        cancel.addActionListener(actionListener);
-        container.add(panel, BorderLayout.SOUTH);
-        
-        if (model.getRowCount() <= 0) // add an empty row
-            insertRowAt("", "", 0);
-
-        return container;
+    protected void setUneditableButCopyableCellEditor() {
     }
-
-    /** Do nothing to avoid uneditable textfield from PropViewDialog */
+    
     @Override
-    protected void setUneditableEditor() {
+    protected void addMoreColumns(Vector<Object> columnNames) {
+        columnNames.addElement(i18n("Include"));
+    }
+    
+    @Override
+    protected void addMoreTableCells(Vector<Object> newRow) {
+        newRow.add(Boolean.valueOf(false)); // default do NOT include property
     }
 
-    public Properties getProperties() {
-        storeToProperties();
-        return this.properties;
-    }
-
-    public boolean isCanceled() {
-        return canceled;
-    }
-
-
+    
     private void ok() {
-        canceled = false;
         commitTable();
-        storeToProperties();
+        if (storeToProperties() == false)
+            return;
+        
         close();
+        
+        for (Object name : properties.keySet())
+            System.err.println(name+" = "+properties.get(name));
     }
     
     private void showPopup(MouseEvent e) {
         if (table.getSelectedRowCount() <= 0) { // set selection if not set
-            int row = table.rowAtPoint(e.getPoint());
-            DefaultListSelectionModel lm = (DefaultListSelectionModel) table.getSelectionModel();
+            final int row = table.rowAtPoint(e.getPoint());
+            final DefaultListSelectionModel lm = (DefaultListSelectionModel) table.getSelectionModel();
             lm.setSelectionInterval(row, row);
         }
         popup.show(e.getComponent(), e.getX(), e.getY());
     }
 
     private void commitTable() {
-        DefaultCellEditor cellEditor = (DefaultCellEditor) table.getCellEditor();
+        final DefaultCellEditor cellEditor = (DefaultCellEditor) table.getCellEditor();
         if (cellEditor != null)
             cellEditor.stopCellEditing();
         else
             table.editingStopped(null);
     }
 
-    private void storeToProperties() {
-        properties.clear();
-
+    private boolean storeToProperties() {
+        final Properties includedProperties = new Properties();
         for (int i = 0; i < namesAndValues.size(); i++) {
-            Vector<String> v = namesAndValues.elementAt(i);
-            String name = ((String) v.elementAt(0)).trim();
-            String value = ((String) v.elementAt(1)).trim();
-
-            if (name.length() > 0)
-                properties.put(name, value);
+            final Vector<Object> tableRow = namesAndValues.elementAt(i);
+            final Boolean include = ((Boolean) tableRow.elementAt(2));
+            if (Boolean.TRUE.equals(include)) {
+                final String name = ((String) tableRow.elementAt(0)).trim();
+                if (name.length() > 0) {
+                    if (includedProperties.containsKey(name)) {
+                        table.setRowSelectionInterval(i, i);
+                        errorMessage(i18n("Found duplicate property name:")+" "+name);
+                        return false;
+                    }
+                    includedProperties.put(name, ((String) tableRow.elementAt(1)).trim());
+                }
+            }
         }
+        
+        properties.clear();
+        properties.putAll(includedProperties);
+        
+        return true;
+    }
+
+    private void errorMessage(String message) {
+        JOptionPane.showMessageDialog(this, message, i18n("Error"), JOptionPane.ERROR_MESSAGE);
     }
 
     private void insertRowAtSelections() {
-        int[] indexes = getSelectedIndexes();
+        final int[] indexes = getSelectedIndexes();
         if (indexes != null) {
             table.getSelectionModel().clearSelection();
-            // clone and insert all selected rows
-            for (int i = indexes.length - 1; i >= 0; i--)
+            for (int i = indexes.length - 1; i >= 0; i--) // insert clones of all selected rows
                 insertRowAt(indexes[i]);
             
-            // if exactly one row inserted, edit it
-            if (indexes.length == 1)
+            if (indexes.length == 1) // if exactly one row was inserted, edit it
                 table.editCellAt(indexes[0] + 1, 0);
         }
         else { // insert row at end
@@ -160,23 +196,25 @@ public class PropertiesEditDialog extends PropertiesViewDialog
         }
     }
 
-    private void insertRowAt(int row) {
-        int newrow = row + 1;
-        insertRowAt(new String((String) model.getValueAt(row, 0)), new String((String) model.getValueAt(row, 1)),
-                newrow);
-        DefaultListSelectionModel lm = (DefaultListSelectionModel) table.getSelectionModel();
-        lm.addSelectionInterval(newrow, newrow);
+    private void insertRowAt(int rowIndex) {
+        final int newRowIndex = rowIndex + 1;
+        insertRowAt("", "", newRowIndex);
+        final DefaultListSelectionModel lm = (DefaultListSelectionModel) table.getSelectionModel();
+        lm.addSelectionInterval(newRowIndex, newRowIndex);
     }
 
-    private void insertRowAt(String name, String value, int index) {
-        Vector<String> row = new Vector<>(2);
+    private void insertRowAt(String name, String value, int rowIndex) {
+        final Vector<Object> row = newRow();
         row.addElement(name);
         row.addElement(value);
-        ((DefaultTableModel) model).insertRow(Math.max(index, 0), row);
+        row.addElement(Boolean.TRUE);
+        ((DefaultTableModel) model).insertRow(Math.max(rowIndex, 0), row);
     }
 
     private void removeSelectedRows() {
-        int[] indexes = getSelectedIndexes();
+        commitTable(); // close cell editor, else wrong values in cells!
+        
+        final int[] indexes = getSelectedIndexes();
         if (indexes != null)
             for (int i = indexes.length - 1; i >= 0; i--)
                 ((DefaultTableModel) model).removeRow(indexes[i]);
@@ -186,7 +224,7 @@ public class PropertiesEditDialog extends PropertiesViewDialog
     }
 
     private int[] getSelectedIndexes() {
-        int[] selectedIndexes = table.getSelectedRows();
+        final int[] selectedIndexes = table.getSelectedRows();
         if (selectedIndexes == null || selectedIndexes.length <= 0)
             return null;
         Arrays.sort(selectedIndexes);
@@ -194,7 +232,7 @@ public class PropertiesEditDialog extends PropertiesViewDialog
     }
 
     
-    // test main
+    /** Test main. */
     public static void main(String[] args) {
         Properties properties = new Properties();
         properties.put("aaa", "AAA");
@@ -202,7 +240,7 @@ public class PropertiesEditDialog extends PropertiesViewDialog
         properties.put("eee", "EEE");
         properties.put("bbb", "BBB");
         properties.put("ccc", "CCC");
-        PropertiesEditDialog dialog = new PropertiesEditDialog(null, true, properties, "Properties Editor");
+        PropertiesEditDialog dialog = new PropertiesEditDialog(null, properties, "Properties Editor");
         dialog.setVisible(true);
     }
 }

@@ -27,7 +27,12 @@ public class ReceiveConnection extends MailSessionFactory
         this.authenticator = authenticator;
     }
     
-    /** Tries to connect to the configured mail-store and loop through mails. */
+    /**
+     * Tries to connect to the configured mail-store and loop through mails.
+     * @param inboxVisitor the obect to loop through INBOX.
+     * @return the used mail session and its authenticator.
+     * @throws MailReceiveException when connection fails.
+     */
     public SessionWithAuthenticator receive(InboxVisitor inboxVisitor) throws MailReceiveException {
         final SessionWithAuthenticator sessionAndAuth = newSession(mailConfiguration, authenticator, false);
         // only AFTER mail action it will be known whether authenticator was valid
@@ -40,7 +45,7 @@ public class ReceiveConnection extends MailSessionFactory
             store.connect();
             
             inbox = store.getFolder("INBOX");
-            inbox.open(Folder.READ_ONLY);
+            inbox.open(Folder.READ_WRITE);
             
             if (inboxVisitor.visitInbox(inbox)) {
                 final int messageCount = inbox.getMessageCount();
@@ -55,7 +60,7 @@ public class ReceiveConnection extends MailSessionFactory
         finally {
             try {
                 if (inbox != null)
-                    inbox.close(false);
+                    inbox.close(true); // true: expunge DELETED messages
                 if (store != null)
                     store.close();
             }

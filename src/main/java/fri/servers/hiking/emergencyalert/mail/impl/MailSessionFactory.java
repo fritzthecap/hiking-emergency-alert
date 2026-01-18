@@ -6,9 +6,14 @@ import fri.servers.hiking.emergencyalert.ui.UserInterface;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Session;
 
+/**
+ * Create mail sessions with authenticators.
+ * Mind that this class MUST NOT buffer an authenticator, because whether
+ * one is valid can be decided only by subsequent send- or receive-actions.
+ */
 public class MailSessionFactory
 {
-    /** Return object for newSession() call.*/
+    /** Result-object for newSession() call.*/
     public record SessionWithAuthenticator(Session session, Authenticator authenticator)
     {
     }
@@ -28,9 +33,9 @@ public class MailSessionFactory
         final Properties mailProperties = new MailProperties(mailConfiguration, send);
         
         // some mail servers deny SMTP access without login, so do authentication in any case
-        final Authenticator authenticator = (authenticatorOrNull == null)
-                ? UserInterface.getInteractiveAthenticator()
-                : authenticatorOrNull;
+        final Authenticator authenticator = (authenticatorOrNull != null)
+                ? authenticatorOrNull
+                : UserInterface.getInteractiveAthenticator();
                 
         return new SessionWithAuthenticator(
                 Session.getInstance(mailProperties, authenticator),

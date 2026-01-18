@@ -46,7 +46,8 @@
       "sendMailProtocol": "smtp",
       "sendMailHost": "smtp.provider.org",
       "sendMailPort": 25,
-      "sendMailFromAccount": "example.user@provider.org"
+      "sendMailFromAccount": "example.user@provider.org",
+      "maximumConnectionTestSeconds": 5
     }
   }
 }

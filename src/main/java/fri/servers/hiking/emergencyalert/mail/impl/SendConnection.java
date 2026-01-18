@@ -30,6 +30,12 @@ public class SendConnection extends MailSessionFactory
         this.authenticator = authenticator;
     }
     
+    /**
+     * Sends given mail, or throws MailSendException when not possible.
+     * @param mail the mail to send, with from and to addresses and others.
+     * @return the send-result, including a valid authenticator.
+     * @throws MailSendException
+     */
     public SendResult send(Mail mail) throws MailSendException {
         final SessionWithAuthenticator sessionAndAuth = newSession(mailConfiguration, authenticator, true);
         // only AFTER mail action it will be known whether authenticator was valid
@@ -47,7 +53,7 @@ public class SendConnection extends MailSessionFactory
             final Multipart multipart = new MimeMultipart();
             
             final BodyPart textPart = new MimeBodyPart(); // add text
-            textPart.setContent(mail.text(), mail.contentType());
+            textPart.setContent(mail.text(), mail.contentType() != null ? mail.contentType() : "text/plain");
             multipart.addBodyPart(textPart);
             
             if (mail.attachments() != null) {
