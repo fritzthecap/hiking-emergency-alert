@@ -1,5 +1,7 @@
 package fri.servers.hiking.emergencyalert.persistence;
 
+import java.util.ArrayList;
+import java.util.List;
 import fri.servers.hiking.emergencyalert.mail.MailUtil;
 
 public class MailConfiguration
@@ -16,6 +18,8 @@ public class MailConfiguration
     private String sendMailFromAccount; // optional, mail.smtp.from, usually the same as mailUser
     
     private int maximumConnectionTestSeconds = 5;
+    
+    private List<List<Object>> customProperties = new ArrayList<>();
     
     /** Usually this is the same as sendMailFromAccount. */
     public String getMailUser() {
@@ -79,6 +83,18 @@ public class MailConfiguration
         this.maximumConnectionTestSeconds = maximumConnectionTestSeconds;
     }
     
+    public List<List<Object>> getCustomProperties() {
+        return customProperties;
+    }
+    public void setCustomProperties(List<List<Object>> customProperties) {
+        this.customProperties = customProperties;
+    }
+    
+    /**
+     * Convenience method to find out a valid mail 'from' address. 
+     * @return either the mail user or sendMailFromAccount or null
+     *      when neither is a valid ail address.
+     */
     public String getMailFromAdress() {
         if (MailUtil.isMailAddress(mailUser))
             return mailUser;

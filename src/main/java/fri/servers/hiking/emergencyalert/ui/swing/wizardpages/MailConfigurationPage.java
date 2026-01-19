@@ -61,10 +61,13 @@ public class MailConfigurationPage extends AbstractWizardPage
     private boolean focusListenerInstalled;
     
     private Authenticator validAuthenticator;
+    // TODO: can be passed back to activation, when not null, holds the valid mail password
     
     private Properties customProperties = new Properties();
     
     {
+        customProperties.put("mail.debug", "true");
+        
         customProperties.put("mail.transport.protocol", "smtp");
         customProperties.put("mail.smtp.username", "user.name");
         customProperties.put("mail.smtp.from", "some@mail.address");
@@ -218,7 +221,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         //throw new RuntimeException("Implement me!");
     }
     
-    private String validateMailProperties() {
+    private String validateMailProperties() { // TODO: move validation to mail package!
         final MailConfiguration mailConfiguration = commitMailConfiguration();
         
         final String mailUser = mailConfiguration.getMailUser();

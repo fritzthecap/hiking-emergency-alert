@@ -41,7 +41,7 @@ public class TestData
         final String helpRequestTitle = "Hiking emergency - I need help!";
         final String addressOfHiker = "Hikerstreet 1, A-1234 Hikertown, Österreich";
         final String helpRequestText = 
-            "I had an accident while hiking and need help."+
+            "I had an accident while hiking and need help. "+
             "Below you find a description of my planned route.";
         final String[] procedureTodos = new String[] {
             "Try to reach me by phone for details: 123456789.",
