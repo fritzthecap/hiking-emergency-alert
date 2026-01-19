@@ -65,7 +65,13 @@ public class MailConfigurationPage extends AbstractWizardPage
     private boolean focusListenerInstalled;
     
     private Authenticator validAuthenticator;
-    // TODO: can be passed back to activation, when not null, holds the valid mail password
+    // TODO: can be passed forward to activation, when not null, holds the valid mail password
+    
+    /** Overridden to deny next page when mail connection is not working. */
+    @Override
+    public AbstractWizardPage getNextPage() {
+        return connectionTest(false) ? super.getNextPage() : null;
+    }
     
     @Override
     protected AbstractWizardPage nextPage() {
@@ -133,7 +139,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         mailTestButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                connectionTest();
+                connectionTest(true);
             }
         });
         mailTestButton.setToolTipText(i18n("Sends a mail to your mailbox, then receives and deletes it"));
@@ -164,6 +170,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         
         installFocusListeners();
     }
+    
     
     private MailConfiguration commitToMailConfiguration() {
         final MailConfiguration mailConfiguration = getData().getHike().getAlert().getMailConfiguration();
@@ -233,6 +240,9 @@ public class MailConfigurationPage extends AbstractWizardPage
         if (StringUtil.isNotEmpty(mailFromAdress) && MailUtil.isMailAddress(mailFromAdress) == false)
             return i18n("'From' Mail Adress is not a valid mail address!");
 
+        if (MailUtil.isMailAddress(mailFromAdress) == false && MailUtil.isMailAddress(mailUser) == false)
+            return i18n("Either Mail User or 'From' Mail Adress must be a valid mail address!");
+        
         return null; // all fields are valid!
     }
     
@@ -255,13 +265,16 @@ public class MailConfigurationPage extends AbstractWizardPage
         receiveMailProtocol.addItemListener(itemListener);
     }
 
-    private void connectionTest() {
+    private boolean connectionTest(boolean showSuccessDialog) {
+        if (validateMailProperties() != null)
+            return false;
+        
         String error;
         try {
             final ConnectionCheck connectionCheck = 
                     new ConnectionCheck(commitToMailConfiguration(), validAuthenticator);
             final boolean success = connectionCheck.trySendAndReceive();
-            error = (success ? null : "For problem please see console!");
+            error = (success ? null : i18n("Either send or receive doesn't work, see console for errors."));
             
             validAuthenticator = success ? connectionCheck.getValidAuthenticator() : null;
         }
@@ -270,12 +283,14 @@ public class MailConfigurationPage extends AbstractWizardPage
             error = e.getMessage();
         }
         
-        if (error == null)
-            JOptionPane.showMessageDialog(getFrame(), i18n("Connection works!"), 
-                    i18n("Success"), JOptionPane.INFORMATION_MESSAGE);
-        else
+        if (error != null)
             JOptionPane.showMessageDialog(getFrame(), error, 
                     i18n("Error"), JOptionPane.ERROR_MESSAGE);
+        else if (showSuccessDialog)
+            JOptionPane.showMessageDialog(getFrame(), i18n("Connection works!"), 
+                    i18n("Success"), JOptionPane.INFORMATION_MESSAGE);
+        
+        return (error == null);
     }
 
     private void layoutFields(JComponent mailPassword) {
