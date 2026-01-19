@@ -30,7 +30,7 @@ import fri.servers.hiking.emergencyalert.util.DateUtil;
  */
 public class ObservationPage extends AbstractWizardPage
 {
-    private boolean canClose;
+    private boolean canClose; // StateMachine is running
     private JButton homeAgain;
     private ActionListener homeAgainListener = new ActionListener() {
         @Override
@@ -122,7 +122,7 @@ public class ObservationPage extends AbstractWizardPage
                 i18n("Click the 'Home Again' button as soon as you return from your hike.")+"\n"+
                 i18n("Emergency alert mails will be sent starting from")+" "+plannedHome;
         instructionsArea.setText(instructions);
-        timePanel.setText(DateUtil.toString(hike.getPlannedBegin())+"   \u2192   "+plannedHome);
+        timePanel.setText(DateUtil.toString(hike.getPlannedBegin())+"   \u2192   "+plannedHome); // arrow right
         
         consoleOut.setText("");
         consoleErr.setText("");

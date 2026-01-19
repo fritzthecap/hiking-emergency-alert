@@ -1,6 +1,8 @@
 
-Custom mail properties must be stored to JSON and merged
-    when authenticating.
+Try to avoid unreadable mail exceptions by checking
+    available settings in InteractiveAuthenticator.
+    
+The whole application needs bigger fonts!
 
 The mail text needs $macros for plannedBeginTime, endTime
     and name of "to"-contact person, maybe MAIL-ID.
