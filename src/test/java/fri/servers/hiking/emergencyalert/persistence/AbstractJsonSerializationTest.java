@@ -8,10 +8,6 @@ import java.util.List;
  */
 class AbstractJsonSerializationTest extends TestData
 {
-    protected Hike buildTestHike() {
-        return buildHike();
-    }
-    
     protected void assertTestHike(Hike hike, Hike hikeFromJson) {
         assertNotEquals(hike.uniqueMailId, hikeFromJson.uniqueMailId);
         // every Hike instance must have its own UUID!
@@ -23,10 +19,6 @@ class AbstractJsonSerializationTest extends TestData
         assertEquals(hike.getRouteImages(), hikeFromJson.getRouteImages());
         
         assertTestAlert(hike.getAlert(), hikeFromJson.getAlert());
-    }
-    
-    protected Alert buildTestAlert() {
-        return buildAlert();
     }
     
     protected void assertTestAlert(Alert alert, Alert alertFromJson) {

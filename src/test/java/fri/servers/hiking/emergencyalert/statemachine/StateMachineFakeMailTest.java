@@ -22,7 +22,7 @@ class StateMachineFakeMailTest
     /** Checks the number of sent mails for a hike. */
     @Test
     void numberAndContentOfSentMails() throws Exception {
-        final Hike hike = TestData.newHike();
+        final Hike hike = new TestData().newHike();
         hike.setRouteImages(null); // attachment file would not be found
         final List<Contact> contacts = hike.getAlert().getAlertContacts();
         final int numberOfContacts = contacts.size();
@@ -42,7 +42,7 @@ class StateMachineFakeMailTest
         final StateMachine stateMachine = new StateMachine(hike, mailer, timer, user);
         
         // simulate user-changes during running state-machine
-        final Hike changedHike = TestData.newHike();
+        final Hike changedHike = new TestData().newHike();
         changedHike.setRouteImages(null); // attachment file would not be found
         
         // do not change number of contacts, see numberOfContacts above!

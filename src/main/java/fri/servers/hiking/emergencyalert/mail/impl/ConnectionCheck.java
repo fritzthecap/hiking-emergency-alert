@@ -103,12 +103,12 @@ public class ConnectionCheck extends InboxVisitorConnection
         
         final SendResult sendResult = sendConnection.send(checkMail);
         
-        System.out.println("... sending succeeded!");
+        System.out.println("... Sending succeeded!");
         return sendResult;
     }
     
     private boolean receiveAndDeleteTestMail() throws MailReceiveException {
-        System.out.println("Now trying to receive and delete sent message ... "+DateUtil.nowString(true));
+        System.out.println("Now trying to receive and delete the sent message ... "+DateUtil.nowString(true));
         
         // poll until mail arrives at server
         boolean success = false;
@@ -116,14 +116,14 @@ public class ConnectionCheck extends InboxVisitorConnection
         final int maximumSeconds = Math.max(sleepSeconds, mailConfiguration.getMaximumConnectionTestSeconds());
         
         for (int done = 0; success == false && done <= maximumSeconds; done += sleepSeconds) {
-            System.out.println("  ... receive attempt at "+DateUtil.nowString(true));
+            System.out.println("    ... Receive attempt at "+DateUtil.nowString(true));
             
             success = (searchAlertConfirmation() != null); // searches for mail text containing uniqueMailId
             
             if (success == false)
                 try { Thread.sleep(sleepSeconds * 1000); } catch (InterruptedException e) {}
         }
-        System.out.println("... receive success is "+success+", at "+DateUtil.nowString(true));
+        System.out.println("... Receive success is "+success+", at "+DateUtil.nowString(true));
         return success;
     }
 }

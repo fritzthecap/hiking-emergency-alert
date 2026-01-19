@@ -1,8 +1,4 @@
 
-StateMachineGreenmailTest fails:
-    1) new send connectionCheck has UnknownHostException: smtp.provider.country
-    2) third sent mail is not a passing-to-next- but an alert-mail
-
 Custom mail properties must be stored to JSON and merged
     when authenticating.
 

@@ -8,15 +8,15 @@ import fri.servers.hiking.emergencyalert.util.DateUtil;
 /** Provides unit test data. */
 public class TestData
 {
-    public static Hike newHike() {
+    public static final String ME_MYSELF = "me.myself@alert.org";
+    public static final String SECOND_PERSON = "second.person@alert.org";
+    public static final String FIRST_PERSON = "first.person@alert.org";
+
+    public Hike newHike() {
         return new TestData().buildHike();
     }
 
-    public static Alert newAlert() {
-        return new TestData().buildAlert();
-    }
-    
-    protected Hike buildHike() {
+    private Hike buildHike() {
         final Hike hike = new Hike();
         
         hike.setRoute("From Mount Everest to Kilimanjaro via Antarctica");
@@ -37,7 +37,7 @@ public class TestData
         return hike;
     }
     
-    protected Alert buildAlert() {
+    private Alert buildAlert() {
         final String helpRequestTitle = "Hiking emergency - I need help!";
         final String addressOfHiker = "Hikerstreet 1, A-1234 Hikertown, Österreich";
         final String helpRequestText = 
@@ -60,7 +60,7 @@ public class TestData
         alert.setHelpRequestText(helpRequestText);
         alert.setProcedureTodos(List.of(procedureTodos));
         alert.setPassingToNextText(passingToNextText);
-        alert.setMailOfHiker("me.myself@alert.org");
+        alert.setMailOfHiker(ME_MYSELF);
         alert.setNameOfHiker("Me Myself");
         alert.setAddressOfHiker(addressOfHiker);
         
@@ -77,14 +77,14 @@ public class TestData
             final Contact contact = new Contact();
             contact.setFirstName("First");
             contact.setLastName("Person");
-            contact.setMailAddress("first.person@alert.org");
+            contact.setMailAddress(FIRST_PERSON);
             list.add(contact);
         }
         {
             final Contact contact = new Contact();
             contact.setFirstName("Second");
             contact.setLastName("Person");
-            contact.setMailAddress("second.person@alert.org");
+            contact.setMailAddress(SECOND_PERSON);
             list.add(contact);
         }
         return list;
@@ -96,12 +96,12 @@ public class TestData
         mailConfiguration.setReceiveMailProtocol("pop3");
         mailConfiguration.setReceiveMailHost("pop.company.country");
         mailConfiguration.setReceiveMailPort(110);
-        mailConfiguration.setMailUser("me.myself@alert.org");
+        mailConfiguration.setMailUser(ME_MYSELF);
         
         mailConfiguration.setSendMailProtocol("smtp");
         mailConfiguration.setSendMailHost("smtp.company.country");
         mailConfiguration.setSendMailPort(25);
-        mailConfiguration.setSendMailFromAccount("me.myself@alert.org");
+        mailConfiguration.setSendMailFromAccount(ME_MYSELF);
         
         return mailConfiguration;
     }

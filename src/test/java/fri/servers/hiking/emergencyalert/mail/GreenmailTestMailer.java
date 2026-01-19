@@ -111,6 +111,7 @@ public class GreenmailTestMailer extends MailerImpl
 
     private SessionWithAuthenticator authenticatedSession(Properties mailProperties) {
         mailProperties.setProperty("mail.user", user);
+        
         final Authenticator authenticator = new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {

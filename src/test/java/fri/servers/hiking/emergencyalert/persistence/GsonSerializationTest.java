@@ -9,7 +9,7 @@ class GsonSerializationTest extends AbstractJsonSerializationTest
 {
     @Test
     void javaJsonRoundTripShouldWork() throws IOException {
-        final Hike hike = buildTestHike();
+        final Hike hike = newHike();
         
         final String uniqueMailId = hike.uniqueMailId;
         assertNotNull(uniqueMailId);
