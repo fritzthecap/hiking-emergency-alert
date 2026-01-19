@@ -18,9 +18,7 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
 import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -351,13 +349,14 @@ public class MailConfigurationPage extends AbstractWizardPage
     }
 
     
+    
     private static class CustomPropertiesEditDialog extends PropertiesEditDialog
     {
         private Properties readOnlyProperties;
         private List<List<String>> propertiesToBeMarkedIncluded;
         private boolean committed;
         
-        public CustomPropertiesEditDialog(
+        CustomPropertiesEditDialog(
                 Frame parent, 
                 Properties readOnlyProperties, 
                 Properties editableProperties, 
@@ -369,21 +368,14 @@ public class MailConfigurationPage extends AbstractWizardPage
             this.propertiesToBeMarkedIncluded = propertiesToBeMarkedIncluded;
         }
         
-        public boolean wasCommitted() {
+        boolean wasCommitted() {
             return committed;
         }
         
         @Override
         protected Container buildUi() {
             final Container contentPane = super.buildUi();
-            final JComponent readOnlyTable = buildReadOnlyTable(readOnlyProperties);
-            readOnlyTable.setBorder(BorderFactory.createTitledBorder(i18n("Core Properties")));
-            contentPane.add(readOnlyTable, BorderLayout.NORTH);
-            
-            ((JComponent) table.getParent().getParent()).setBorder(BorderFactory.createTitledBorder(i18n("Editable Custom Properties")));
-
             setIncludeFlags();
-            
             return contentPane;
         }
 
