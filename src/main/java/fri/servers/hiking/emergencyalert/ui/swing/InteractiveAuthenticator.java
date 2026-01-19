@@ -3,6 +3,7 @@ package fri.servers.hiking.emergencyalert.ui.swing;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.net.InetAddress;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -39,8 +40,12 @@ public class InteractiveAuthenticator extends Authenticator
             return new PasswordAuthentication(user, password);
             // user and password were already entered interactively
         
+        final InetAddress requestingSite = getRequestingSite();
+        if (requestingSite == null) // happens when host is not reachable
+            throw new IllegalArgumentException("Invalid mail host name, or host not reachable!");
+        
         // getting interactive ...
-        final String title = "Connecting to "+getRequestingSite().getHostName();
+        final String title = "Connecting to "+requestingSite.getHostName();
         final UI dialog = new UI(getDefaultUserName());
         
         if (dialog.display(parentWindow, title)) {
