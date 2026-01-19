@@ -42,33 +42,17 @@ public class ConnectionCheck extends InboxVisitorConnection
     public boolean trySendAndReceive() throws MailException {
         this.authenticator = checkInbox();
         
-        sendTestMail(this.uniqueMailId, authenticator);
+        sendTestMail(authenticator);
         
         return receiveAndDeleteTestMail();
     }
 
-    private Authenticator checkInbox() throws MailReceiveException {
-        System.out.println("Connecting to mail store ...");
-        
-        final InboxVisitor visitor = new InboxVisitor() {
-            @Override
-            public boolean visitInbox(Folder inbox) throws Exception {
-                System.out.println("Mail connection was established successfully!");
-                return false; // do not visit mails
-            }
-            @Override
-            public boolean visitMail(Message mail) throws Exception {
-                return false;
-            }
-        };
-        
-        final SessionWithAuthenticator sessionAndAuth = receive(visitor);
-        
-        System.out.println("... connecting to mail store succeeded!");
-        // when no exception was thrown by receive(), we have a valid authenticator
-        return sessionAndAuth.authenticator();    
+    /** @return a valid authenticator. */
+    public final Authenticator getValidAuthenticator() {
+        return authenticator;
     }
-
+    
+    
     /** Delete the test-mail when found. */
     @Override
     protected void processFoundMessage(Message message) {
@@ -80,21 +64,42 @@ public class ConnectionCheck extends InboxVisitorConnection
         }
     }
     
-    /** @return a valid authenticator. */
-    public final Authenticator getValidAuthenticator() {
-        return authenticator;
+    /** Factory method for SendConnection, to be overridden by unit-tests. */
+    protected SendConnection newSendConnection(MailConfiguration mailConfiguration, Authenticator authenticator) {
+        return new SendConnection(mailConfiguration, authenticator);
     }
+
     
-    
-    private SendResult sendTestMail(String uniqueMailId, Authenticator authenticator) throws MailSendException {
+    private Authenticator checkInbox() throws MailReceiveException {
+        System.out.println("Connecting to mail store ...");
+        
+        final InboxVisitor visitor = new InboxVisitor() {
+            @Override
+            public boolean visitInbox(Folder inbox) throws Exception {
+                System.out.println("... connecting to mail store succeeded!");
+                return false; // do not visit mails
+            }
+            @Override
+            public boolean visitMail(Message mail) throws Exception {
+                return false;
+            }
+        };
+        
+        final SessionWithAuthenticator sessionAndAuth = receive(visitor);
+        
+        // when no exception was thrown by receive(), we have a valid authenticator
+        return sessionAndAuth.authenticator();    
+    }
+
+    private SendResult sendTestMail(Authenticator authenticator) throws MailSendException {
         System.out.println("Now sending a test-mail ...");
         
         final String from = mailConfiguration.getMailFromAdress();
         if (StringUtil.isEmpty(from))
             throw new IllegalArgumentException("Mail configuration is incomplete, having not from-address!");
         
-        final Mail checkMail = new Mail(from, from, "Mail connection test", uniqueMailId, null, null, null);
-        final SendConnection sendConnection = new SendConnection(mailConfiguration, authenticator);
+        final Mail checkMail = new Mail(from, from, "Mail connection test", this.uniqueMailId, null, null, null);
+        final SendConnection sendConnection = newSendConnection(mailConfiguration, authenticator);
         
         final SendResult sendResult = sendConnection.send(checkMail);
         
@@ -113,7 +118,7 @@ public class ConnectionCheck extends InboxVisitorConnection
         for (int done = 0; success == false && done <= maximumSeconds; done += sleepSeconds) {
             System.out.println("  ... receive attempt at "+DateUtil.nowString(true));
             
-            success = (searchAlertConfirmation() != null);
+            success = (searchAlertConfirmation() != null); // searches for mail text containing uniqueMailId
             
             if (success == false)
                 try { Thread.sleep(sleepSeconds * 1000); } catch (InterruptedException e) {}

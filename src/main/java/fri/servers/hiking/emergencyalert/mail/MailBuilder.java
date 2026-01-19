@@ -3,12 +3,10 @@ package fri.servers.hiking.emergencyalert.mail;
 import static fri.servers.hiking.emergencyalert.util.StringUtil.isEmpty;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import fri.servers.hiking.emergencyalert.Version;
 import fri.servers.hiking.emergencyalert.persistence.Contact;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
-import fri.servers.hiking.emergencyalert.util.DateUtil;
 import fri.servers.hiking.emergencyalert.util.Platform;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
 
@@ -46,24 +44,20 @@ public class MailBuilder
         final String subject = hike.getAlert().getHelpRequestTitle();
         final String text = buildAlertMailText(hike, contact);
         final List<File> attachments = buildAttachments(hike.getRouteImages());
-        final Date sentDate = sent();
         
-        return new Mail(from(), to(), subject, text, CONTENT_TYPE, attachments, sentDate);
+        return new Mail(from(), to(), subject, text, CONTENT_TYPE, attachments, null);
     }
 
     /** This is sent when overdue contact did not respond in time. */
     public Mail buildPassingToNextMail() {
         final String subject = "FWD: "+hike.getAlert().getHelpRequestTitle();
-        final Date sentDate = DateUtil.addSeconds(sent(), 1); 
-        // as this mail gets sent immediately after an alert mail, 
-        // avoid same sent-date by adding a second.
         
         final StringBuilder textBuilder = new StringBuilder();
         textBuilder.append(getContactTitle(contact)+" !\n");
         textBuilder.append(hike.getAlert().getPassingToNextText()+"\n");
         footer(hike, textBuilder);
 
-        return new Mail(from(), to(), subject, textBuilder.toString(), CONTENT_TYPE, null, sentDate);
+        return new Mail(from(), to(), subject, textBuilder.toString(), CONTENT_TYPE, null, null);
     }
 
     
@@ -73,15 +67,6 @@ public class MailBuilder
 
     private String to() {
         return contact.getMailAddress();
-    }
-
-    /** 
-     * Need explicit sent-date with seconds-precision for
-     * identifying self-alerts, those are not confirmations!
-     */
-    private Date sent() {
-        final Date sentDate = DateUtil.eraseMilliseconds(DateUtil.now());
-        return sentDate;
     }
 
     private String buildAlertMailText(Hike hike, Contact contact) {

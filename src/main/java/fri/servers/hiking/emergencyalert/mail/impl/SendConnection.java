@@ -5,7 +5,6 @@ import java.util.Date;
 import fri.servers.hiking.emergencyalert.mail.Mail;
 import fri.servers.hiking.emergencyalert.mail.MailSendException;
 import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
-import fri.servers.hiking.emergencyalert.util.DateUtil;
 import jakarta.mail.Authenticator;
 import jakarta.mail.BodyPart;
 import jakarta.mail.Message;
@@ -47,8 +46,6 @@ public class SendConnection extends MailSessionFactory
             sendMessage.setFrom(new InternetAddress(mail.from()));
             sendMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.to()));
             sendMessage.setSubject(mail.subject());
-            if (mail.sent() != null)
-                sendMessage.setSentDate(mail.sent());
             
             final Multipart multipart = new MimeMultipart();
             
@@ -68,9 +65,8 @@ public class SendConnection extends MailSessionFactory
             
             Transport.send(sendMessage);
             
-            sendResult = new SendResult(
-                    MessageUtil.messageId(sendMessage), 
-                    DateUtil.eraseMilliseconds(sendMessage.getSentDate()));
+            sendResult = new SendResult(MessageUtil.messageId(sendMessage), sendMessage.getSentDate());
+            // sent-date precision is seconds: "Mon, 19 Jan 2026 14:31:42 +0100 (CET)"
         }
         catch (Exception e) {
             exception = e;

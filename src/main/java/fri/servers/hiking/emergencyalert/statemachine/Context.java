@@ -71,7 +71,7 @@ public class Context
     
     // event- and service-methods
 
-    /** REGISTRATION, ACTIVATION, called when an registration- or activation-event arrives. */
+    /** REGISTRATION, ACTIVATION, called when a registration- or activation-event arrives. */
     public void updateHike() {
         final Hike updatedHike = (Hike) Objects.requireNonNull(eventParameter);
         hike = updatedHike;
@@ -86,7 +86,8 @@ public class Context
             throw new IllegalStateException("Timer can be started just once!");
         
         try { // here the mail connection login dialog may show up
-            mailer.ensureMailConnection(hike.getAlert().getMailConfiguration(), 5);
+            if (mailer.ensureMailConnection(hike.getAlert().getMailConfiguration(), 5) == false)
+                throw new RuntimeException("Could not send and receive mail!");
         }
         catch (MailException e) {
             throw new RuntimeException(e); // assuming user is still at the computer and sees the error
@@ -137,8 +138,8 @@ public class Context
             if (sendAlertMessage(currentContact)) { // mail sending worked
                 contactIndex++; // skip to next contact
                 
-                if (previousContact != null) // tell previous contact about skip
-                    sendPassingToNext(previousContact); // safe against exceptions
+                if (previousContact != null) // tell previous contact about skip, in 1 second
+                    timer.runInSeconds(() -> sendPassingToNext(previousContact), 1);
                 
                 if (isFirstCall) {
                     mailer.startConfirmationPolling(
@@ -155,7 +156,7 @@ public class Context
         }
     }
 
-    /** ALERT_CONFIRMED, passes the alert-confirmation mail to user. */
+    /** ALERT_CONFIRMED, alert-confirmation mail arrived from polling. */
     public void alertConfirmed() {
         stop();
         userInterface.showConfirmMail((Mail) eventParameter);
@@ -175,36 +176,37 @@ public class Context
 
     
     private boolean sendAlertMessage(final Contact contact) {
-        return sendMail("alert", contact);
+        return sendMail(true, contact);
     }
     
     private void sendPassingToNext(final Contact previousContact) {
-        sendMail("passing-to-next", previousContact);
+        sendMail(false, previousContact);
     }
 
-    private boolean sendMail(String mailType, final Contact contact) {
+    private boolean sendMail(boolean isAlert, final Contact contact) {
+        final String mailType = (isAlert ? "alert" : "passing-to-next");
+        System.out.println("Trying to send "+mailType+" to "+contact.getMailAddress()+" at "+DateUtil.nowString());
         try {
-            System.out.println("Trying to send "+mailType+" to "+contact.getMailAddress()+" at "+DateUtil.nowString());
-            mailer.sendAlert(contact, hike);
+            if (isAlert)
+                mailer.sendAlert(contact, hike);
+            else
+                mailer.sendPassingToNext(contact, hike);
+            
             System.out.println("Sending succeeded!");
             return true;
         }
         catch (MailSendException e) {
-            failureRepeat(
-                    mailType,
-                    (mailType.equals("alert")
-                        ? () -> sendAlertMessage(contact)
-                        : () -> sendPassingToNext(contact)),
-                    e);
+            System.out.println("Sending "+mailType+" mail failed, error was "+e);
+            System.out.println("Repeating in "+FAILURE_REPEAT_MINUTES+" minutes.");
+            
+            final Runnable runnable = isAlert 
+                    ? () -> sendAlertMessage() // contactIndex needs to be increased! 
+                    : () -> sendPassingToNext(contact);
+            
+            timer.runInSeconds(runnable, FAILURE_REPEAT_MINUTES * 60);
+            // this will NOT repeat when scheduler has been stopped meanwhile!
+            
             return false;
         }
-    }
-    
-    private void failureRepeat(String mailType, Runnable runnable, MailSendException e) {
-        System.out.println("Sending "+mailType+" mail failed, error was "+e);
-        System.out.println("Repeating in "+FAILURE_REPEAT_MINUTES+" minutes.");
-        
-        timer.repeatFailedEvent(runnable, FAILURE_REPEAT_MINUTES);
-        // this will NOT repeat when timer has been stopped meanwhile!
     }
 }

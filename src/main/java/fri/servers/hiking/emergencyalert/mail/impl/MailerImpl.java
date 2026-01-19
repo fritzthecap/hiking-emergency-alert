@@ -24,7 +24,7 @@ public class MailerImpl implements Mailer
     public boolean ensureMailConnection(MailConfiguration mailConfiguration, int maximumWaitSeconds)
             throws MailException
     {
-        final ConnectionCheck check = newMailConnectionCheck(mailConfiguration);
+        final ConnectionCheck check = newConnectionCheck(mailConfiguration);
         try {
             final boolean roundTripDone = check.trySendAndReceive(); // true when mail was deleted
             this.authenticator = check.getValidAuthenticator(); // now we have a reusable password holder
@@ -82,7 +82,7 @@ public class MailerImpl implements Mailer
     }
     
     /** Factory method for MailConnectionCheck, to be overridden by unit-tests. */
-    protected ConnectionCheck newMailConnectionCheck(MailConfiguration mailConfiguration) {
+    protected ConnectionCheck newConnectionCheck(MailConfiguration mailConfiguration) {
         return new ConnectionCheck(mailConfiguration);
     }
 

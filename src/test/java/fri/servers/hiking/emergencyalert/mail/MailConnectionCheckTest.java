@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import fri.servers.hiking.emergencyalert.mail.impl.ConnectionCheck;
 import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
 import fri.servers.hiking.emergencyalert.ui.swing.SwingUserInterface;
+import jakarta.mail.Authenticator;
 
 class MailConnectionCheckTest
 {
@@ -16,13 +17,20 @@ class MailConnectionCheckTest
     @Test
     @Disabled("because needs password dialog")
     void mailConnectionShouldWork() {
-        boolean popTest = driveTest(new HostPortProtocol("pop.chello.at", 110, "pop3"));
-        boolean imapTest = driveTest(new HostPortProtocol("pop.chello.at", 143, "imap"));
-        assertTrue(popTest);
-        assertTrue(imapTest);
+        new SwingUserInterface(); // needed to initialize password dialog
+        
+        Result popTest = driveTest(new HostPortProtocol("pop.chello.at", 110, "pop3"), null);
+        Result imapTest = driveTest(new HostPortProtocol("pop.chello.at", 143, "imap"), popTest.authenticator());
+        
+        assertTrue(popTest.success());
+        assertTrue(imapTest.success());
     }
     
-    private boolean driveTest(HostPortProtocol test) {
+    private record Result(Authenticator authenticator, boolean success)
+    {
+    }
+    
+    private Result driveTest(HostPortProtocol receiveConfiguration, Authenticator authenticator) {
         final MailConfiguration mailConfiguration = new MailConfiguration();
         
         mailConfiguration.setMailUser("fritz.ritzberger@chello.at");
@@ -32,20 +40,19 @@ class MailConnectionCheckTest
         mailConfiguration.setSendMailHost("smtp.chello.at");
         mailConfiguration.setSendMailPort(25);
         
-        mailConfiguration.setReceiveMailProtocol(test.protocol);
-        mailConfiguration.setReceiveMailHost(test.host);
-        mailConfiguration.setReceiveMailPort(test.port);
+        mailConfiguration.setReceiveMailProtocol(receiveConfiguration.protocol);
+        mailConfiguration.setReceiveMailHost(receiveConfiguration.host);
+        mailConfiguration.setReceiveMailPort(receiveConfiguration.port);
         
-        new SwingUserInterface(); // needed to initialize password dialog
-        final ConnectionCheck check = new ConnectionCheck(mailConfiguration);
+        final ConnectionCheck check = new ConnectionCheck(mailConfiguration, authenticator);
         
         try {
             final boolean success = check.trySendAndReceive();
-            return success;
+            return new Result(check.getValidAuthenticator(), success);
         }
         catch (MailException e) {
             e.printStackTrace();
-            return false;
+            return new Result(null, false);
         }
     }
 

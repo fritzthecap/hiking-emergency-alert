@@ -68,12 +68,12 @@ public class HikeTimer extends Scheduler
     }
 
     /**
-     * Mail sending failed, repeat it in given minute intervals until no exception
-     * is thrown any more, or timer has been stopped.
-     * @param runnable what to repeat.
-     * @param repeatMinutes the repeat interval minutes.
+     * Call given function (runnable) it in given seconds.
+     * This will not be done if timer has been stopped meanwhile.
+     * @param runnable what to execute.
+     * @param inSeconds the interval seconds to wait, counted from now on.
      */
-    public void repeatFailedEvent(final Runnable runnable, final int repeatMinutes) {
+    public void runInSeconds(final Runnable runnable, final int inSeconds) {
         synchronizedOnScheduler(scheduler -> {
             scheduler.schedule(
                 new TimerTask() {
@@ -82,7 +82,7 @@ public class HikeTimer extends Scheduler
                         runnable.run();
                     }
                 },
-                DateUtil.addMinutes(DateUtil.now(), repeatMinutes)
+                DateUtil.addMinutes(DateUtil.now(), inSeconds)
             );
         });
     }

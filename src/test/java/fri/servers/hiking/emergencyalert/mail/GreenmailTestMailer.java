@@ -31,7 +31,7 @@ public class GreenmailTestMailer extends MailerImpl
     }
     
     @Override
-    protected ConnectionCheck newMailConnectionCheck(MailConfiguration mailConfiguration) {
+    protected ConnectionCheck newConnectionCheck(MailConfiguration mailConfiguration) {
         return new ConnectionCheck(mailConfiguration) // a receive connection
         {
             @Override
@@ -39,7 +39,14 @@ public class GreenmailTestMailer extends MailerImpl
                     MailConfiguration mailConfiguration, 
                     Authenticator authenticatorOrNull,
                     boolean send) {
-                return newReceiveSession();
+                return send ? newSendSession() : newReceiveSession();
+            }
+            
+            @Override
+            protected SendConnection newSendConnection(
+                    MailConfiguration mailConfiguration, 
+                    Authenticator authenticator) {
+                return GreenmailTestMailer.this.newSendConnection(mailConfiguration, authenticator);
             }
         };
     }

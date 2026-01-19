@@ -89,6 +89,7 @@ public class ConfirmationPolling extends Scheduler
             
             if (confirmation != null) { // found an alert confirmation in INBOX
                 System.out.println("Received alert confirmation from "+confirmation.from()+" at "+DateUtil.nowString());
+                
                 eventDispatcher.dispatchEvent(Event.ALERT_CONFIRMED, confirmation);
             }
             else {

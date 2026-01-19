@@ -1,8 +1,6 @@
 package fri.servers.hiking.emergencyalert.statemachine;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -17,6 +15,7 @@ import fri.servers.hiking.emergencyalert.mail.impl.MessageUtil;
 import fri.servers.hiking.emergencyalert.persistence.Contact;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.persistence.TestData;
+import fri.servers.hiking.emergencyalert.statemachine.states.OverdueAlert;
 import fri.servers.hiking.emergencyalert.time.HikeTimer;
 import fri.servers.hiking.emergencyalert.time.ImpatientTimer;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
@@ -32,6 +31,7 @@ class StateMachineGreenmailTest extends AbstractGreenmailTest
     @BeforeEach
     public void setMailUser() {
         greenMail.setUser(MAIL_USER, MAIL_PASSWORD); // else "Unable to find 'some_user'"
+        greenMail.getSmtp().setName("smtp.company.country");
     }
     
     @Test
@@ -60,6 +60,9 @@ class StateMachineGreenmailTest extends AbstractGreenmailTest
         // from here on timer should spool further events, wait for stateMachine to terminate
         while (stateMachine.isRunning())
             Thread.sleep(1000);
+        
+        // no confirmation was received: "Having no more contacts"
+        assertEquals(OverdueAlert.class, stateMachine.getState().getClass());
         
         assertResults(hike);
     }
@@ -90,6 +93,12 @@ class StateMachineGreenmailTest extends AbstractGreenmailTest
         final MimeMessage secondMail = receivedMails[1]; // alert to "Second Person"
         final MimeMessage thirdMail = receivedMails[2]; // passing-to-next message to "First Person"
         
+        // all sent dates must be distinct
+        assertNotEquals(firstMail.getSentDate(), secondMail.getSentDate());
+        assertNotEquals(firstMail.getSentDate(), thirdMail.getSentDate());
+        assertNotEquals(secondMail.getSentDate(), thirdMail.getSentDate());
+        
+        // check correctness of contacts
         final Contact firstContact = alertContacts.get(0);
         final Contact secondContact = alertContacts.get(1);
         
@@ -97,6 +106,7 @@ class StateMachineGreenmailTest extends AbstractGreenmailTest
         assertEquals(secondContact.getMailAddress(), MessageUtil.to(secondMail));
         assertEquals(firstContact.getMailAddress(), MessageUtil.to(thirdMail)); // passing-to-next message
         
+        // check correctness of mail texts
         final String firstText = MessageUtil.textContent(firstMail).trim();
         final String secondText = MessageUtil.textContent(secondMail).trim();
         final String thirdText = MessageUtil.textContent(thirdMail).trim();
