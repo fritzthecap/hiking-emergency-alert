@@ -61,7 +61,7 @@ public class PropertiesViewDialog extends JDialog
         return contentPane;
     }
 
-    protected final void close() {
+    protected void close() {
         dispose();
     }
 

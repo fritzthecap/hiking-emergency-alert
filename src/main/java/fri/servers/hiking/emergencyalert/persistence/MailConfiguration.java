@@ -19,7 +19,7 @@ public class MailConfiguration
     
     private int maximumConnectionTestSeconds = 5;
     
-    private List<List<Object>> customProperties = new ArrayList<>();
+    private List<List<String>> customProperties = new ArrayList<>();
     
     /** Usually this is the same as sendMailFromAccount. */
     public String getMailUser() {
@@ -83,10 +83,11 @@ public class MailConfiguration
         this.maximumConnectionTestSeconds = maximumConnectionTestSeconds;
     }
     
-    public List<List<Object>> getCustomProperties() {
+    /** These will overwrite programmed core mail properties. */
+    public List<List<String>> getCustomProperties() {
         return customProperties;
     }
-    public void setCustomProperties(List<List<Object>> customProperties) {
+    public void setCustomProperties(List<List<String>> customProperties) {
         this.customProperties = customProperties;
     }
     

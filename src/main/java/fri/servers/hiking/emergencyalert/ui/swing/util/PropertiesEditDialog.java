@@ -123,18 +123,18 @@ public class PropertiesEditDialog extends PropertiesViewDialog
     protected void addMoreTableCells(Vector<Object> newRow) {
         newRow.add(Boolean.valueOf(false)); // default do NOT include property
     }
+    
+    protected boolean validateProperties() {
+        commitTable();
+        return storeToProperties(); // false when duplicates were found
+    }
+    
+    protected void ok() {
+        if (validateProperties())
+            close();
+    }
 
     
-    private void ok() {
-        commitTable();
-        if (storeToProperties() == false)
-            return;
-        
-        close();
-        
-        for (Object name : properties.keySet())
-            System.err.println(name+" = "+properties.get(name));
-    }
     
     private void showPopup(MouseEvent e) {
         if (table.getSelectedRowCount() <= 0) { // set selection if not set

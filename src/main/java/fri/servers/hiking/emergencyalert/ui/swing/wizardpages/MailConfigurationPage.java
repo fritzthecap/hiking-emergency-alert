@@ -15,7 +15,13 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
+import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -63,41 +69,6 @@ public class MailConfigurationPage extends AbstractWizardPage
     private Authenticator validAuthenticator;
     // TODO: can be passed back to activation, when not null, holds the valid mail password
     
-    private Properties customProperties = new Properties();
-    
-    {
-        customProperties.put("mail.debug", "true");
-        
-        customProperties.put("mail.transport.protocol", "smtp");
-        customProperties.put("mail.smtp.username", "user.name");
-        customProperties.put("mail.smtp.from", "some@mail.address");
-        customProperties.put("mail.smtp.auth", "true");
-        customProperties.put("mail.smtp.timeout", "10000");
-        customProperties.put("mail.smtp.connectiontimeout", "10000");
-        
-        customProperties.put("mail.smtp.port", "465 for SSL, 587 for STARTTLS");
-        customProperties.put("mail.smtp.starttls.enable", "true");
-        
-        customProperties.put("mail.smtp.ssl.enable", "true");
-        customProperties.put("mail.smtp.ssl.protocols", "TLSv1.3");
-        customProperties.put("mail.smtp.ssl.trust", "*");
-        customProperties.put("mail.smtp.socketFactory.port", "465");
-        customProperties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-        customProperties.put("mail.smtp.socketFactory.fallback", "false");
-        
-        customProperties.put("mail.imaps.host", "secure.imap.host");
-        customProperties.put("mail.imaps.port", "993");
-        customProperties.put("mail.imaps.ssl.enable", "true");
-        customProperties.put("mail.imaps.ssl.trust", "*");
-        
-        customProperties.put("mail.pop3s.host", "secure.pop.host");
-        customProperties.put("mail.pop3s.port", "995");
-        customProperties.put("mail.pop3s.ssl.enable", "true");
-        customProperties.put("mail.pop3s.ssl.trust", "*");
-    }
-    
-    
-    
     @Override
     protected AbstractWizardPage nextPage() {
         return new ContactsPage();
@@ -105,7 +76,7 @@ public class MailConfigurationPage extends AbstractWizardPage
     
     @Override
     protected void commitData() {
-        commitMailConfiguration();
+        commitToMailConfiguration();
     }
     
     @Override
@@ -155,11 +126,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         mailPropertiesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final MailProperties mailProperties = new MailProperties(commitMailConfiguration());
-                new CustomPropertiesEditDialog(getFrame(), mailProperties, customProperties, i18n("Mail Properties"))
-                    .setVisible(true); // is modal
-                
-                mergeCustomProperties(mailProperties, customProperties);
+                openCustomMailPropertiesDialog();
             }
         });
         mailPropertiesButton.setToolTipText(i18n("Add more mail properties, overriding the basic ones"));
@@ -200,7 +167,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         installFocusListeners();
     }
     
-    private MailConfiguration commitMailConfiguration() {
+    private MailConfiguration commitToMailConfiguration() {
         final MailConfiguration mailConfiguration = getData().getHike().getAlert().getMailConfiguration();
         
         mailConfiguration.setMailUser(mailUser.getText());
@@ -216,13 +183,38 @@ public class MailConfigurationPage extends AbstractWizardPage
         
         return mailConfiguration;
     }
+
+    private void openCustomMailPropertiesDialog() {
+        final MailConfiguration mailConfiguration = commitToMailConfiguration();
+        final MailProperties coreProperties = new MailProperties(mailConfiguration);
+        final Properties customProperties = MailProperties.customProperties(); // is a clone
+        
+        final CustomPropertiesEditDialog propertiesEditor = new CustomPropertiesEditDialog(
+                getFrame(), 
+                coreProperties, // rendered read-only
+                customProperties, // will be edited
+                mailConfiguration.getCustomProperties(), // set include flags for these
+                i18n("Mail Properties"));
+        propertiesEditor.setVisible(true); // is modal
+        
+        if (propertiesEditor.wasCommitted())
+            mergeCustomProperties(coreProperties, customProperties);
+    }
     
     private void mergeCustomProperties(MailProperties mailProperties, Properties customProperties) {
-        //throw new RuntimeException("Implement me!");
+        final MailConfiguration mailConfiguration = getData().getHike().getAlert().getMailConfiguration();
+        mailConfiguration.getCustomProperties().clear();
+        
+        for (Map.Entry<Object,Object> entrySet : customProperties.entrySet()) {
+            final List<String> tuple = new ArrayList<>(2);
+            tuple.add((String) entrySet.getKey());
+            tuple.add((String) entrySet.getValue());
+            mailConfiguration.getCustomProperties().add(tuple);
+        }
     }
     
     private String validateMailProperties() { // TODO: move validation to mail package!
-        final MailConfiguration mailConfiguration = commitMailConfiguration();
+        final MailConfiguration mailConfiguration = commitToMailConfiguration();
         
         final String mailUser = mailConfiguration.getMailUser();
         if (StringUtil.isEmpty(mailUser))
@@ -269,7 +261,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         String error;
         try {
             final ConnectionCheck connectionCheck = 
-                    new ConnectionCheck(commitMailConfiguration(), validAuthenticator);
+                    new ConnectionCheck(commitToMailConfiguration(), validAuthenticator);
             final boolean success = connectionCheck.trySendAndReceive();
             error = (success ? null : "For problem please see console!");
             
@@ -362,10 +354,23 @@ public class MailConfigurationPage extends AbstractWizardPage
     private static class CustomPropertiesEditDialog extends PropertiesEditDialog
     {
         private Properties readOnlyProperties;
+        private List<List<String>> propertiesToBeMarkedIncluded;
+        private boolean committed;
         
-        public CustomPropertiesEditDialog(Frame parent, Properties readOnlyProperties, Properties editableProperties, String title) {
+        public CustomPropertiesEditDialog(
+                Frame parent, 
+                Properties readOnlyProperties, 
+                Properties editableProperties, 
+                List<List<String>> propertiesToBeMarkedIncluded,
+                String title)
+        {
             super(parent, editableProperties, title);
             this.readOnlyProperties = readOnlyProperties;
+            this.propertiesToBeMarkedIncluded = propertiesToBeMarkedIncluded;
+        }
+        
+        public boolean wasCommitted() {
+            return committed;
         }
         
         @Override
@@ -377,7 +382,26 @@ public class MailConfigurationPage extends AbstractWizardPage
             
             ((JComponent) table.getParent().getParent()).setBorder(BorderFactory.createTitledBorder(i18n("Editable Custom Properties")));
 
+            setIncludeFlags();
+            
             return contentPane;
+        }
+
+        @Override
+        protected boolean validateProperties() {
+            return committed = super.validateProperties();
+        }
+        
+        private void setIncludeFlags() {
+            for (int i = 0; i < namesAndValues.size(); i++) {
+                final Vector<Object> triple = namesAndValues.get(i);
+                final Object tripleName = triple.get(0);
+                for (List<String> tuple : propertiesToBeMarkedIncluded) {
+                    final String tupleName = tuple.get(0);
+                    if (tripleName.equals(tupleName))
+                        triple.set(2, Boolean.TRUE); // set include from false to true
+                }
+            }
         }
     }
 }
