@@ -375,7 +375,16 @@ public class MailConfigurationPage extends AbstractWizardPage
         @Override
         protected Container buildUi() {
             final Container contentPane = super.buildUi();
+            
+            // add core properties table to top
+            final JComponent readOnlyTable = buildReadOnlyTable(readOnlyProperties);
+            readOnlyTable.setBorder(BorderFactory.createTitledBorder(i18n("Core Properties")));
+            contentPane.add(readOnlyTable, BorderLayout.NORTH);
+            
+            ((JComponent) table.getParent().getParent()).setBorder(BorderFactory.createTitledBorder(i18n("Editable Custom Properties")));
+
             setIncludeFlags();
+            
             return contentPane;
         }
 
