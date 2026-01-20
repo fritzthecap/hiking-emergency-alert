@@ -1,4 +1,4 @@
-package fri.servers.hiking.emergencyalert.ui.swing.wizardpages;
+package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
@@ -22,6 +22,7 @@ import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.statemachine.states.OnTheWay;
 import fri.servers.hiking.emergencyalert.statemachine.states.OverdueAlert;
 import fri.servers.hiking.emergencyalert.ui.swing.Log;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 
 /**
@@ -30,36 +31,21 @@ import fri.servers.hiking.emergencyalert.util.DateUtil;
  */
 public class ObservationPage extends AbstractWizardPage
 {
-    private boolean canClose; // StateMachine is running
+    private boolean canClose; // when false, StateMachine is running
     private JButton homeAgain;
-    private ActionListener homeAgainListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            homeAgain(getData(), homeAgain);
-        }
-    };
+    private ActionListener homeAgainListener;
     private JTextArea instructionsArea;
     private JLabel timePanel;
     private JTextArea consoleOut;
     private JTextArea consoleErr;
     
+    /** Prevent going back to previous page while stateMachine is running. */
     @Override
-    protected AbstractWizardPage nextPage() {
-        return null; // makes "Next" button disabled
+    protected boolean commit() {
+        return canClose;
     }
     
-    @Override
-    public AbstractWizardPage getPreviousPage() {
-        if (canClose == false)
-            return null; // makes "Previous" button disabled
-        
-        return super.getPreviousPage();
-    }
-    
-    /**
-     * Called when user tries to close window.
-     * @return false when hike is still running, else true.
-     */
+    /** @return false when hike is still running, else true. */
     @Override
     public boolean windowClosing() {
         return canClose;
@@ -84,7 +70,7 @@ public class ObservationPage extends AbstractWizardPage
         timePanel = new JLabel("", JLabel.CENTER);
         timePanel.setFont(timePanel.getFont().deriveFont(20f));
         instructionsPanel.add(timePanel, BorderLayout.SOUTH);
-        add(instructionsPanel, BorderLayout.NORTH);
+        getContentPanel().add(instructionsPanel, BorderLayout.NORTH);
         
         // center
         consoleOut = new JTextArea();
@@ -98,19 +84,25 @@ public class ObservationPage extends AbstractWizardPage
         Log.redirectErr(consoleErr);
         
         final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setTopComponent(newJScrollPane(splitPane, consoleOut, "Progress"));
-        splitPane.setBottomComponent(newJScrollPane(splitPane, consoleErr, "Errors"));
+        splitPane.setTopComponent(scrollPaneForColoredConsole(splitPane, consoleOut, "Progress"));
+        splitPane.setBottomComponent(scrollPaneForColoredConsole(splitPane, consoleErr, "Errors"));
         splitPane.setResizeWeight(0.5);
         
-        add(splitPane, BorderLayout.CENTER);
+        getContentPanel().add(splitPane, BorderLayout.CENTER);
         
         // bottom
+        homeAgainListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                homeAgain(getStateMachine(), homeAgain);
+            }
+        };
         homeAgain = new JButton(i18n("Home Again"));
         final JPanel buttonPanel = new JPanel(new FlowLayout()); // centers button
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER, BORDER));
         buttonPanel.add(homeAgain);
         
-        add(buttonPanel, BorderLayout.SOUTH);
+        getContentPanel().add(buttonPanel, BorderLayout.SOUTH);
     }
     
     @Override
@@ -137,8 +129,7 @@ public class ObservationPage extends AbstractWizardPage
         
         SwingUtilities.invokeLater(() -> {
             try {
-                final StateMachine stateMachine = getData();
-                stateMachine.getUserInterface().activateHike(hike);
+                getStateMachine().getUserInterface().activateHike(hike);
             }
             catch (Exception e) { // validation assertions could strike
                 endState(null);
@@ -147,7 +138,8 @@ public class ObservationPage extends AbstractWizardPage
         });
     }
 
-    private JScrollPane newJScrollPane(final JSplitPane splitPane, JTextArea console, String title) {
+
+    private JScrollPane scrollPaneForColoredConsole(final JSplitPane splitPane, JTextArea console, String title) {
         final JScrollPane scrollPane = new JScrollPane(console);
         scrollPane.setBorder(BorderFactory.createTitledBorder(i18n(title)));
         
@@ -185,8 +177,7 @@ public class ObservationPage extends AbstractWizardPage
             
             if (response == JOptionPane.YES_OPTION) {
                 endState(Color.GREEN.darker().darker());
-                
-                getData().getUserInterface().comingHome();
+                getStateMachine().getUserInterface().comingHome();
             }
         }
     }

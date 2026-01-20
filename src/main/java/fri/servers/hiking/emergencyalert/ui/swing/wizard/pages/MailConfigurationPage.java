@@ -1,4 +1,4 @@
-package fri.servers.hiking.emergencyalert.ui.swing.wizardpages;
+package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
@@ -39,11 +39,12 @@ import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
 import fri.servers.hiking.emergencyalert.ui.swing.util.PropertiesEditDialog;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
 import jakarta.mail.Authenticator;
 
 /**
- * Configure your mail server.
+ * Configure mail send- and receive-connection.
  */
 public class MailConfigurationPage extends AbstractWizardPage
 {
@@ -69,18 +70,12 @@ public class MailConfigurationPage extends AbstractWizardPage
     
     /** Overridden to deny next page when mail connection is not working. */
     @Override
-    public AbstractWizardPage getNextPage() {
-        return connectionTest(false) ? super.getNextPage() : null;
-    }
-    
-    @Override
-    protected AbstractWizardPage nextPage() {
-        return new ContactsPage();
-    }
-    
-    @Override
-    protected void commitData() {
-        commitToMailConfiguration();
+    public boolean commit() {
+        if (connectionTest(false)) {
+            getTrolley().setAuthenticator(validAuthenticator);
+            return true;
+        }
+        return false;
     }
     
     @Override
@@ -95,7 +90,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         
         receiveMailProtocol = SwingUtil.buildComboBox(
                 i18n("Protocol"), 
-                i18n("Protocol used for receiving mail"), 
+                i18n("Protocol to use for reading INBOX mails"), 
                 new String [] { "pop3", "imap" });
         
         receiveMailHost = SwingUtil.buildTextField(
@@ -109,12 +104,12 @@ public class MailConfigurationPage extends AbstractWizardPage
         
         sendMailProtocol = SwingUtil.buildComboBox(
                 i18n("Protocol"), 
-                i18n("Protocol used for sending mail"), 
+                i18n("Protocol to use for sending mail"), 
                 new String [] { "smtp" });
         
         sendMailHost = SwingUtil.buildTextField(
                 i18n("Host"), 
-                i18n("Something like 'smtp.provider.domain'"), 
+                i18n("Maybe the same as receive host, or something like 'smtp.provider.domain'"), 
                 null);
         sendMailPort = SwingUtil.buildNumberField(
                 i18n("Port"), 
@@ -173,7 +168,7 @@ public class MailConfigurationPage extends AbstractWizardPage
     
     
     private MailConfiguration commitToMailConfiguration() {
-        final MailConfiguration mailConfiguration = getData().getHike().getAlert().getMailConfiguration();
+        final MailConfiguration mailConfiguration = getHike().getAlert().getMailConfiguration();
         
         mailConfiguration.setMailUser(mailUser.getText());
         
@@ -207,7 +202,7 @@ public class MailConfigurationPage extends AbstractWizardPage
     }
     
     private void mergeCustomProperties(MailProperties mailProperties, Properties customProperties) {
-        final MailConfiguration mailConfiguration = getData().getHike().getAlert().getMailConfiguration();
+        final MailConfiguration mailConfiguration = getHike().getAlert().getMailConfiguration();
         mailConfiguration.getCustomProperties().clear();
         
         for (Map.Entry<Object,Object> entrySet : customProperties.entrySet()) {
@@ -270,6 +265,7 @@ public class MailConfigurationPage extends AbstractWizardPage
             return false;
         
         String error;
+        setWaitCursor();
         try {
             final ConnectionCheck connectionCheck = 
                     new ConnectionCheck(commitToMailConfiguration(), validAuthenticator);
@@ -281,6 +277,9 @@ public class MailConfigurationPage extends AbstractWizardPage
         catch (MailException e) {
             e.printStackTrace();
             error = e.getMessage();
+        }
+        finally {
+            setDefaultCursor();
         }
         
         if (error != null)
@@ -321,17 +320,17 @@ public class MailConfigurationPage extends AbstractWizardPage
         sendAndReceive.add(receivePanel);
         sendAndReceive.add(sendPanel);
         
-        final JPanel mailPropertiesButtonPanel = new JPanel();
-        mailPropertiesButtonPanel.add(mailPropertiesButton);
-        mailPropertiesButtonPanel.add(mailTestButton);
+        final JPanel buttonsPanel = new JPanel();
+        buttonsPanel.add(mailPropertiesButton);
+        buttonsPanel.add(mailTestButton);
         
         final JPanel all = new JPanel(new BorderLayout());
         all.add(mailUserPanel, BorderLayout.NORTH);
         all.add(sendAndReceive, BorderLayout.CENTER);
-        all.add(mailPropertiesButtonPanel, BorderLayout.SOUTH);
+        all.add(buttonsPanel, BorderLayout.SOUTH);
         
-        setLayout(new GridBagLayout());
-        add(all);
+        getContentPanel().setLayout(new GridBagLayout());
+        getContentPanel().add(all);
     }
     
     private void installFocusListeners() {

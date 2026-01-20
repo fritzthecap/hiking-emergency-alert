@@ -39,7 +39,6 @@ public class SwingUserInterface extends UserInterface
     public void showConfirmMail(Mail alertConfirmationMail) {
         final String mailInfoText = 
                 alertConfirmationMail.from()+"\n"+
-                alertConfirmationMail.subject()+"\n"+
                 DateUtil.toString(alertConfirmationMail.sent(), true);
         
         final JTextArea mailInfoComponent = new JTextArea(mailInfoText);

@@ -1,4 +1,7 @@
-package fri.servers.hiking.emergencyalert.ui.swing.wizardpages;
+package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
+
+import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 
 /**
  * Hiker contact and address, and a list of mail contacts.
@@ -6,7 +9,17 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizardpages;
 public class ContactsPage extends AbstractWizardPage
 {
     @Override
-    protected AbstractWizardPage nextPage() {
-        return new MailTextsPage();
+    protected void buildUi() {
+        throw new RuntimeException("Implement me!");
+    }
+    
+    @Override
+    protected void populateUi(Hike hike) {
+        throw new RuntimeException("Implement me!");
+    }
+    
+    @Override
+    protected boolean commit() {
+        throw new RuntimeException("Implement me!");
     }
 }

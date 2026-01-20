@@ -1,4 +1,4 @@
-package fri.servers.hiking.emergencyalert.ui.swing;
+package fri.servers.hiking.emergencyalert.ui.swing.wizard;
 
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
@@ -14,32 +14,63 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
-import fri.servers.hiking.emergencyalert.ui.swing.wizardpages.AbstractWizardPage;
-import fri.servers.hiking.emergencyalert.ui.swing.wizardpages.LanguagePage;
-import fri.servers.hiking.emergencyalert.ui.swing.wizardpages.MailConfigurationPage;
-import fri.servers.hiking.emergencyalert.ui.swing.wizardpages.ObservationPage;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.*;
 
 /**
- * Lets edit <code>Hike</code> data and then start that hike.
+ * Lets edit <code>Hike</code> data, on a number of pages,
+ * finally lets start that hike.
  */
-public class HikeInputWizard extends JPanel
+public class HikeWizard extends JPanel
 {
     private final JFrame frame;
     private final StateMachine stateMachine;
+    private final JPanel contentPanel;
+    private final JSplitPane leftSplitPane;
+    private final JSplitPane rightSplitPane;
     
-    private AbstractWizardPage page;
     private JButton previousButton;
     private JButton nextButton;
     
-    public HikeInputWizard(JFrame frame, StateMachine stateMachine) {
+    private AbstractWizardPage[] pages = new AbstractWizardPage[] {
+        new LanguagePage(),
+        new IntervalsPage(),
+        new MailTextsPage(),
+        new ContactsPage(),
+        new MailConfigurationPage(),
+        new RoutePage(),
+        new BeginAndHomeTimePage(),
+        new ActivationPage(),
+        new ObservationPage(),
+    };
+    private int pageIndex;
+    
+    public HikeWizard(JFrame frame, StateMachine stateMachine) {
         super(new BorderLayout());
         
         this.frame = frame;
         this.stateMachine = stateMachine;
+        
+        this.contentPanel = new JPanel(new BorderLayout());
+        
+        leftSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        leftSplitPane.setResizeWeight(0.3);
+        leftSplitPane.setOneTouchExpandable(true);
+        leftSplitPane.setLeftComponent(new JPanel()); // TODO: HTML description texts
+        
+        rightSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        rightSplitPane.setResizeWeight(0.5);
+        rightSplitPane.setOneTouchExpandable(true);
+        rightSplitPane.setLeftComponent(contentPanel);
+        rightSplitPane.setRightComponent(new JPanel()); // TODO: consoles
+        
+        leftSplitPane.setRightComponent(rightSplitPane);
+        
+        add(leftSplitPane, BorderLayout.CENTER);
         
         buildUi();
         
@@ -47,7 +78,7 @@ public class HikeInputWizard extends JPanel
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                if (page.windowClosing()) {
+                if (page().windowClosing()) {
                     frame.dispose(); // exits only when no thread is running!
                     System.exit(0);
                 }
@@ -61,7 +92,8 @@ public class HikeInputWizard extends JPanel
      * A dialog rendering the mail will be shown afterwards by calling class.
      */
     public void alertConfirmed() {
-        ((ObservationPage) page).alertConfirmed();
+        if (page() instanceof ObservationPage)
+            ((ObservationPage) page()).alertConfirmed();
     }
 
     private void buildUi() {
@@ -70,22 +102,14 @@ public class HikeInputWizard extends JPanel
             try {
                 final Hike hike = new JsonGsonSerializer<Hike>().fromJson(defaultHikeJson, Hike.class);
                 stateMachine.getUserInterface().registerHike(hike);
-                page = new MailConfigurationPage();
+                pageIndex = mailConfigurationPageIndex(); // for entering password
             }
             catch (IOException e) {
                 JOptionPane.showMessageDialog(frame, e.toString());
             }
         }
-        
-        if (page == null)
-            page = new LanguagePage();
-        
-        page.setData(stateMachine);
-        
-        final JPanel buttonBar = buildButtonBar();
-        
-        add(page, BorderLayout.CENTER);
-        add(buttonBar, BorderLayout.SOUTH);
+        contentPanel.add(buildButtonBar(), BorderLayout.SOUTH);
+        changePage(0, true);
     }
     
     private JPanel buildButtonBar() {
@@ -94,11 +118,10 @@ public class HikeInputWizard extends JPanel
         final ActionListener skipListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final AbstractWizardPage newPage = (e.getSource() == nextButton)
-                        ? page.getNextPage()
-                        : page.getPreviousPage();
-                if (newPage != null)
-                    setPage(newPage);
+                final boolean next = (e.getSource() == nextButton);
+                final int newIndex = (next ? pageIndex + 1 : pageIndex - 1);
+                changePage(newIndex, false);
+
             }
         };
         previousButton.addActionListener(skipListener);
@@ -109,11 +132,8 @@ public class HikeInputWizard extends JPanel
         grid.add(nextButton);
         
         final JPanel panel = new JPanel(new FlowLayout()); // centers buttons
-        final int SPACE = 10;
-        panel.setBorder(BorderFactory.createEmptyBorder(SPACE, SPACE, SPACE, SPACE));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         panel.add(grid);
-        
-        setButtonsEnabled();
         
         return panel;
     }
@@ -127,19 +147,43 @@ public class HikeInputWizard extends JPanel
         }
     }
     
-    private void setPage(AbstractWizardPage otherPage) {
-        remove(page);
-        page = otherPage;
-        add(page, BorderLayout.CENTER);
+    private int mailConfigurationPageIndex() {
+        for (int i = 0; i < pages.length; i++)
+            if (pages[i] instanceof MailConfigurationPage)
+                return i;
+        throw new IllegalStateException("MailConfigurationPage not in pages!");
+    }
+
+    private void changePage(int newIndex, boolean isFirstCall) {
+        final AbstractWizardPage oldPage = page();
         
-        revalidate();
-        repaint();
+        final Trolley trolley;
+        if (isFirstCall)
+            trolley = new Trolley(stateMachine);
+        else
+            if ((trolley = oldPage.leave()) != null) // can leave
+                contentPanel.remove(oldPage.getAddablePanel());
+            else
+                return; // page does not allow to skip
+
+        final AbstractWizardPage newPage = pages[newIndex];
+        contentPanel.add(newPage.getAddablePanel(), BorderLayout.CENTER);
+        pageIndex = newIndex;
+        
+        newPage.enter(trolley);
+        
+        contentPanel.revalidate();
+        contentPanel.repaint();
         
         setButtonsEnabled();
     }
     
     private void setButtonsEnabled() {
-        previousButton.setEnabled(page.hasPreviousPage());
-        nextButton.setEnabled(page.hasNextPage());
+        previousButton.setEnabled(pageIndex > 0);
+        nextButton.setEnabled(pageIndex < pages.length - 1);
+    }
+    
+    private AbstractWizardPage page() {
+        return pages[pageIndex];
     }
 }

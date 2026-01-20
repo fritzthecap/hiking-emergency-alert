@@ -7,6 +7,7 @@ import fri.servers.hiking.emergencyalert.mail.impl.MailerImpl;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.time.HikeTimer;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.HikeWizard;
 
 /**
  * The Swing UI for starting a hike observation.
@@ -26,7 +27,7 @@ public class SwingAlertHomeServer extends SwingUserInterface
                 this);
         
         final JFrame frame = new JFrame();
-        final HikeInputWizard hikeInputWizard = new HikeInputWizard(frame, stateMachine);
+        final HikeWizard hikeInputWizard = new HikeWizard(frame, stateMachine);
         frame.getContentPane().add(hikeInputWizard);
         
         return frame;
@@ -44,7 +45,7 @@ public class SwingAlertHomeServer extends SwingUserInterface
     /** Overridden to notify the wizard's ObservationPage. */
     @Override
     public void showConfirmMail(Mail alertConfirmationMail) {
-        final HikeInputWizard wizard = (HikeInputWizard) frame.getContentPane().getComponent(0);
+        final HikeWizard wizard = (HikeWizard) frame.getContentPane().getComponent(0);
         wizard.alertConfirmed();
         
         super.showConfirmMail(alertConfirmationMail);
