@@ -65,7 +65,7 @@ public class IntervalsPage extends AbstractWizardPage
     }
     
     @Override
-    protected boolean commit() {
+    protected boolean commit(boolean isWindowClose) {
         getHike().setAlertIntervalMinutes(getAlertIntervalMinutes());
         getHike().setAlertIntervalShrinking(getAlertIntervalShrinking());
         getHike().setUseContactDetectionMinutes(isUseContactDetectionMinutes());

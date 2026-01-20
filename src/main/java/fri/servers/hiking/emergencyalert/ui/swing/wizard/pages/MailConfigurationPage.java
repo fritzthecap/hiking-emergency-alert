@@ -66,16 +66,19 @@ public class MailConfigurationPage extends AbstractWizardPage
     private boolean focusListenerInstalled;
     
     private Authenticator validAuthenticator;
-    // TODO: can be passed forward to activation, when not null, holds the valid mail password
     
-    /** Overridden to deny next page when mail connection is not working. */
+    /** When isWindowClose is false, denies next page when mail connection is not working. */
     @Override
-    public boolean commit() {
-        if (connectionTest(false)) {
-            getTrolley().setAuthenticator(validAuthenticator);
-            return true;
+    public boolean commit(boolean isWindowClose) {
+        if (isWindowClose == false) {
+            if (connectionTest(false)) { // calls commitToMailConfiguration()
+                getTrolley().setAuthenticator(validAuthenticator);
+                return true;
+            }
+            return false;
         }
-        return false;
+        commitToMailConfiguration();
+        return true;
     }
     
     @Override
@@ -134,7 +137,8 @@ public class MailConfigurationPage extends AbstractWizardPage
         mailTestButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                connectionTest(true);
+                if (validateMailProperties() == null)
+                    connectionTest(true);
             }
         });
         mailTestButton.setToolTipText(i18n("Sends a mail to your mailbox, then receives and deletes it"));
@@ -261,9 +265,6 @@ public class MailConfigurationPage extends AbstractWizardPage
     }
 
     private boolean connectionTest(boolean showSuccessDialog) {
-        if (validateMailProperties() != null)
-            return false;
-        
         String error;
         setWaitCursor();
         try {

@@ -30,7 +30,7 @@ public class Trolley
     }
     
     /** @return true when the hike was changed by the UI, done by comparison with a deep clone. */
-    public boolean hikeChanged() {
+    public boolean isHikeChanged() {
         return hikeCopy.isEqual(stateMachine.getHike()) == false;
     }
 }

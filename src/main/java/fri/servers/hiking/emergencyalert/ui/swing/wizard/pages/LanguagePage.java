@@ -49,7 +49,7 @@ public class LanguagePage extends AbstractWizardPage
     }
     
     @Override
-    protected boolean commit() {
+    protected boolean commit(boolean isWindowClose) {
         final Locale locale = ((Item) languageChoice.getSelectedItem()).locale;
         getHike().getAlert().setIso639Language(locale.getLanguage());
         loadStringResources(locale);
