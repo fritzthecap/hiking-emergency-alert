@@ -22,6 +22,7 @@
     "mailOfHiker": "hiker@emergency.org",
     "nameOfHiker": "Peter Hiker",
     "addressOfHiker": "Hikerstreet 1, A-1234 Hikertown, Antarctica",
+    "iso639Language": "en",
     "alertContacts": [
       {
         "mailAddress": "example.user@provider.org",
