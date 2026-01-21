@@ -3,6 +3,8 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.Locale;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
@@ -15,6 +17,12 @@ import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 public class LanguagePage extends AbstractWizardPage
 {
     private JComboBox<Item> languageChoice;
+    
+    @Override
+    protected boolean commit(boolean isWindowClose) {
+        getHike().getAlert().setIso639Language(getSelectedLocale().getLanguage());
+        return true;
+    }
     
     @Override
     protected void buildUi() {
@@ -34,33 +42,38 @@ public class LanguagePage extends AbstractWizardPage
         
         getContentPanel().setLayout(new GridBagLayout()); // center
         getContentPanel().add(languageChoice);
+        
+        languageChoice.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED)
+                    loadStringResources(getSelectedLocale());
+            }
+        });
     }
     
     @Override
     protected void populateUi(Hike hike) {
-        if (isLocaleDifferent(hike)) {
-            final Locale hikeLocale = getHikeLocale(hike);
+        final Locale selectedLocale = getSelectedLocale();
+        final Locale hikeLocale = getHikeLocale(hike);
+        if (hikeLocale != null && selectedLocale.equals(hikeLocale) == false) {
             for (int i = 0; i < languageChoice.getItemCount(); i++) {
                 final Item item = languageChoice.getItemAt(i);
                 if (item.locale.equals(hikeLocale))
-                    languageChoice.setSelectedItem(item);
+                    languageChoice.setSelectedItem(item); // should trigger ItemListener
             }
         }
     }
-    
-    @Override
-    protected boolean commit(boolean isWindowClose) {
-        final Locale locale = ((Item) languageChoice.getSelectedItem()).locale;
-        getHike().getAlert().setIso639Language(locale.getLanguage());
-        loadStringResources(locale);
-        return true;
-    }
-    
-    
+
+
     private void loadStringResources(Locale locale) {
         System.out.println("TODO: load UI resources for "+locale.getDisplayName()); // TODO
     }
 
+    private Locale getSelectedLocale() {
+        return ((Item) languageChoice.getSelectedItem()).locale;
+    }
+    
     private Locale getHikeLocale(Hike hike) {
         final String iso639Language = hike.getAlert().getIso639Language();
         try {
@@ -68,18 +81,10 @@ public class LanguagePage extends AbstractWizardPage
         }
         catch (Exception e) {
             System.err.println(e.toString());
-            return Locale.ENGLISH;
+            return null;
         }
     }
     
-    private Locale getSelectedLocale() {
-        return ((Item) languageChoice.getSelectedItem()).locale;
-    }
-    
-    private boolean isLocaleDifferent(Hike hike) {
-        return getSelectedLocale().equals(getHikeLocale(hike)) == false;
-    }
-            
     
     private static class Item // JComboBox Item
     {

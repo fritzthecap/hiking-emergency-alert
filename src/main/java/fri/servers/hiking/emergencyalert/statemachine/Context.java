@@ -86,7 +86,7 @@ public class Context
             throw new IllegalStateException("Timer can be started just once!");
         
         try { // here the mail connection login dialog may show up
-            if (mailer.ensureMailConnection(hike.getAlert().getMailConfiguration(), 5) == false)
+            if (mailer.ensureMailConnection(hike.getAlert().getMailConfiguration()) == false)
                 throw new RuntimeException("Could not send and receive mail!");
         }
         catch (MailException e) {

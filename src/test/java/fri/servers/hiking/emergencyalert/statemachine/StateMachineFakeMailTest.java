@@ -81,7 +81,7 @@ class StateMachineFakeMailTest
             private boolean polling = false;
             
             @Override
-            public boolean ensureMailConnection(MailConfiguration mailConfiguration, int maxSecs) throws MailException {
+            public boolean ensureMailConnection(MailConfiguration mailConfiguration) throws MailException {
                 return true;
             }
             @Override

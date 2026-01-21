@@ -21,9 +21,7 @@ public class MailerImpl implements Mailer
     private Set<SendResult> alertSendResults = new HashSet<>();
     
     @Override
-    public boolean ensureMailConnection(MailConfiguration mailConfiguration, int maximumWaitSeconds)
-            throws MailException
-    {
+    public boolean ensureMailConnection(MailConfiguration mailConfiguration) throws MailException {
         final ConnectionCheck check = newConnectionCheck(mailConfiguration);
         try {
             final boolean roundTripDone = check.trySendAndReceive(); // true when mail was deleted

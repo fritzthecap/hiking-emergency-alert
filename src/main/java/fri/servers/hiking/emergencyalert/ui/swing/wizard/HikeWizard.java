@@ -58,7 +58,7 @@ public class HikeWizard extends JPanel
         this.contentPanel = new JPanel(new BorderLayout());
         
         leftSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        leftSplitPane.setResizeWeight(0.3);
+        leftSplitPane.setResizeWeight(0.33);
         leftSplitPane.setOneTouchExpandable(true);
         leftSplitPane.setLeftComponent(new JPanel()); // TODO: HTML description texts
         

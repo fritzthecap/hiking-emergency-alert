@@ -61,6 +61,7 @@ public class MailConfigurationPage extends AbstractWizardPage
     
     private JButton mailPropertiesButton;
     private JButton mailTestButton;
+    private JFormattedTextField maximumConnectionTestSecondsField;
 
     private JLabel errorField;
     private boolean focusListenerInstalled;
@@ -71,7 +72,7 @@ public class MailConfigurationPage extends AbstractWizardPage
     @Override
     public boolean commit(boolean isWindowClose) {
         if (isWindowClose == false) {
-            if (connectionTest(false)) { // calls commitToMailConfiguration()
+            if (connectionTest(false)) { // not showing success dialog, calls commitToMailConfiguration()
                 getTrolley().setAuthenticator(validAuthenticator);
                 return true;
             }
@@ -95,7 +96,6 @@ public class MailConfigurationPage extends AbstractWizardPage
                 i18n("Protocol"), 
                 i18n("Protocol to use for reading INBOX mails"), 
                 new String [] { "pop3", "imap" });
-        
         receiveMailHost = SwingUtil.buildTextField(
                 i18n("Host"), 
                 i18n("Something like 'pop.provider.domain' or 'imap.provider.domain'"), 
@@ -109,7 +109,6 @@ public class MailConfigurationPage extends AbstractWizardPage
                 i18n("Protocol"), 
                 i18n("Protocol to use for sending mail"), 
                 new String [] { "smtp" });
-        
         sendMailHost = SwingUtil.buildTextField(
                 i18n("Host"), 
                 i18n("Maybe the same as receive host, or something like 'smtp.provider.domain'"), 
@@ -118,13 +117,12 @@ public class MailConfigurationPage extends AbstractWizardPage
                 i18n("Port"), 
                 i18n("SMTP uses 25 or 587 (secure)"),
                 25);
-        
         sendMailFromAccount = SwingUtil.buildTextField(
                 i18n("'From' Mail Address"), 
                 i18n("Needed only when the mail-user is not a mail-address"), 
                 null);
         
-        mailPropertiesButton = new JButton(i18n("Edit Custom Properties"));
+        mailPropertiesButton = new JButton(i18n("Add Properties"));
         mailPropertiesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -133,15 +131,22 @@ public class MailConfigurationPage extends AbstractWizardPage
         });
         mailPropertiesButton.setToolTipText(i18n("Add more mail properties, overriding the basic ones"));
         
-        mailTestButton = new JButton(i18n("Test Mail Connection"));
+        mailTestButton = new JButton(i18n("Test Connection"));
         mailTestButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (validateMailProperties() == null)
-                    connectionTest(true);
+                connectionTest(true);
             }
         });
         mailTestButton.setToolTipText(i18n("Sends a mail to your mailbox, then receives and deletes it"));
+        
+        final JLabel maximumConnectionTestSecondsLabel = new JLabel(i18n("Maximum Connection Wait"));
+        final JLabel seconds = new JLabel(i18n("Seconds"));
+        maximumConnectionTestSecondsField = SwingUtil.buildNumberField(
+                null, 
+                i18n("The maximum number of seconds to wait on mail connection test"),
+                6);
+        maximumConnectionTestSecondsField.setColumns(3);
         
         errorField = new JLabel();
         errorField.setForeground(Color.RED);
@@ -149,7 +154,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         
         bindProtocolToPort();
         
-        layoutFields(mailPassword);
+        layoutFields(mailPassword, maximumConnectionTestSecondsLabel, seconds);
     }
 
     @Override
@@ -167,6 +172,8 @@ public class MailConfigurationPage extends AbstractWizardPage
         sendMailPort.setValue(mailConfiguration.getSendMailPort());
         sendMailFromAccount.setText(mailConfiguration.getSendMailFromAccount());
         
+        maximumConnectionTestSecondsField.setValue(mailConfiguration.getMaximumConnectionTestSeconds());
+        
         installFocusListeners();
     }
     
@@ -174,16 +181,27 @@ public class MailConfigurationPage extends AbstractWizardPage
     private MailConfiguration commitToMailConfiguration() {
         final MailConfiguration mailConfiguration = getHike().getAlert().getMailConfiguration();
         
-        mailConfiguration.setMailUser(mailUser.getText());
+        if (StringUtil.isNotEmpty(mailUser.getText()))
+            mailConfiguration.setMailUser(mailUser.getText());
         
         mailConfiguration.setReceiveMailProtocol((String) receiveMailProtocol.getSelectedItem());
-        mailConfiguration.setReceiveMailHost(receiveMailHost.getText());
+        
+        if (StringUtil.isNotEmpty((String) receiveMailHost.getText()))
+            mailConfiguration.setReceiveMailHost(receiveMailHost.getText());
+        
         mailConfiguration.setReceiveMailPort((int) receiveMailPort.getValue());
 
         mailConfiguration.setSendMailProtocol((String) sendMailProtocol.getSelectedItem());
-        mailConfiguration.setSendMailHost(sendMailHost.getText());
+        
+        if (StringUtil.isNotEmpty(sendMailHost.getText()))
+            mailConfiguration.setSendMailHost(sendMailHost.getText());
+        
         mailConfiguration.setSendMailPort((int) sendMailPort.getValue());
-        mailConfiguration.setSendMailFromAccount(sendMailFromAccount.getText());
+        
+        if (StringUtil.isNotEmpty(sendMailFromAccount.getText()))
+            mailConfiguration.setSendMailFromAccount(sendMailFromAccount.getText());
+        
+        mailConfiguration.setMaximumConnectionTestSeconds((int) maximumConnectionTestSecondsField.getValue());
         
         return mailConfiguration;
     }
@@ -245,31 +263,15 @@ public class MailConfigurationPage extends AbstractWizardPage
         return null; // all fields are valid!
     }
     
-    private void bindProtocolToPort() {
-        final ItemListener itemListener = new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                final String protocol = (String) receiveMailProtocol.getSelectedItem();
-                if ("pop3".equals(protocol))
-                    receiveMailPort.setValue(110);
-                else if ("pop3s".equals(protocol))
-                    receiveMailPort.setValue(995);
-                else if ("imap".equals(protocol))
-                    receiveMailPort.setValue(143);
-                else if ("imaps".equals(protocol))
-                    receiveMailPort.setValue(993);
-            }
-        };
-
-        receiveMailProtocol.addItemListener(itemListener);
-    }
-
     private boolean connectionTest(boolean showSuccessDialog) {
+        if (validateMailProperties() != null) // calls commitToMailConfiguration()
+            return false;
+
         String error;
         setWaitCursor();
         try {
             final ConnectionCheck connectionCheck = 
-                    new ConnectionCheck(commitToMailConfiguration(), validAuthenticator);
+                    new ConnectionCheck(getHike().getAlert().getMailConfiguration(), validAuthenticator);
             final boolean success = connectionCheck.trySendAndReceive();
             error = (success ? null : i18n("Either send or receive doesn't work, see console for errors."));
             
@@ -293,7 +295,26 @@ public class MailConfigurationPage extends AbstractWizardPage
         return (error == null);
     }
 
-    private void layoutFields(JComponent mailPassword) {
+    private void bindProtocolToPort() {
+        final ItemListener itemListener = new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                final String protocol = (String) receiveMailProtocol.getSelectedItem();
+                if ("pop3".equals(protocol))
+                    receiveMailPort.setValue(110);
+                else if ("pop3s".equals(protocol))
+                    receiveMailPort.setValue(995);
+                else if ("imap".equals(protocol))
+                    receiveMailPort.setValue(143);
+                else if ("imaps".equals(protocol))
+                    receiveMailPort.setValue(993);
+            }
+        };
+
+        receiveMailProtocol.addItemListener(itemListener);
+    }
+
+    private void layoutFields(JComponent mailPassword, JLabel maximumConnectionTestSecondsLabel, JLabel seconds) {
         final JPanel mailUserPanel = new JPanel();
         mailUserPanel.setLayout(new BoxLayout(mailUserPanel, BoxLayout.Y_AXIS));
         mailUserPanel.add(errorField);
@@ -322,13 +343,20 @@ public class MailConfigurationPage extends AbstractWizardPage
         sendAndReceive.add(sendPanel);
         
         final JPanel buttonsPanel = new JPanel();
-        buttonsPanel.add(mailPropertiesButton);
         buttonsPanel.add(mailTestButton);
+        buttonsPanel.add(mailPropertiesButton);
+        final JPanel maximumSecondsPanel = new JPanel();
+        maximumSecondsPanel.add(maximumConnectionTestSecondsLabel);
+        maximumSecondsPanel.add(maximumConnectionTestSecondsField);
+        maximumSecondsPanel.add(seconds);
+        final JPanel southPanel = new JPanel(new GridLayout(2, 1));
+        southPanel.add(buttonsPanel);
+        southPanel.add(maximumSecondsPanel);
         
         final JPanel all = new JPanel(new BorderLayout());
         all.add(mailUserPanel, BorderLayout.NORTH);
         all.add(sendAndReceive, BorderLayout.CENTER);
-        all.add(buttonsPanel, BorderLayout.SOUTH);
+        all.add(southPanel, BorderLayout.SOUTH);
         
         getContentPanel().setLayout(new GridBagLayout());
         getContentPanel().add(all);

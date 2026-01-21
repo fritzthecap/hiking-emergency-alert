@@ -22,12 +22,9 @@ public interface Mailer
      * Performs a connection test against given configuration. 
      * Validates the authenticator and thus must be called before any other method here!
      * @param mailConfiguration the MailConfiguration from Hike Alert.
-     * @param maximumWaitSeconds maximum seconds to wait for the test-mail to arrive at INBOX.
      * @throws MailException when mail connection failed.
      */
-    public boolean ensureMailConnection(
-            MailConfiguration mailConfiguration, 
-            int maximumWaitSeconds) throws MailException;
+    public boolean ensureMailConnection(MailConfiguration mailConfiguration) throws MailException;
     
     /**
      * Sends a mail, built from given hike, to given contact.

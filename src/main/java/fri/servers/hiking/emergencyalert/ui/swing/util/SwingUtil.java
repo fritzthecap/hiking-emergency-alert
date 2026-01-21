@@ -11,8 +11,10 @@ public final class SwingUtil
 {
     public static JTextField buildTextField(String title, String tooltip, String defaultValue) {
         final JTextField field = new JTextField();
-        field.setToolTipText(tooltip);
-        field.setBorder(BorderFactory.createTitledBorder(title));
+        if (tooltip != null)
+            field.setToolTipText(tooltip);
+        if (title != null)
+            field.setBorder(BorderFactory.createTitledBorder(title));
         if (defaultValue != null)
             field.setText(defaultValue);
         return field;
@@ -27,8 +29,10 @@ public final class SwingUtil
         numberFormatter.setAllowsInvalid(false);
 
         final JFormattedTextField field = new JFormattedTextField(numberFormatter);
-        field.setToolTipText(tooltip);
-        field.setBorder(BorderFactory.createTitledBorder(title));
+        if (tooltip != null)
+            field.setToolTipText(tooltip);
+        if (title != null)
+            field.setBorder(BorderFactory.createTitledBorder(title));
         field.setValue(initial);
         
         return field;
@@ -37,8 +41,10 @@ public final class SwingUtil
     public static JComboBox<String> buildComboBox(String title, String tooltip, String[] values) {
         final JComboBox<String> combo = new JComboBox<>(values);
         combo.setEditable(true);
-        combo.setBorder(BorderFactory.createTitledBorder(title));
-        combo.setToolTipText(tooltip);
+        if (title != null)
+            combo.setBorder(BorderFactory.createTitledBorder(title));
+        if (tooltip != null)
+            combo.setToolTipText(tooltip);
         return combo;
     }
 

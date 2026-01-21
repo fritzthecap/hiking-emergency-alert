@@ -30,7 +30,7 @@ public class ConnectionCheck extends InboxVisitorConnection
             mailConfiguration,
             authenticator,
             new Hike().uniqueMailId, /// the mail text that should be found
-            DateUtil.addSeconds(DateUtil.now(), -1), // send will happen very fast without password input
+            DateUtil.addSeconds(DateUtil.now(), -1), // send will happen very fast, without password input
             null);
     }
     
