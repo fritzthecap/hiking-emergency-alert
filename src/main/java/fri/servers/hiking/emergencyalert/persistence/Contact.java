@@ -5,7 +5,7 @@ public class Contact
     private String mailAddress;
     private String firstName;
     private String lastName;
-    private Boolean absent = Boolean.FALSE; // will be ignored on mail sending
+    private boolean absent; // absent contacts will be ignored on mail sending
     private int detectionMinutes = 60; // how long this person needs to detect a mail
     
     public String getMailAddress() {
@@ -26,10 +26,10 @@ public class Contact
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-    public Boolean isAbsent() {
+    public boolean isAbsent() {
         return absent;
     }
-    public void setAbsent(Boolean absent) {
+    public void setAbsent(boolean absent) {
         this.absent = absent;
     }
     public int getDetectionMinutes() {

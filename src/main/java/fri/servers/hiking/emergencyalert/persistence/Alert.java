@@ -13,6 +13,7 @@ public class Alert
     private String mailOfHiker;
     private String nameOfHiker;
     private String addressOfHiker;
+    
     private String iso639Language = "en";
     
     private List<Contact> alertContacts = new ArrayList<>();

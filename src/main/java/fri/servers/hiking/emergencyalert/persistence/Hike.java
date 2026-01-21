@@ -25,9 +25,9 @@ public class Hike
     private Date plannedBegin = todayAtZero; // timer starts here
     private Date plannedHome = todayAtZero; // timer begins alerting here
     
-    private Integer alertIntervalMinutes = 60; // alerting interval
-    private Float alertIntervalShrinking = 1.0f; // how the interval gets smaller over time
-    private Boolean useContactDetectionMinutes = Boolean.FALSE;
+    private int alertIntervalMinutes = 60; // alerting interval
+    private float alertIntervalShrinking = 1.0f; // how the interval gets smaller over time
+    private boolean useContactDetectionMinutes;
     
     private int confirmationPollingMinutes = 2; // confirmation polling interval
     
@@ -58,22 +58,22 @@ public class Hike
         this.plannedHome = plannedHome;
     }
     
-    public Integer getAlertIntervalMinutes() {
+    public int getAlertIntervalMinutes() {
         return alertIntervalMinutes;
     }
-    public void setAlertIntervalMinutes(Integer messageIntervalMinutes) {
+    public void setAlertIntervalMinutes(int messageIntervalMinutes) {
         this.alertIntervalMinutes = messageIntervalMinutes;
     }
-    public Float getAlertIntervalShrinking() {
+    public float getAlertIntervalShrinking() {
         return alertIntervalShrinking;
     }
-    public void setAlertIntervalShrinking(Float alertIntervalShrinking) {
+    public void setAlertIntervalShrinking(float alertIntervalShrinking) {
         this.alertIntervalShrinking = alertIntervalShrinking;
     }
-    public Boolean isUseContactDetectionMinutes() {
+    public boolean isUseContactDetectionMinutes() {
         return useContactDetectionMinutes;
     }
-    public void setUseContactDetectionMinutes(Boolean useContactDetectionMinutes) {
+    public void setUseContactDetectionMinutes(boolean useContactDetectionMinutes) {
         this.useContactDetectionMinutes = useContactDetectionMinutes;
     }
     public int getConfirmationPollingMinutes() {
