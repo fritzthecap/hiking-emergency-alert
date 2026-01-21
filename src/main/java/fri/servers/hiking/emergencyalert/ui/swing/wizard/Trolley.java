@@ -2,6 +2,7 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizard;
 
 import java.util.Objects;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import jakarta.mail.Authenticator;
 
@@ -11,12 +12,13 @@ import jakarta.mail.Authenticator;
 public class Trolley
 {
     public final StateMachine stateMachine;
+    private final String hikeCopy;
+    
     private Authenticator authenticator;
-    private Hike hikeCopy;
     
     public Trolley(StateMachine stateMachine) {
         this.stateMachine = Objects.requireNonNull(stateMachine);
-        this.hikeCopy = stateMachine.getHike().copy();
+        this.hikeCopy = hikeToJsonString(stateMachine.getHike());
     }
     
     /** Whoever has a valid authenticator can pass it to other pages. */
@@ -31,6 +33,11 @@ public class Trolley
     
     /** @return true when the hike was changed by the UI, done by comparison with a deep clone. */
     public boolean isHikeChanged() {
-        return hikeCopy.isEqual(stateMachine.getHike()) == false;
+        final String currentHikeCopy = hikeToJsonString(stateMachine.getHike());
+        return this.hikeCopy.equals(currentHikeCopy) == false;
+    }
+
+    private String hikeToJsonString(Hike hike) {
+        return new JsonGsonSerializer<Hike>().toJson(hike);
     }
 }

@@ -2,7 +2,6 @@ package fri.servers.hiking.emergencyalert.persistence;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import fri.servers.hiking.emergencyalert.mail.MailUtil;
 
 public class MailConfiguration
@@ -12,13 +11,13 @@ public class MailConfiguration
     private String receiveMailProtocol = "pop3"; // or "imap", mail.store.protocol
     private String receiveMailHost; // mail.pop3.host, required
     private int receiveMailPort = 110; // optional, 110 is POP3 default port, 143 is IMAP
-
+    
     private String sendMailProtocol = "smtp"; // optional, mail.store.protocol
     private String sendMailHost; // mail.smtp.host, required
     private int sendMailPort = 25; // optional, 25 is SMTP default port
     private String sendMailFromAccount; // optional, mail.smtp.from, usually the same as mailUser
     
-    private int maximumConnectionTestSeconds = 5;
+    private int maximumConnectionTestSeconds = 6;
     
     private List<List<String>> customProperties = new ArrayList<>();
     
@@ -103,39 +102,5 @@ public class MailConfiguration
         if (MailUtil.isMailAddress(sendMailFromAccount))
             return sendMailFromAccount;
         return null;
-    }
-    
-    public MailConfiguration copy() {
-        final MailConfiguration mailConfiguration = new MailConfiguration();
-        mailConfiguration.setMailUser(getMailUser());
-        mailConfiguration.setReceiveMailProtocol(getReceiveMailProtocol());
-        mailConfiguration.setReceiveMailHost(getReceiveMailHost());
-        mailConfiguration.setReceiveMailPort(getReceiveMailPort());
-        mailConfiguration.setSendMailProtocol(getSendMailProtocol());
-        mailConfiguration.setSendMailHost(getSendMailHost());
-        mailConfiguration.setSendMailPort(getSendMailPort());
-        mailConfiguration.setSendMailFromAccount(getSendMailFromAccount());
-        mailConfiguration.setMaximumConnectionTestSeconds(getMaximumConnectionTestSeconds());
-        
-        final List<List<String>> customProperties = new ArrayList<>(getCustomProperties().size());
-        for (List<String> tuple : getCustomProperties())
-            customProperties.add(new ArrayList<>(tuple));
-        mailConfiguration.setCustomProperties(customProperties);
-        
-        return mailConfiguration;
-    }
-    
-    public boolean isEqual(MailConfiguration mailConfiguration) {
-        return
-            Objects.equals(mailConfiguration.getMailUser(), getMailUser()) &&
-            Objects.equals(mailConfiguration.getReceiveMailProtocol(), getReceiveMailProtocol()) &&
-            Objects.equals(mailConfiguration.getReceiveMailHost(), getReceiveMailHost()) &&
-            mailConfiguration.getReceiveMailPort() == getReceiveMailPort() &&
-            Objects.equals(mailConfiguration.getSendMailProtocol(), getSendMailProtocol()) &&
-            Objects.equals(mailConfiguration.getSendMailHost(), getSendMailHost()) &&
-            mailConfiguration.getSendMailPort() == getSendMailPort() &&
-            Objects.equals(mailConfiguration.getSendMailFromAccount(), getSendMailFromAccount()) &&
-            mailConfiguration.getMaximumConnectionTestSeconds() == getMaximumConnectionTestSeconds() &&
-            Objects.equals(mailConfiguration.getCustomProperties(), getCustomProperties());
     }
 }

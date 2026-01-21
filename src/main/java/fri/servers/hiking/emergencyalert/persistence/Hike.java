@@ -3,7 +3,6 @@ package fri.servers.hiking.emergencyalert.persistence;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 
@@ -89,32 +88,5 @@ public class Hike
     }
     public void setAlert(Alert alert) {
         this.alert = alert;
-    }
-    
-    public Hike copy() {
-        final Hike hike = new Hike();
-        hike.setRoute(getRoute());
-        hike.setRouteImages(new ArrayList<>(getRouteImages()));
-        hike.setPlannedBegin((Date) getPlannedBegin().clone());
-        hike.setPlannedHome((Date) getPlannedHome().clone());
-        hike.setAlertIntervalMinutes(getAlertIntervalMinutes());
-        hike.setAlertIntervalShrinking(getAlertIntervalShrinking());
-        hike.setUseContactDetectionMinutes(isUseContactDetectionMinutes());
-        hike.setConfirmationPollingMinutes(getConfirmationPollingMinutes());
-        hike.setAlert(getAlert().copy());
-        return hike;
-    }
-    
-    public boolean isEqual(Hike hike) {
-        return
-            Objects.equals(hike.getRoute(), getRoute()) &&
-            Objects.equals(hike.getRouteImages(), getRouteImages()) &&
-            Objects.equals(hike.getPlannedBegin(), getPlannedBegin()) &&
-            Objects.equals(hike.getPlannedHome(), getPlannedHome()) &&
-            hike.getAlertIntervalMinutes() == getAlertIntervalMinutes() &&
-            hike.getAlertIntervalShrinking() == getAlertIntervalShrinking() &&
-            Objects.equals(hike.isUseContactDetectionMinutes(), isUseContactDetectionMinutes()) &&
-            hike.getConfirmationPollingMinutes() == getConfirmationPollingMinutes() &&
-            hike.getAlert().isEqual(getAlert());
     }
 }

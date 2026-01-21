@@ -1,7 +1,5 @@
 package fri.servers.hiking.emergencyalert.persistence;
 
-import java.util.Objects;
-
 public class Contact
 {
     private String mailAddress;
@@ -39,24 +37,5 @@ public class Contact
     }
     public void setDetectionMinutes(int detectionMinutes) {
         this.detectionMinutes = detectionMinutes;
-    }
-    
-    public Contact copy() {
-        final Contact contact = new Contact();
-        contact.setMailAddress(getMailAddress());
-        contact.setFirstName(getFirstName());
-        contact.setLastName(getLastName());
-        contact.setAbsent(isAbsent());
-        contact.setDetectionMinutes(getDetectionMinutes());
-        return contact;
-    }
-    
-    public boolean isEqual(Contact contact) {
-        return 
-            Objects.equals(contact.getMailAddress(), getMailAddress()) && 
-            Objects.equals(contact.getFirstName(), getFirstName()) && 
-            Objects.equals(contact.getLastName(), getLastName()) && 
-            Objects.equals(contact.isAbsent(), isAbsent()) && 
-            contact.getDetectionMinutes() == getDetectionMinutes(); 
     }
 }
