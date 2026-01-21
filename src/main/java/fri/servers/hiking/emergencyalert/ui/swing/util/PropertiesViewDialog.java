@@ -103,6 +103,10 @@ public class PropertiesViewDialog extends JDialog
     protected void addMoreTableCells(Vector<Object> newRow) {
     }
 
+    protected Class<?> getColumnClassForIndex(int columnIndex) {
+        return String.class;
+    }
+
     
     private JScrollPane buildPanel() {
         this.namesAndValues = buildNamesAndValues(properties);
@@ -113,9 +117,7 @@ public class PropertiesViewDialog extends JDialog
         model = new DefaultTableModel(namesAndValues, columnNames) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 2)
-                    return Boolean.class;
-                return String.class;
+                return getColumnClassForIndex(columnIndex);
             }
         };
         table = new JTable(model);

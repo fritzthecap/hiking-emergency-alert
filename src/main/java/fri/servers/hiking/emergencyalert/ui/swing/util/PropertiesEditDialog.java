@@ -124,6 +124,13 @@ public class PropertiesEditDialog extends PropertiesViewDialog
         newRow.add(Boolean.valueOf(false)); // default do NOT include property
     }
     
+    @Override
+    protected Class<?> getColumnClassForIndex(int columnIndex) {
+        if (columnIndex == 2)
+            return Boolean.class;
+        return super.getColumnClassForIndex(columnIndex);
+    }
+
     protected boolean validateProperties() {
         commitTable();
         return storeToProperties(); // false when duplicates were found
