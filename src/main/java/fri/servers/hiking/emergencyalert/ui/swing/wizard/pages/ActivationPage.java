@@ -11,19 +11,22 @@ import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
  */
 public class ActivationPage extends AbstractWizardPage
 {
-    /** Nothing to save any more here, always returns true. */
-    @Override
-    public boolean windowClosing() {
-        return true;
-    }
-    
     @Override
     protected void buildUi() {
         throw new RuntimeException("Implement me!");
+        
+        // TODO: 
+        //       show begin and home time/date,
+        //       show example alert mail and passing-to-next mail,
+        //       show non-absent contacts list,
+        //       show alert interval minutes sequence,
+        //       show route text and optional image(s)
     }
     
     @Override
     protected void populateUi(Hike hike) {
+        throw new RuntimeException("Implement me!");
+        
 //        final Contact contact = hike.getAlert().getNonAbsentContacts().get(0);
 //        
 //        final MailBuilder mailBuilder = new MailBuilder(contact, hike);
@@ -49,5 +52,4 @@ public class ActivationPage extends AbstractWizardPage
 
         return true;
     }
-
 }

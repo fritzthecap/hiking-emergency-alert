@@ -19,12 +19,6 @@ public class LanguagePage extends AbstractWizardPage
     private JComboBox<Item> languageChoice;
     
     @Override
-    protected boolean commit(boolean isWindowClose) {
-        getHike().getAlert().setIso639Language(getSelectedLocale().getLanguage());
-        return true;
-    }
-    
-    @Override
     protected void buildUi() {
         languageChoice = new JComboBox<Item>();
         
@@ -65,6 +59,12 @@ public class LanguagePage extends AbstractWizardPage
         }
     }
 
+    @Override
+    protected boolean commit(boolean isWindowClose) {
+        getHike().getAlert().setIso639Language(getSelectedLocale().getLanguage());
+        return true;
+    }
+    
 
     private void loadStringResources(Locale locale) {
         System.out.println("TODO: load UI resources for "+locale.getDisplayName()); // TODO

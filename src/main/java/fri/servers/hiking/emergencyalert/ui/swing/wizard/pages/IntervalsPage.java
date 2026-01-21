@@ -1,8 +1,11 @@
 package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
+import java.awt.Dimension;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
@@ -20,13 +23,13 @@ public class IntervalsPage extends AbstractWizardPage
     private JFormattedTextField alertIntervalMinutesField;
     private JFormattedTextField alertIntervalShrinkingField;
     private JCheckBox useContactDetectionMinutesField;
-    private JFormattedTextField confirmationPollingMinutes;
+    private JFormattedTextField confirmationPollingMinutesField;
     
     @Override
     protected void buildUi() {
         alertIntervalMinutesField = SwingUtil.buildNumberField(
                 i18n("Alert Interval Minutes"), 
-                i18n("Minutes to wait before sending mail to the next contact"), 
+                i18n("Minutes to wait for response before sending an alert mail to the next contact"), 
                 60);
         alertIntervalShrinkingField = SwingUtil.buildNumberField(
                 i18n("Alert Interval Shrinking Percent"), 
@@ -35,17 +38,19 @@ public class IntervalsPage extends AbstractWizardPage
         useContactDetectionMinutesField = new JCheckBox(i18n("Use Contact Detection Minutes"));
         useContactDetectionMinutesField.setToolTipText(
                 i18n("For alert intervals, use the estimated minutes the contact needs to detect a mail"));
-        confirmationPollingMinutes = SwingUtil.buildNumberField(
+        
+        confirmationPollingMinutesField = SwingUtil.buildNumberField(
                 i18n("Confirmation Polling Minutes"), 
                 i18n("Minutes to wait between attempts to receive a response mail from some contact"), 
-                5);
+                2);
         
         final JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.add(alertIntervalMinutesField);
         panel.add(alertIntervalShrinkingField);
         panel.add(useContactDetectionMinutesField);
-        panel.add(confirmationPollingMinutes);
+        panel.add(Box.createRigidArea(new Dimension(1, 30)));
+        panel.add(confirmationPollingMinutesField);
         
         useContactDetectionMinutesField.addActionListener(new ActionListener() {
             @Override
@@ -56,37 +61,35 @@ public class IntervalsPage extends AbstractWizardPage
             }
         });
         
-        getContentPanel().add(panel);
+        final JPanel contentPanel = new JPanel(new GridBagLayout());
+        contentPanel.add(panel);
+        getContentPanel().add(contentPanel);
     }
     
     @Override
     protected void populateUi(Hike hike) {
-        throw new RuntimeException("Implement me!");
+        alertIntervalMinutesField.setValue(hike.getAlertIntervalMinutes());
+        alertIntervalShrinkingField.setValue(floatToPercent(hike.getAlertIntervalShrinking()));
+        useContactDetectionMinutesField.setSelected(hike.isUseContactDetectionMinutes());
+        confirmationPollingMinutesField.setValue(hike.getConfirmationPollingMinutes());
     }
     
     @Override
     protected boolean commit(boolean isWindowClose) {
-        getHike().setAlertIntervalMinutes(getAlertIntervalMinutes());
-        getHike().setAlertIntervalShrinking(getAlertIntervalShrinking());
-        getHike().setUseContactDetectionMinutes(isUseContactDetectionMinutes());
-        getHike().setConfirmationPollingMinutes(getConfirmationPollingMinutes());
+        final Hike hike = getHike();
+        hike.setAlertIntervalMinutes((int) alertIntervalMinutesField.getValue());
+        hike.setAlertIntervalShrinking(percentToFloat((int) alertIntervalShrinkingField.getValue()));
+        hike.setUseContactDetectionMinutes(useContactDetectionMinutesField.isSelected());
+        hike.setConfirmationPollingMinutes((int) confirmationPollingMinutesField.getValue());
         return true;
     }
 
 
-    private Integer getAlertIntervalMinutes() {
-        throw new RuntimeException("Implement me!");
+    private int floatToPercent(float alertIntervalShrinking) {
+        return Math.round(alertIntervalShrinking * 100f);
     }
 
-    private Float getAlertIntervalShrinking() {
-        throw new RuntimeException("Implement me!");
-    }
-
-    private Boolean isUseContactDetectionMinutes() {
-        throw new RuntimeException("Implement me!");
-    }
-
-    private int getConfirmationPollingMinutes() {
-        throw new RuntimeException("Implement me!");
+    private float percentToFloat(int alertIntervalShrinking) {
+        return (float) alertIntervalShrinking / 100f;
     }
 }
