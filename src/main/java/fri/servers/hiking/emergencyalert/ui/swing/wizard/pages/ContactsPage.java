@@ -19,7 +19,7 @@ public class ContactsPage extends AbstractWizardPage
     }
     
     @Override
-    protected boolean commit() {
+    protected boolean commit(boolean isWindowClose) {
         throw new RuntimeException("Implement me!");
     }
 }

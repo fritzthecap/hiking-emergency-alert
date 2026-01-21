@@ -34,7 +34,7 @@ public class ActivationPage extends AbstractWizardPage
     }
     
     @Override
-    protected boolean commit() {
+    protected boolean commit(boolean isWindowClose) {
         final String message = 
                 i18n("Are you sure that you want to start the hike now?");
         final int response = JOptionPane.showConfirmDialog(

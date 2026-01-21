@@ -20,7 +20,7 @@ public class MailTextsPage extends AbstractWizardPage
     }
     
     @Override
-    public boolean commit() {
+    public boolean commit(boolean isWindowClose) {
         return true;
     }
 }

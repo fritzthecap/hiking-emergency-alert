@@ -41,7 +41,7 @@ public class ObservationPage extends AbstractWizardPage
     
     /** Prevent going back to previous page while stateMachine is running. */
     @Override
-    protected boolean commit() {
+    protected boolean commit(boolean isWindowClose) {
         return canClose;
     }
     
