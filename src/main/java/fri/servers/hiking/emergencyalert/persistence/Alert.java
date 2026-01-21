@@ -10,7 +10,6 @@ public class Alert
     private List<String> procedureTodos = new ArrayList<>();
     private String passingToNextText;
     
-    private String mailOfHiker;
     private String nameOfHiker;
     private String addressOfHiker;
     
@@ -43,12 +42,6 @@ public class Alert
     }
     public void setPassingToNextText(String passingToNextText) {
         this.passingToNextText = passingToNextText;
-    }
-    public String getMailOfHiker() {
-        return mailOfHiker;
-    }
-    public void setMailOfHiker(String mailOfHiker) {
-        this.mailOfHiker = mailOfHiker;
     }
     public String getNameOfHiker() {
         return nameOfHiker;

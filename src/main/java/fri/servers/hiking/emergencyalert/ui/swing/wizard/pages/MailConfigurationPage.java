@@ -242,7 +242,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         if (StringUtil.isEmpty(mailUser))
             return i18n("Mail User is missing!");
         else if (mailUser.contains("@") && MailUtil.isMailAddress(mailUser) == false)
-            return i18n("Mail User is not a valid mail address!");
+            return i18n("Mail User seems to be a mail address but is not valid!");
             
         if (StringUtil.isEmpty(mailConfiguration.getReceiveMailHost()))
             return i18n("Receive Host name is missing!");
@@ -253,12 +253,12 @@ public class MailConfigurationPage extends AbstractWizardPage
         if (StringUtil.isEmpty(mailConfiguration.getSendMailProtocol()))
             return i18n("Send Protocol name is missing!");
         
-        final String mailFromAdress = mailConfiguration.getMailFromAdress();
-        if (StringUtil.isNotEmpty(mailFromAdress) && MailUtil.isMailAddress(mailFromAdress) == false)
-            return i18n("'From' Mail Adress is not a valid mail address!");
+        final String sendMailFromAccount = mailConfiguration.getSendMailFromAccount();
+        if (StringUtil.isNotEmpty(sendMailFromAccount) && MailUtil.isMailAddress(sendMailFromAccount) == false)
+            return i18n("'From' Mail Address is not a valid mail address!");
 
-        if (MailUtil.isMailAddress(mailFromAdress) == false && MailUtil.isMailAddress(mailUser) == false)
-            return i18n("Either Mail User or 'From' Mail Adress must be a valid mail address!");
+        if (MailUtil.isMailAddress(sendMailFromAccount) == false && MailUtil.isMailAddress(mailUser) == false)
+            return i18n("Either Mail User or 'From' Mail Address must be a valid mail address!");
         
         return null; // all fields are valid!
     }

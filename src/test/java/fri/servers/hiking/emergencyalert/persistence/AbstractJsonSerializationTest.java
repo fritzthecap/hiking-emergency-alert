@@ -27,7 +27,6 @@ class AbstractJsonSerializationTest extends TestData
         assertEquals(alert.getPassingToNextText(), alertFromJson.getPassingToNextText());
         
         assertEquals(alert.getNameOfHiker(), alertFromJson.getNameOfHiker());
-        assertEquals(alert.getMailOfHiker(), alertFromJson.getMailOfHiker());
         assertEquals(alert.getAddressOfHiker(), alertFromJson.getAddressOfHiker());
         
         final List<Contact> alertContacts = alert.getAlertContacts();

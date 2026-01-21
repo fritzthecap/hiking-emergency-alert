@@ -88,7 +88,7 @@ class StateMachineGreenmailTest extends AbstractGreenmailTest
         final MimeMessage thirdMail = mailsToFirstPerson[1]; // passing-to-next message to "First Person"
         
         // assert 'from' address
-        final String hikerMail = MailBuilder.from(hike);
+        final String hikerMail = hike.getAlert().getMailConfiguration().getMailFromAddress();
         assertEquals(hikerMail, MessageUtil.from(firstMail));
         assertEquals(hikerMail, MessageUtil.from(secondMail));
         assertEquals(hikerMail, MessageUtil.from(thirdMail));

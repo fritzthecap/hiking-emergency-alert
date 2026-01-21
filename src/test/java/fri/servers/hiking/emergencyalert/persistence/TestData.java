@@ -60,7 +60,6 @@ public class TestData
         alert.setHelpRequestText(helpRequestText);
         alert.setProcedureTodos(List.of(procedureTodos));
         alert.setPassingToNextText(passingToNextText);
-        alert.setMailOfHiker(ME_MYSELF);
         alert.setNameOfHiker("Me Myself");
         alert.setAddressOfHiker(addressOfHiker);
         

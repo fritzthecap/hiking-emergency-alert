@@ -94,9 +94,9 @@ public class ConnectionCheck extends InboxVisitorConnection
     private SendResult sendTestMail(Authenticator authenticator) throws MailSendException {
         System.out.println("Now sending a test-mail ...");
         
-        final String from = mailConfiguration.getMailFromAdress();
+        final String from = mailConfiguration.getMailFromAddress();
         if (StringUtil.isEmpty(from))
-            throw new IllegalArgumentException("Mail configuration is incomplete, having not from-address!");
+            throw new IllegalArgumentException("Mail configuration is incomplete, having no from-address!");
         
         final Mail checkMail = new Mail(from, from, "Mail connection test", this.uniqueMailId, null, null, null);
         final SendConnection sendConnection = newSendConnection(mailConfiguration, authenticator);

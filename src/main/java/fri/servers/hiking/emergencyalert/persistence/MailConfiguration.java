@@ -93,14 +93,14 @@ public class MailConfiguration
     
     /**
      * Convenience method to find out a valid mail 'from' address. 
-     * @return either the mail user or sendMailFromAccount or null
+     * @return either the <code>mailUser</code> or <code>sendMailFromAccount</code> or null
      *      when neither is a valid ail address.
      */
-    public String getMailFromAdress() {
-        if (MailUtil.isMailAddress(mailUser))
-            return mailUser;
+    public String getMailFromAddress() {
         if (MailUtil.isMailAddress(sendMailFromAccount))
             return sendMailFromAccount;
+        if (MailUtil.isMailAddress(mailUser))
+            return mailUser;
         return null;
     }
 }

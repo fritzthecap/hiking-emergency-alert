@@ -1,6 +1,5 @@
 package fri.servers.hiking.emergencyalert.mail;
 
-import static fri.servers.hiking.emergencyalert.util.StringUtil.isEmpty;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,20 +15,6 @@ import fri.servers.hiking.emergencyalert.util.StringUtil;
 public class MailBuilder
 {
     private static final String CONTENT_TYPE = "text/plain; charset="+Platform.ENCODING;
-    
-    /** @return the 'from' address for mails to be sent to contacts. */
-    public static String from(Hike hike) {
-        String from = hike.getAlert().getMailConfiguration().getSendMailFromAccount();
-        if (MailUtil.isMailAddress(from))
-            return from;
-        
-        from = hike.getAlert().getMailConfiguration().getMailUser();
-        if (MailUtil.isMailAddress(from)) 
-            return from;
-        
-        throw new IllegalArgumentException(
-                "Either SendMailFromAccount or MailUser must hold a valid 'from' mail address!");
-    }
     
     private final Contact contact;
     private final Hike hike;
@@ -62,7 +47,7 @@ public class MailBuilder
 
     
     private String from() {
-        return MailBuilder.from(hike);
+        return hike.getAlert().getMailConfiguration().getMailFromAddress();
     }
 
     private String to() {
@@ -114,10 +99,10 @@ public class MailBuilder
     private void footer(Hike hike, final StringBuilder sb) {
         sb.append("\n----------------------------------------\n");
         sb.append(hike.getAlert().getNameOfHiker()+"\n");
-        if (isEmpty(hike.getAlert().getAddressOfHiker()) == false)
+        if (StringUtil.isNotEmpty(hike.getAlert().getAddressOfHiker()))
             sb.append(hike.getAlert().getAddressOfHiker()+"\n");
-        if (isEmpty(hike.getAlert().getMailOfHiker()) == false)
-            sb.append(hike.getAlert().getMailOfHiker());
+        if (StringUtil.isNotEmpty(hike.getAlert().getMailConfiguration().getMailFromAddress()))
+            sb.append(hike.getAlert().getMailConfiguration().getMailFromAddress());
         sb.append("\n----------------------------------------\n");
         sb.append("Sent by Hiking-Emergency-Alert automaton version "+Version.get());
     }
