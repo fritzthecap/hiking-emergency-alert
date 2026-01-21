@@ -3,51 +3,62 @@ package fri.servers.hiking.emergencyalert.ui.swing.util;
 import java.text.NumberFormat;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.NumberFormatter;
 
 public final class SwingUtil
 {
-    public static JTextField buildTextField(String title, String tooltip, String defaultValue) {
+    public static JTextField buildTextField(String title, String tooltip, String initialValue) {
         final JTextField field = new JTextField();
-        if (tooltip != null)
-            field.setToolTipText(tooltip);
-        if (title != null)
-            field.setBorder(BorderFactory.createTitledBorder(title));
-        if (defaultValue != null)
-            field.setText(defaultValue);
+        setTitleAndTooltip(title, tooltip, field);
+        if (initialValue != null)
+            field.setText(initialValue);
+        
         return field;
     }
     
-    public static JFormattedTextField buildNumberField(String title, String tooltip, int initial) {
+    public static JFormattedTextField buildNumberField(String title, String tooltip, int initialValue) {
         final NumberFormat format = NumberFormat.getIntegerInstance();
         format.setGroupingUsed(false);
-
         final NumberFormatter numberFormatter = new NumberFormatter(format);
         numberFormatter.setValueClass(Integer.class); 
         numberFormatter.setAllowsInvalid(false);
 
         final JFormattedTextField field = new JFormattedTextField(numberFormatter);
-        if (tooltip != null)
-            field.setToolTipText(tooltip);
-        if (title != null)
-            field.setBorder(BorderFactory.createTitledBorder(title));
-        field.setValue(initial);
+        setTitleAndTooltip(title, tooltip, field);
+        field.setValue(initialValue);
         
         return field;
     }
     
     public static JComboBox<String> buildComboBox(String title, String tooltip, String[] values) {
-        final JComboBox<String> combo = new JComboBox<>(values);
-        combo.setEditable(true);
-        if (title != null)
-            combo.setBorder(BorderFactory.createTitledBorder(title));
-        if (tooltip != null)
-            combo.setToolTipText(tooltip);
-        return combo;
+        final JComboBox<String> field = new JComboBox<>(values);
+        field.setEditable(true);
+        setTitleAndTooltip(title, tooltip, field);
+        
+        return field;
     }
 
+    public static JTextArea buildTextArea(String title, String tooltip, String initialValue) {
+        final JTextArea field = new JTextArea();
+        setTitleAndTooltip(title, tooltip, field);
+        if (initialValue != null)
+            field.setText(initialValue);
+        
+        return field;
+    }
+
+    
+    private static void setTitleAndTooltip(String title, String tooltip, final JComponent field) {
+        if (title != null)
+            field.setBorder(BorderFactory.createTitledBorder(title));
+        if (tooltip != null)
+            field.setToolTipText(tooltip);
+    }
+    
     
     private SwingUtil() {} // do not instantiate
 }
