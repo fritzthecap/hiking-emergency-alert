@@ -67,17 +67,17 @@ public abstract class AbstractWizardPage
      * Called when going forward or backward to another page. 
      * @return null when <code>commit()</code> returned null, else the trolley.
      */
-    public final Trolley leave() {
-        return commit(false) ? trolley : null;
+    public final Trolley leave(boolean goingForward) {
+        return commit(goingForward) ? trolley : null;
     }
     
     /**
      * Called when going forward or backward to another page. 
      * Commit UI fields into Hike data. 
-     * @param isWindowClose true when user closes window, false when leaving page.
+     * @param goingForward true when "Next" was clicked, false when "Previous" or user closes window.
      * @return true when can leave page.
      */
-    protected abstract boolean commit(boolean isWindowClose);
+    protected abstract boolean commit(boolean goingForward);
 
     /**
      * Called when user closes the window.
@@ -86,7 +86,7 @@ public abstract class AbstractWizardPage
      * @return true when user clicked NO or save succeeded, else false.
      */
     public boolean windowClosing() {
-        commit(true);
+        commit(false);
         
         if (trolley.isHikeChanged()) {
             final int saveChanges = JOptionPane.showConfirmDialog(

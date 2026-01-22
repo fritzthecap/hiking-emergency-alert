@@ -64,19 +64,19 @@ public class MailConfigurationPage extends AbstractWizardPage
     private JFormattedTextField maximumConnectionTestSecondsField;
 
     private JLabel errorField;
-    private boolean focusListenerInstalled;
     
     private Authenticator validAuthenticator;
     
-    /** When isWindowClose is false, denies next page when mail connection is not working. */
+    /** When goingForward is true, denies next page when mail connection is not working. */
     @Override
-    public boolean commit(boolean isWindowClose) {
-        if (isWindowClose == false) {
-            if (connectionTest(false)) { // not showing success dialog, calls commitToMailConfiguration()
-                getTrolley().setAuthenticator(validAuthenticator);
-                return true;
-            }
-            return false;
+    protected boolean commit(boolean goingForward) {
+        if (goingForward == true) {
+            final boolean connectionOk = connectionTest(false); // not showing success dialog
+            if (connectionOk == false) 
+                return false;
+            
+            getTrolley().setAuthenticator(validAuthenticator);
+            return true;
         }
         commitToMailConfiguration();
         return true;
@@ -150,11 +150,12 @@ public class MailConfigurationPage extends AbstractWizardPage
         
         errorField = new JLabel();
         errorField.setForeground(Color.RED);
-        //errorField.setFont(errorField.getFont().deriveFont(14f));
         
         bindProtocolToPort();
         
         layoutFields(mailPassword, maximumConnectionTestSecondsLabel, seconds);
+        
+        installFocusListeners();
     }
 
     @Override
@@ -173,8 +174,6 @@ public class MailConfigurationPage extends AbstractWizardPage
         sendMailFromAccount.setText(mailConfiguration.getSendMailFromAccount());
         
         maximumConnectionTestSecondsField.setValue(mailConfiguration.getMaximumConnectionTestSeconds());
-        
-        installFocusListeners();
     }
     
     
@@ -363,11 +362,6 @@ public class MailConfigurationPage extends AbstractWizardPage
     }
     
     private void installFocusListeners() {
-        if (focusListenerInstalled == true)
-            return;
-        
-        focusListenerInstalled = true;
-
         final FocusListener focusListener = new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
@@ -389,6 +383,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         sendMailPort.addFocusListener(focusListener);
         sendMailProtocol.getEditor().getEditorComponent().addFocusListener(focusListener);
         sendMailFromAccount.addFocusListener(focusListener);
+        maximumConnectionTestSecondsField.addFocusListener(focusListener);
     }
 
     

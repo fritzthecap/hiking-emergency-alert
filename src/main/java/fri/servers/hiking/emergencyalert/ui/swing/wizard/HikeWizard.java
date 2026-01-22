@@ -38,13 +38,16 @@ public class HikeWizard extends JPanel
     
     private AbstractWizardPage[] pages = new AbstractWizardPage[] {
         new LanguagePage(),
-        new MailTextsPage(),
+        
         new ContactsPage(),
+        new MailTextsPage(),
         new IntervalsPage(),
         new MailConfigurationPage(),
+        
         new RoutePage(),
         new BeginAndHomeTimePage(),
         new ActivationPage(),
+        
         new ObservationPage(),
     };
     private int pageIndex;
@@ -155,13 +158,14 @@ public class HikeWizard extends JPanel
     }
 
     private void changePage(int newIndex, boolean isFirstCall) {
+        final boolean goingForward = (pageIndex < newIndex);
         final AbstractWizardPage oldPage = page();
         
         final Trolley trolley;
         if (isFirstCall)
             trolley = new Trolley(stateMachine);
         else
-            if ((trolley = oldPage.leave()) != null) // can leave
+            if ((trolley = oldPage.leave(goingForward)) != null) // can leave
                 contentPanel.remove(oldPage.getAddablePanel());
             else
                 return; // page does not allow to skip

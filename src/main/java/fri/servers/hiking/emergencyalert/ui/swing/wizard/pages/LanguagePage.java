@@ -60,7 +60,7 @@ public class LanguagePage extends AbstractWizardPage
     }
 
     @Override
-    protected boolean commit(boolean isWindowClose) {
+    protected boolean commit(boolean goingForward) {
         getHike().getAlert().setIso639Language(getSelectedLocale().getLanguage());
         return true;
     }

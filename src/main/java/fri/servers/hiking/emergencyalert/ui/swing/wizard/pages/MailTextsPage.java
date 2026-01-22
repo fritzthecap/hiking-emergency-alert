@@ -4,6 +4,7 @@ import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -44,6 +45,12 @@ public class MailTextsPage extends AbstractWizardPage
     private JList<String> procedureTodos;
     private JTextArea passingToNextText;
     
+    // TODO: macros:
+    // this contact person: $contact
+    // next contact person: $nextContact
+    // all contacts: $allContacts
+    // phone number: $phone
+    
     @Override
     protected void buildUi() {
         helpRequestTitle = SwingUtil.buildTextField(
@@ -64,7 +71,7 @@ public class MailTextsPage extends AbstractWizardPage
         passingToNextText = SwingUtil.buildTextArea(
                 i18n("Passing-to-next Mail Text"),
                 i18n("Text that will be sent to every contact that did not respond in time"),
-                i18n("As you did not respond in time, another alert has been sent to the next contact person. You can ignore the preceding mail."));
+                i18n("As you did not respond in time, an alert mail has been sent to the next contact person. You can ignore the preceding mail."));
         passingToNextText.setRows(3);
         passingToNextText.setLineWrap(true);
         
@@ -79,8 +86,8 @@ public class MailTextsPage extends AbstractWizardPage
         
         panel.add(todoList, BorderLayout.CENTER);
         
-        panel.add(Box.createRigidArea(new Dimension(1, 30)));
-        panel.add(passingToNextText);
+        panel.add(Box.createRigidArea(new Dimension(1, 10)));
+        panel.add(new JScrollPane(passingToNextText));
         
         final JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(panel, BorderLayout.CENTER);
@@ -101,6 +108,8 @@ public class MailTextsPage extends AbstractWizardPage
             final DefaultListModel<String> listModel = (DefaultListModel<String>) procedureTodos.getModel();
             listModel.removeAllElements();
             listModel.addAll(alert.getProcedureTodos());
+            
+            procedureTodos.setSelectedIndex(0);
         }
         
         if (StringUtil.isNotEmpty(alert.getPassingToNextText()))
@@ -108,7 +117,7 @@ public class MailTextsPage extends AbstractWizardPage
     }
     
     @Override
-    protected boolean commit(boolean isWindowClose) {
+    protected boolean commit(boolean goingForward) {
         final Alert alert = getHike().getAlert();
         
         if (StringUtil.isNotEmpty(helpRequestTitle.getText()))
@@ -159,8 +168,9 @@ public class MailTextsPage extends AbstractWizardPage
         final JTextArea cellEditor = new JTextArea();
         cellEditor.setLineWrap(true);
         
-        final JButton add = new JButton(i18n("Add"));
-        add.setToolTipText(i18n("Adds a new line below selected line"));
+        final JButton add = new JButton(i18n("+"));
+        add.setToolTipText(i18n("Adds a new item below selected item"));
+        add.setFont(add.getFont().deriveFont(Font.BOLD, 14));
         add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -171,8 +181,9 @@ public class MailTextsPage extends AbstractWizardPage
             }
         });
         
-        final JButton remove = new JButton(i18n("Remove"));
-        remove.setToolTipText(i18n("Removes the selected line"));
+        final JButton remove = new JButton(i18n("-"));
+        remove.setFont(remove.getFont().deriveFont(Font.BOLD, 14));
+        remove.setToolTipText(i18n("Removes the selected item"));
         remove.setEnabled(false);
         remove.addActionListener(new ActionListener() {
             @Override
@@ -222,22 +233,41 @@ public class MailTextsPage extends AbstractWizardPage
             }
         });
         
+        procedureTodos.setSelectedIndex(0); // select first row to bring it into editor
+        
+        // layout
+        
+        final JComponent scrollTable = new JScrollPane(procedureTodos);
+        procedureTodos.setVisibleRowCount(4);
+        
         final JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
+        final Dimension buttonSize = new Dimension(50, 26);
+        forceSize(add, buttonSize);
+        forceSize(remove, buttonSize);
         buttonsPanel.add(add);
         buttonsPanel.add(remove);
-        final JPanel listAndButtonsPanel = new JPanel(new BorderLayout());
-        listAndButtonsPanel.add(buttonsPanel, BorderLayout.NORTH);
-        listAndButtonsPanel.add(new JScrollPane(procedureTodos), BorderLayout.CENTER);
         
-        final JSplitPane listSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        listSplitPane.setResizeWeight(0.1);
-        listSplitPane.setLeftComponent(listAndButtonsPanel);
-        listSplitPane.setRightComponent(new JScrollPane(cellEditor));
+        final JPanel tablePanel = new JPanel(new BorderLayout());
+        tablePanel.add(scrollTable, BorderLayout.CENTER);
+        tablePanel.add(buttonsPanel, BorderLayout.EAST);
+        
+        final JSplitPane listSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        listSplitPane.setResizeWeight(0.5);
+        listSplitPane.setTopComponent(tablePanel);
+        listSplitPane.setBottomComponent(new JScrollPane(cellEditor));
 
         final JPanel fullSizePanel = new JPanel(new BorderLayout());
-        fullSizePanel.setBorder(BorderFactory.createTitledBorder(i18n("Steps to be taken")));
+        fullSizePanel.setBorder(BorderFactory.createTitledBorder(i18n("Steps to be taken by Contact")));
         fullSizePanel.add(listSplitPane, BorderLayout.CENTER);
         
+        
         return fullSizePanel;
+    }
+
+    private void forceSize(JButton button, Dimension buttonSize) {
+        button.setPreferredSize(buttonSize);
+        button.setMaximumSize(buttonSize);
+        button.setMinimumSize(buttonSize);
     }
 }

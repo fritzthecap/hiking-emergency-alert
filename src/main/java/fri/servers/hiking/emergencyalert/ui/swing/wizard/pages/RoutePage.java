@@ -19,7 +19,7 @@ public class RoutePage extends AbstractWizardPage
     }
     
     @Override
-    protected boolean commit(boolean isWindowClose) {
+    protected boolean commit(boolean goingForward) {
         throw new RuntimeException("Implement me!");
     }
 }

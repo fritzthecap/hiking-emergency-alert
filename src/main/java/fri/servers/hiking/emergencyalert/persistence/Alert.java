@@ -12,6 +12,7 @@ public class Alert
     
     private String nameOfHiker;
     private String addressOfHiker;
+    private String phoneNumberOfHiker;
     
     private String iso639Language = "en";
     
@@ -54,6 +55,12 @@ public class Alert
     }
     public void setAddressOfHiker(String addressOfHiker) {
         this.addressOfHiker = addressOfHiker;
+    }
+    public String getPhoneNumberOfHiker() {
+        return phoneNumberOfHiker;
+    }
+    public void setPhoneNumberOfHiker(String phoneNumberOfHiker) {
+        this.phoneNumberOfHiker = phoneNumberOfHiker;
     }
     public String getIso639Language() {
         return iso639Language;

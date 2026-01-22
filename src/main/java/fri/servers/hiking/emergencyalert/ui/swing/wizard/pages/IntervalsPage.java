@@ -75,7 +75,7 @@ public class IntervalsPage extends AbstractWizardPage
     }
     
     @Override
-    protected boolean commit(boolean isWindowClose) {
+    protected boolean commit(boolean goingForward) {
         final Hike hike = getHike();
         hike.setAlertIntervalMinutes((int) alertIntervalMinutesField.getValue());
         hike.setAlertIntervalShrinking(percentToFloat((int) alertIntervalShrinkingField.getValue()));
