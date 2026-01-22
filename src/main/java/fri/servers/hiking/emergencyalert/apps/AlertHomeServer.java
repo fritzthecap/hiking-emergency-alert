@@ -2,6 +2,7 @@ package fri.servers.hiking.emergencyalert.apps;
 
 import java.io.IOException;
 import java.util.Scanner;
+import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.Version;
 import fri.servers.hiking.emergencyalert.mail.impl.MailerImpl;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
@@ -60,7 +61,14 @@ public class AlertHomeServer
             }
         }
         else {
-            new AlertHomeServer(null);
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    new AlertHomeServer(null);
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
     }
     

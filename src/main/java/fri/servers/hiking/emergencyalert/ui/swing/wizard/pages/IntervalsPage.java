@@ -5,6 +5,9 @@ import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
@@ -31,17 +34,19 @@ public class IntervalsPage extends AbstractWizardPage
                 i18n("Alert Interval Minutes"), 
                 i18n("Minutes to wait for response before sending an alert mail to the next contact"), 
                 60);
+        
         alertIntervalShrinkingField = SwingUtil.buildNumberField(
                 i18n("Alert Interval Shrinking Percent"), 
                 i18n("With 75% and a 60 minutes alert interval, the 2nd interval would would be just 45 minutes, the 3rd 34, etc."), 
                 100);
-        useContactDetectionMinutesField = new JCheckBox(i18n("Use Contact Detection Minutes"));
+        
+        useContactDetectionMinutesField = new JCheckBox(i18n("Use Mail Detection Minutes of Contacts"));
         useContactDetectionMinutesField.setToolTipText(
                 i18n("For alert intervals, use the estimated minutes the contact needs to detect a mail"));
         
         confirmationPollingMinutesField = SwingUtil.buildNumberField(
                 i18n("Confirmation Polling Minutes"), 
-                i18n("Minutes to wait between attempts to receive a response mail from some contact"), 
+                i18n("Minutes to wait between attempts to receive a response mail from an alerted contact"), 
                 2);
         
         final JPanel panel = new JPanel();
@@ -64,6 +69,8 @@ public class IntervalsPage extends AbstractWizardPage
         final JPanel contentPanel = new JPanel(new GridBagLayout());
         contentPanel.add(panel);
         getContentPanel().add(contentPanel);
+        
+        installFocusListeners();
     }
     
     @Override
@@ -75,12 +82,41 @@ public class IntervalsPage extends AbstractWizardPage
     }
     
     @Override
+    protected String validateFields() {
+        if (SwingUtil.getValue(confirmationPollingMinutesField) <= 0)
+            return i18n("Confirmation Polling Minute must not be empty!");
+        
+        if (useContactDetectionMinutesField.isSelected() == false) {
+            if (SwingUtil.getValue(alertIntervalMinutesField) <= 0)
+                return i18n("Alert Interval Minutes must not be empty!");
+            
+            if (SwingUtil.getValue(alertIntervalShrinkingField) <= 0)
+                return i18n("Alert Interval Shrinking Percent must not be empty!");
+        }
+        
+        return null;
+    }
+
+    @Override
     protected boolean commit(boolean goingForward) {
+        if (goingForward && validate() == false)
+            return false;
+        
         final Hike hike = getHike();
-        hike.setAlertIntervalMinutes((int) alertIntervalMinutesField.getValue());
-        hike.setAlertIntervalShrinking(percentToFloat((int) alertIntervalShrinkingField.getValue()));
+        
+        final int alertIntervalMinutes = SwingUtil.getValue(alertIntervalMinutesField);
+        if (alertIntervalMinutes > 0)
+            hike.setAlertIntervalMinutes(alertIntervalMinutes);
+        
+        final int alertIntervalShrinking = SwingUtil.getValue(alertIntervalShrinkingField);
+        if (alertIntervalShrinking > 0)
+            hike.setAlertIntervalShrinking(percentToFloat(alertIntervalShrinking));
+        
         hike.setUseContactDetectionMinutes(useContactDetectionMinutesField.isSelected());
-        hike.setConfirmationPollingMinutes((int) confirmationPollingMinutesField.getValue());
+        
+        final int confirmationPollingMinutes = SwingUtil.getValue(confirmationPollingMinutesField);
+        hike.setConfirmationPollingMinutes(confirmationPollingMinutes);
+        
         return true;
     }
 
@@ -91,5 +127,18 @@ public class IntervalsPage extends AbstractWizardPage
 
     private float percentToFloat(int alertIntervalShrinking) {
         return (float) alertIntervalShrinking / 100f;
+    }
+    
+    private void installFocusListeners() {
+        final FocusListener focusListener = new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                validate();
+            }
+        };
+        confirmationPollingMinutesField.addFocusListener(focusListener);
+        useContactDetectionMinutesField.addFocusListener(focusListener);
+        alertIntervalMinutesField.addFocusListener(focusListener);
+        alertIntervalShrinkingField.addFocusListener(focusListener);
     }
 }

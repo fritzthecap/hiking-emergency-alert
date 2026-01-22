@@ -16,28 +16,28 @@ import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
  */
 public class LanguagePage extends AbstractWizardPage
 {
-    private JComboBox<Item> languageChoice;
+    private JComboBox<Item> languageChoiceField;
     
     @Override
     protected void buildUi() {
-        languageChoice = new JComboBox<Item>();
+        languageChoiceField = new JComboBox<Item>();
         
-        languageChoice.addItem(new Item("English", Locale.ENGLISH));
-        languageChoice.addItem(new Item("Deutsch", Locale.GERMAN));
-        languageChoice.addItem(new Item("Français", Locale.FRENCH));
-        languageChoice.addItem(new Item("Italiano", Locale.ITALIAN));
-        languageChoice.addItem(new Item("Español", new Locale.Builder().setLanguage("es").build()));
+        languageChoiceField.addItem(new Item("English", Locale.ENGLISH));
+        languageChoiceField.addItem(new Item("Deutsch", Locale.GERMAN));
+        languageChoiceField.addItem(new Item("Français", Locale.FRENCH));
+        languageChoiceField.addItem(new Item("Italiano", Locale.ITALIAN));
+        languageChoiceField.addItem(new Item("Español", new Locale.Builder().setLanguage("es").build()));
         
-        languageChoice.setBorder(BorderFactory.createCompoundBorder(
+        languageChoiceField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createTitledBorder(i18n("Language")),
                 BorderFactory.createEmptyBorder(6, 8, 8, 8)));
         
-        languageChoice.setPreferredSize(new Dimension(180, 70));
+        languageChoiceField.setPreferredSize(new Dimension(180, 70));
         
         getContentPanel().setLayout(new GridBagLayout()); // center
-        getContentPanel().add(languageChoice);
+        getContentPanel().add(languageChoiceField);
         
-        languageChoice.addItemListener(new ItemListener() {
+        languageChoiceField.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED)
@@ -51,10 +51,10 @@ public class LanguagePage extends AbstractWizardPage
         final Locale selectedLocale = getSelectedLocale();
         final Locale hikeLocale = getHikeLocale(hike);
         if (hikeLocale != null && selectedLocale.equals(hikeLocale) == false) {
-            for (int i = 0; i < languageChoice.getItemCount(); i++) {
-                final Item item = languageChoice.getItemAt(i);
+            for (int i = 0; i < languageChoiceField.getItemCount(); i++) {
+                final Item item = languageChoiceField.getItemAt(i);
                 if (item.locale.equals(hikeLocale))
-                    languageChoice.setSelectedItem(item); // should trigger ItemListener
+                    languageChoiceField.setSelectedItem(item); // should trigger ItemListener
             }
         }
     }
@@ -67,11 +67,11 @@ public class LanguagePage extends AbstractWizardPage
     
 
     private void loadStringResources(Locale locale) {
-        System.out.println("TODO: load UI resources for "+locale.getDisplayName()); // TODO
+        throw new RuntimeException("Implement loading UI resources for "+locale.getDisplayName());
     }
 
     private Locale getSelectedLocale() {
-        return ((Item) languageChoice.getSelectedItem()).locale;
+        return ((Item) languageChoiceField.getSelectedItem()).locale;
     }
     
     private Locale getHikeLocale(Hike hike) {

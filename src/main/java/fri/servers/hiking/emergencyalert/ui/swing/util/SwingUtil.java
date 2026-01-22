@@ -1,6 +1,7 @@
 package fri.servers.hiking.emergencyalert.ui.swing.util;
 
 import java.text.NumberFormat;
+import java.text.ParseException;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -32,6 +33,19 @@ public final class SwingUtil
         field.setValue(initialValue);
         
         return field;
+    }
+    
+    public static int getValue(JFormattedTextField numberField) {
+        final int errorReturn = 1;
+        try {
+            numberField.commitEdit();
+        }
+        catch (ParseException e) {
+            System.err.println(e.toString());
+            return errorReturn;
+        }
+        final Object value = numberField.getValue();
+        return (value == null) ? errorReturn : ((Integer) value).intValue();
     }
     
     public static JComboBox<String> buildComboBox(String title, String tooltip, String[] values) {

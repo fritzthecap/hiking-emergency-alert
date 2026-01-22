@@ -19,9 +19,9 @@
       "IMPORTANT: when you could organize help, please send a response-mail to this. The MAIL-ID above must be contained in it. That prevents further contacts to be distressed."
     ],
     "passingToNextText": "As you did not respond in time, another alert has been sent to the next contact person. You can ignore the preceding mail.",
-    "mailOfHiker": "hiker@emergency.org",
     "nameOfHiker": "Peter Hiker",
     "addressOfHiker": "Hikerstreet 1, A-1234 Hikertown, Antarctica",
+    "phoneNumberOfHiker": "1234567889",
     "iso639Language": "en",
     "alertContacts": [
       {

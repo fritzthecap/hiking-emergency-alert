@@ -2,7 +2,6 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -48,43 +47,28 @@ import jakarta.mail.Authenticator;
  */
 public class MailConfigurationPage extends AbstractWizardPage
 {
-    private JTextField mailUser; // mail.user, required
+    private JTextField mailUserField; // mail.user, required
     
-    private JComboBox<String> receiveMailProtocol; //"pop3" or "imap", mail.store.protocol
-    private JTextField receiveMailHost; // mail.pop3.host, required
-    private JFormattedTextField receiveMailPort; // optional, 110 is POP3 default port, 143 is IMAP
+    private JComboBox<String> receiveMailProtocolField; //"pop3" or "imap", mail.store.protocol
+    private JTextField receiveMailHostField; // mail.pop3.host, required
+    private JFormattedTextField receiveMailPortField; // optional, 110 is POP3 default port, 143 is IMAP
 
-    private JComboBox<String> sendMailProtocol; // "smtp", optional, mail.store.protocol
-    private JTextField sendMailHost; // mail.smtp.host, required
-    private JFormattedTextField sendMailPort; // optional, 25 is SMTP default port, or 587
-    private JTextField sendMailFromAccount; // optional, mail.smtp.from, usually the same as mailUser
+    private JComboBox<String> sendMailProtocolField; // "smtp", optional, mail.store.protocol
+    private JTextField sendMailHostField; // mail.smtp.host, required
+    private JFormattedTextField sendMailPortField; // optional, 25 is SMTP default port, or 587
+    private JTextField sendMailFromAccountField; // optional, mail.smtp.from, usually the same as mailUser
     
     private JButton mailPropertiesButton;
     private JButton mailTestButton;
     private JFormattedTextField maximumConnectionTestSecondsField;
+    
+    private Properties customPropertiesToCommit;
 
-    private JLabel errorField;
-    
     private Authenticator validAuthenticator;
-    
-    /** When goingForward is true, denies next page when mail connection is not working. */
-    @Override
-    protected boolean commit(boolean goingForward) {
-        if (goingForward == true) {
-            final boolean connectionOk = connectionTest(false); // not showing success dialog
-            if (connectionOk == false) 
-                return false;
-            
-            getTrolley().setAuthenticator(validAuthenticator);
-            return true;
-        }
-        commitToMailConfiguration();
-        return true;
-    }
     
     @Override
     protected void buildUi() {
-        mailUser = SwingUtil.buildTextField(
+        mailUserField = SwingUtil.buildTextField(
                 i18n("Mail User"), 
                 i18n("Normally this is your mail address"), 
                 null);
@@ -92,37 +76,37 @@ public class MailConfigurationPage extends AbstractWizardPage
         final JComponent mailPassword = 
                 new JLabel(i18n("The mail password will be requested when activating the hike."));
         
-        receiveMailProtocol = SwingUtil.buildComboBox(
+        receiveMailProtocolField = SwingUtil.buildComboBox(
                 i18n("Protocol"), 
                 i18n("Protocol to use for reading INBOX mails"), 
                 new String [] { "pop3", "imap" });
-        receiveMailHost = SwingUtil.buildTextField(
+        receiveMailHostField = SwingUtil.buildTextField(
                 i18n("Host"), 
                 i18n("Something like 'pop.provider.domain' or 'imap.provider.domain'"), 
                 null);
-        receiveMailPort = SwingUtil.buildNumberField(
+        receiveMailPortField = SwingUtil.buildNumberField(
                 i18n("Port"), 
                 i18n("POP3 uses 110 or 995 (secure), IMAP uses 143 or 993 (secure)"),
                 110);
         
-        sendMailProtocol = SwingUtil.buildComboBox(
+        sendMailProtocolField = SwingUtil.buildComboBox(
                 i18n("Protocol"), 
                 i18n("Protocol to use for sending mail"), 
                 new String [] { "smtp" });
-        sendMailHost = SwingUtil.buildTextField(
+        sendMailHostField = SwingUtil.buildTextField(
                 i18n("Host"), 
                 i18n("Maybe the same as receive host, or something like 'smtp.provider.domain'"), 
                 null);
-        sendMailPort = SwingUtil.buildNumberField(
+        sendMailPortField = SwingUtil.buildNumberField(
                 i18n("Port"), 
                 i18n("SMTP uses 25 or 587 (secure)"),
                 25);
-        sendMailFromAccount = SwingUtil.buildTextField(
+        sendMailFromAccountField = SwingUtil.buildTextField(
                 i18n("'From' Mail Address"), 
                 i18n("Needed only when the mail-user is not a mail-address"), 
                 null);
         
-        mailPropertiesButton = new JButton(i18n("Add Properties"));
+        mailPropertiesButton = new JButton(i18n("More Properties"));
         mailPropertiesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -148,12 +132,9 @@ public class MailConfigurationPage extends AbstractWizardPage
                 6);
         maximumConnectionTestSecondsField.setColumns(3);
         
-        errorField = new JLabel();
-        errorField.setForeground(Color.RED);
+        layoutFields(mailPassword, maximumConnectionTestSecondsLabel, seconds);
         
         bindProtocolToPort();
-        
-        layoutFields(mailPassword, maximumConnectionTestSecondsLabel, seconds);
         
         installFocusListeners();
     }
@@ -162,115 +143,149 @@ public class MailConfigurationPage extends AbstractWizardPage
     protected void populateUi(Hike hike) {
         final MailConfiguration mailConfiguration = hike.getAlert().getMailConfiguration();
         
-        mailUser.setText(mailConfiguration.getMailUser());
+        mailUserField.setText(mailConfiguration.getMailUser());
         
-        receiveMailProtocol.setSelectedItem(mailConfiguration.getReceiveMailProtocol());
-        receiveMailHost.setText(mailConfiguration.getReceiveMailHost());
-        receiveMailPort.setValue(mailConfiguration.getReceiveMailPort());
+        receiveMailProtocolField.setSelectedItem(mailConfiguration.getReceiveMailProtocol());
+        receiveMailHostField.setText(mailConfiguration.getReceiveMailHost());
+        receiveMailPortField.setValue(mailConfiguration.getReceiveMailPort());
 
-        sendMailProtocol.setSelectedItem(mailConfiguration.getSendMailProtocol());
-        sendMailHost.setText(mailConfiguration.getSendMailHost());
-        sendMailPort.setValue(mailConfiguration.getSendMailPort());
-        sendMailFromAccount.setText(mailConfiguration.getSendMailFromAccount());
+        sendMailProtocolField.setSelectedItem(mailConfiguration.getSendMailProtocol());
+        sendMailHostField.setText(mailConfiguration.getSendMailHost());
+        sendMailPortField.setValue(mailConfiguration.getSendMailPort());
+        sendMailFromAccountField.setText(mailConfiguration.getSendMailFromAccount());
         
         maximumConnectionTestSecondsField.setValue(mailConfiguration.getMaximumConnectionTestSeconds());
     }
     
-    
-    private MailConfiguration commitToMailConfiguration() {
-        final MailConfiguration mailConfiguration = getHike().getAlert().getMailConfiguration();
+    @Override
+    protected String validateFields() {
+        final String mailUser = mailUserField.getText();
+        if (StringUtil.isEmpty(mailUser))
+            return i18n("Mail User is missing!");
         
-        if (StringUtil.isNotEmpty(mailUser.getText()))
-            mailConfiguration.setMailUser(mailUser.getText());
+        if (mailUser.contains("@") && MailUtil.isMailAddress(mailUser) == false)
+            return i18n("Mail User seems to be a mail address but is not valid!");
+            
+        if (StringUtil.isEmpty(receiveMailHostField.getText()))
+            return i18n("Receive Host name is missing!");
         
-        mailConfiguration.setReceiveMailProtocol((String) receiveMailProtocol.getSelectedItem());
+        if (StringUtil.isEmpty((String) receiveMailProtocolField.getSelectedItem()))
+            return i18n("Receive Protocol name is missing!");
         
-        if (StringUtil.isNotEmpty((String) receiveMailHost.getText()))
-            mailConfiguration.setReceiveMailHost(receiveMailHost.getText());
+        if (SwingUtil.getValue(receiveMailPortField) <= 0)
+            return i18n("Receive Port number is missing!");
         
-        mailConfiguration.setReceiveMailPort((int) receiveMailPort.getValue());
+        if (StringUtil.isEmpty(sendMailHostField.getText()))
+            return i18n("Send Host name is missing!");
+        
+        if (StringUtil.isEmpty((String) sendMailProtocolField.getSelectedItem()))
+            return i18n("Send Protocol name is missing!");
+        
+        if (SwingUtil.getValue(sendMailPortField) <= 0)
+            return i18n("Send Port number is missing!");
+        
+        final String sendMailFromAccount = sendMailFromAccountField.getText();
+        if (StringUtil.isNotEmpty(sendMailFromAccount) && MailUtil.isMailAddress(sendMailFromAccount) == false)
+            return i18n("'From' Mail Address is not a valid mail address!");
 
-        mailConfiguration.setSendMailProtocol((String) sendMailProtocol.getSelectedItem());
+        if (MailUtil.isMailAddress(sendMailFromAccount) == false && MailUtil.isMailAddress(mailUser) == false)
+            return i18n("Either Mail User or 'From' Address must be a mail address!");
         
-        if (StringUtil.isNotEmpty(sendMailHost.getText()))
-            mailConfiguration.setSendMailHost(sendMailHost.getText());
+        return null; // all fields are valid!
+    }
+    
+    /** When goingForward is true, denies next page when mail connection is not working. */
+    @Override
+    protected boolean commit(boolean goingForward) {
+        if (goingForward) {
+            if (validate() == false)
+                return false;
+            
+            final boolean connectionOk = connectionTest(false); // not showing success dialog
+            if (connectionOk == false) 
+                return false;
+        }
         
-        mailConfiguration.setSendMailPort((int) sendMailPort.getValue());
+        getTrolley().setAuthenticator(validAuthenticator);
+
+        commitToMailConfiguration(getHike().getAlert().getMailConfiguration());
         
-        if (StringUtil.isNotEmpty(sendMailFromAccount.getText()))
-            mailConfiguration.setSendMailFromAccount(sendMailFromAccount.getText());
+        return true;
+    }
+    
+    
+    private MailConfiguration commitToMailConfiguration(MailConfiguration mailConfiguration) {
+        if (StringUtil.isNotEmpty(mailUserField.getText()))
+            mailConfiguration.setMailUser(mailUserField.getText());
         
-        mailConfiguration.setMaximumConnectionTestSeconds((int) maximumConnectionTestSecondsField.getValue());
+        mailConfiguration.setReceiveMailProtocol((String) receiveMailProtocolField.getSelectedItem());
         
+        if (StringUtil.isNotEmpty((String) receiveMailHostField.getText()))
+            mailConfiguration.setReceiveMailHost(receiveMailHostField.getText());
+        
+        final int receivePort = SwingUtil.getValue(receiveMailPortField);
+        if (receivePort > 0)
+            mailConfiguration.setReceiveMailPort(receivePort);
+
+        mailConfiguration.setSendMailProtocol((String) sendMailProtocolField.getSelectedItem());
+        
+        if (StringUtil.isNotEmpty(sendMailHostField.getText()))
+            mailConfiguration.setSendMailHost(sendMailHostField.getText());
+        
+        final int sendPort = SwingUtil.getValue(sendMailPortField);
+        if (sendPort > 0)
+            mailConfiguration.setSendMailPort(sendPort);
+        
+        if (StringUtil.isNotEmpty(sendMailFromAccountField.getText()))
+            mailConfiguration.setSendMailFromAccount(sendMailFromAccountField.getText());
+        
+        final int maximumConnectionTestSeconds = SwingUtil.getValue(maximumConnectionTestSecondsField);
+        if (maximumConnectionTestSeconds > 0)
+            mailConfiguration.setMaximumConnectionTestSeconds(maximumConnectionTestSeconds);
+        
+        if (customPropertiesToCommit != null) {
+            mailConfiguration.getCustomProperties().clear();
+            
+            for (Map.Entry<Object,Object> entrySet : customPropertiesToCommit.entrySet()) {
+                final List<String> tuple = new ArrayList<>(2);
+                tuple.add((String) entrySet.getKey());
+                tuple.add((String) entrySet.getValue());
+                
+                mailConfiguration.getCustomProperties().add(tuple);
+            }
+        }
+
         return mailConfiguration;
     }
 
     private void openCustomMailPropertiesDialog() {
-        final MailConfiguration mailConfiguration = commitToMailConfiguration();
-        final MailProperties coreProperties = new MailProperties(mailConfiguration);
+        final MailConfiguration mailConfigurationForDialog = new MailConfiguration();
+        commitToMailConfiguration(mailConfigurationForDialog); // fill from UI fields
+        
+        final MailProperties coreProperties = new MailProperties(mailConfigurationForDialog);
         final Properties customProperties = MailProperties.customProperties(); // is a clone
         
         final CustomPropertiesEditDialog propertiesEditor = new CustomPropertiesEditDialog(
                 getFrame(), 
                 coreProperties, // rendered read-only
                 customProperties, // will be edited
-                mailConfiguration.getCustomProperties(), // set include flags for these
+                mailConfigurationForDialog.getCustomProperties(), // set include flags for these
                 i18n("Mail Properties"));
         propertiesEditor.setVisible(true); // is modal
         
-        if (propertiesEditor.wasCommitted())
-            mergeCustomProperties(coreProperties, customProperties);
-    }
-    
-    private void mergeCustomProperties(MailProperties mailProperties, Properties customProperties) {
-        final MailConfiguration mailConfiguration = getHike().getAlert().getMailConfiguration();
-        mailConfiguration.getCustomProperties().clear();
-        
-        for (Map.Entry<Object,Object> entrySet : customProperties.entrySet()) {
-            final List<String> tuple = new ArrayList<>(2);
-            tuple.add((String) entrySet.getKey());
-            tuple.add((String) entrySet.getValue());
-            mailConfiguration.getCustomProperties().add(tuple);
-        }
-    }
-    
-    private String validateMailProperties() { // TODO: move validation to mail package!
-        final MailConfiguration mailConfiguration = commitToMailConfiguration();
-        
-        final String mailUser = mailConfiguration.getMailUser();
-        if (StringUtil.isEmpty(mailUser))
-            return i18n("Mail User is missing!");
-        else if (mailUser.contains("@") && MailUtil.isMailAddress(mailUser) == false)
-            return i18n("Mail User seems to be a mail address but is not valid!");
-            
-        if (StringUtil.isEmpty(mailConfiguration.getReceiveMailHost()))
-            return i18n("Receive Host name is missing!");
-        if (StringUtil.isEmpty(mailConfiguration.getReceiveMailProtocol()))
-            return i18n("Receive Protocol name is missing!");
-        if (StringUtil.isEmpty(mailConfiguration.getSendMailHost()))
-            return i18n("Send Host name is missing!");
-        if (StringUtil.isEmpty(mailConfiguration.getSendMailProtocol()))
-            return i18n("Send Protocol name is missing!");
-        
-        final String sendMailFromAccount = mailConfiguration.getSendMailFromAccount();
-        if (StringUtil.isNotEmpty(sendMailFromAccount) && MailUtil.isMailAddress(sendMailFromAccount) == false)
-            return i18n("'From' Mail Address is not a valid mail address!");
-
-        if (MailUtil.isMailAddress(sendMailFromAccount) == false && MailUtil.isMailAddress(mailUser) == false)
-            return i18n("Either Mail User or 'From' Mail Address must be a valid mail address!");
-        
-        return null; // all fields are valid!
+        if (propertiesEditor.wasCommitted()) // dialog finished
+            this.customPropertiesToCommit = customProperties;
+            // edited clone, only those with include-flag will be in customProperties
     }
     
     private boolean connectionTest(boolean showSuccessDialog) {
-        if (validateMailProperties() != null) // calls commitToMailConfiguration()
-            return false;
-
-        String error;
+        final MailConfiguration mailConfiguration = new MailConfiguration();
+        commitToMailConfiguration(mailConfiguration);
+        
+        String error = null;
         setWaitCursor();
         try {
-            final ConnectionCheck connectionCheck = 
-                    new ConnectionCheck(getHike().getAlert().getMailConfiguration(), validAuthenticator);
+            final ConnectionCheck connectionCheck = new ConnectionCheck(mailConfiguration, validAuthenticator);
             final boolean success = connectionCheck.trySendAndReceive();
             error = (success ? null : i18n("Either send or receive doesn't work, see console for errors."));
             
@@ -294,48 +309,28 @@ public class MailConfigurationPage extends AbstractWizardPage
         return (error == null);
     }
 
-    private void bindProtocolToPort() {
-        final ItemListener itemListener = new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                final String protocol = (String) receiveMailProtocol.getSelectedItem();
-                if ("pop3".equals(protocol))
-                    receiveMailPort.setValue(110);
-                else if ("pop3s".equals(protocol))
-                    receiveMailPort.setValue(995);
-                else if ("imap".equals(protocol))
-                    receiveMailPort.setValue(143);
-                else if ("imaps".equals(protocol))
-                    receiveMailPort.setValue(993);
-            }
-        };
-
-        receiveMailProtocol.addItemListener(itemListener);
-    }
-
     private void layoutFields(JComponent mailPassword, JLabel maximumConnectionTestSecondsLabel, JLabel seconds) {
         final JPanel mailUserPanel = new JPanel();
         mailUserPanel.setLayout(new BoxLayout(mailUserPanel, BoxLayout.Y_AXIS));
-        mailUserPanel.add(errorField);
-        mailUserPanel.add(mailUser);
+        mailUserPanel.add(mailUserField);
         mailUserPanel.add(mailPassword);
         mailUserPanel.add(Box.createRigidArea(new Dimension(1, 16)));
         
         final JPanel receivePanel = new JPanel();
         receivePanel.setLayout(new BoxLayout(receivePanel, BoxLayout.Y_AXIS));
         receivePanel.setBorder(BorderFactory.createTitledBorder(i18n("Receive")));
-        receivePanel.add(receiveMailHost);
-        receivePanel.add(receiveMailProtocol);
-        receivePanel.add(receiveMailPort);
+        receivePanel.add(receiveMailHostField);
+        receivePanel.add(receiveMailProtocolField);
+        receivePanel.add(receiveMailPortField);
         receivePanel.add(Box.createRigidArea(new Dimension(1, 41)));
         
         final JPanel sendPanel = new JPanel();
         sendPanel.setLayout(new BoxLayout(sendPanel, BoxLayout.Y_AXIS));
         sendPanel.setBorder(BorderFactory.createTitledBorder(i18n("Send")));
-        sendPanel.add(sendMailHost);
-        sendPanel.add(sendMailProtocol);
-        sendPanel.add(sendMailPort);
-        sendPanel.add(sendMailFromAccount);
+        sendPanel.add(sendMailHostField);
+        sendPanel.add(sendMailProtocolField);
+        sendPanel.add(sendMailPortField);
+        sendPanel.add(sendMailFromAccountField);
         
         final JPanel sendAndReceive = new JPanel(new GridLayout(1, 2));
         sendAndReceive.add(receivePanel);
@@ -361,33 +356,51 @@ public class MailConfigurationPage extends AbstractWizardPage
         getContentPanel().add(all);
     }
     
+    private void bindProtocolToPort() {
+        final ItemListener itemListener = new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                final String protocol = (String) receiveMailProtocolField.getSelectedItem();
+                if ("pop3".equals(protocol))
+                    receiveMailPortField.setValue(110);
+                else if ("pop3s".equals(protocol))
+                    receiveMailPortField.setValue(995);
+                else if ("imap".equals(protocol))
+                    receiveMailPortField.setValue(143);
+                else if ("imaps".equals(protocol))
+                    receiveMailPortField.setValue(993);
+            }
+        };
+
+        receiveMailProtocolField.addItemListener(itemListener);
+    }
+
     private void installFocusListeners() {
         final FocusListener focusListener = new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                final String error = validateMailProperties();
-                final boolean valid = (error == null);
+                final boolean valid = validate();
                 mailPropertiesButton.setEnabled(valid);
-                errorField.setText(valid ? "" : error);
                 mailPropertiesButton.setEnabled(valid);
                 mailTestButton.setEnabled(valid);
             }
         };
         focusListener.focusLost(null); // set initial state
         
-        mailUser.addFocusListener(focusListener);
-        receiveMailHost.addFocusListener(focusListener);
-        receiveMailPort.addFocusListener(focusListener);
-        receiveMailProtocol.getEditor().getEditorComponent().addFocusListener(focusListener);
-        sendMailHost.addFocusListener(focusListener);
-        sendMailPort.addFocusListener(focusListener);
-        sendMailProtocol.getEditor().getEditorComponent().addFocusListener(focusListener);
-        sendMailFromAccount.addFocusListener(focusListener);
+        mailUserField.addFocusListener(focusListener);
+        receiveMailHostField.addFocusListener(focusListener);
+        receiveMailPortField.addFocusListener(focusListener);
+        receiveMailProtocolField.getEditor().getEditorComponent().addFocusListener(focusListener);
+        sendMailHostField.addFocusListener(focusListener);
+        sendMailPortField.addFocusListener(focusListener);
+        sendMailProtocolField.getEditor().getEditorComponent().addFocusListener(focusListener);
+        sendMailFromAccountField.addFocusListener(focusListener);
         maximumConnectionTestSecondsField.addFocusListener(focusListener);
     }
 
     
     
+    /** Custom mail properties edit dialog. */
     private static class CustomPropertiesEditDialog extends PropertiesEditDialog
     {
         private Properties readOnlyProperties;

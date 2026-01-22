@@ -2,14 +2,17 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Vector;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -30,7 +33,6 @@ import fri.servers.hiking.emergencyalert.util.StringUtil;
  */
 public class ContactsPage extends AbstractWizardPage
 {
-    private JLabel errorField;
     private JTextField nameOfHikerField;
     private JTextField addressOfHikerField;
     private JTextField phoneNumberOfHikerField;
@@ -38,9 +40,6 @@ public class ContactsPage extends AbstractWizardPage
     
     @Override
     protected void buildUi() {
-        errorField = new JLabel(i18n("Your Name is missing!"));
-        errorField.setForeground(Color.RED);
-        
         nameOfHikerField = SwingUtil.buildTextField(
                 i18n("Your Name"),
                 i18n("Required, will appear in mail signature"),
@@ -57,19 +56,22 @@ public class ContactsPage extends AbstractWizardPage
                 i18n("Your Phone Number"),
                 i18n("Will be available as '$phone' macro in mail texts"),
                 null);
+        phoneNumberOfHikerField.setColumns(20);
         
         final JComponent contactsTable = buildContactsTable();
-        contactsTable.setBorder(BorderFactory.createTitledBorder(i18n("Contacts")));
+        contactsTable.setBorder(BorderFactory.createTitledBorder(i18n("Emergency Alert Contacts")));
         
         final JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.add(errorField);
         panel.add(nameOfHikerField);
         panel.add(addressOfHikerField);
         panel.add(phoneNumberOfHikerField);
+        panel.add(Box.createRigidArea(new Dimension(1, 20)));
         panel.add(contactsTable);
         
         getContentPanel().add(panel);
+        
+        installFocusListeners();
     }
     
     @Override
@@ -99,7 +101,7 @@ public class ContactsPage extends AbstractWizardPage
             alertContactsField.setModel(buildTableModel(data));
         }
         
-        validate(); // would remove any empty row
+        validate(); // clears error field
         
         if (havingContacts == false)
             alertContactsField.setModel(buildTableModel(createEmptyDataVector(1)));
@@ -108,21 +110,45 @@ public class ContactsPage extends AbstractWizardPage
     }
     
     @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    protected String validateFields() {
+        if (StringUtil.isEmpty(nameOfHikerField.getText()))
+            return i18n("Your name must not be empty!");
+
+        final Vector<Vector> contacts = commitAndGetContacts();
+        int count = 0;
+        for (Vector<Object> contact : contacts) {
+            final String mailAddress = (String) contact.get(0);
+            if (StringUtil.isNotEmpty(mailAddress)) {
+                if (MailUtil.isMailAddress(mailAddress) == false)
+                    return i18n("There is an invalid mail address in contacts!");
+                
+                final String firstName = (String) contact.get(1);
+                final String lastName = (String) contact.get(2);
+                if (StringUtil.isEmpty(firstName) && StringUtil.isEmpty(lastName))
+                    return i18n("Either first or last name of contact must be given!");
+                
+                count++;
+            }
+        }
+        
+        if (count <= 0)
+            return i18n("You need at least one valid mail contact in list!");
+        
+        return null;
+    }
+
+    @Override
     @SuppressWarnings({ "rawtypes" })
     protected boolean commit(boolean goingForward) {
-        if (goingForward && validate() == false)
-            return false;
-        
         final Alert alert = getHike().getAlert();
 
         if (StringUtil.isNotEmpty(nameOfHikerField.getText()))
             alert.setNameOfHiker(nameOfHikerField.getText());
         
-        if (StringUtil.isNotEmpty(addressOfHikerField.getText()))
-            alert.setAddressOfHiker(addressOfHikerField.getText());
+        alert.setAddressOfHiker(addressOfHikerField.getText());
         
-        if (StringUtil.isNotEmpty(phoneNumberOfHikerField.getText()))
-            alert.setPhoneNumberOfHiker(phoneNumberOfHikerField.getText());
+        alert.setPhoneNumberOfHiker(phoneNumberOfHikerField.getText());
         
         final Vector<Vector> dataVector = commitAndGetContacts();
         if (alert.getAlertContacts() == null)
@@ -135,8 +161,10 @@ public class ContactsPage extends AbstractWizardPage
             if (StringUtil.isNotEmpty(mailAddress)) {
                 final String firstName = (String) dataRow.get(1);
                 final String lastName = (String) dataRow.get(2);
-                Object column3 = dataRow.get(3);
-                final int detectionMinutes = (column3 != null ? (Integer) column3 : -1);
+                
+                final Object column3 = dataRow.get(3);
+                final int detectionMinutes = (column3 != null) ? (Integer) column3 : -1;
+                
                 final boolean absent = (Boolean) dataRow.get(4);
                 
                 final Contact contact = new Contact();
@@ -155,14 +183,14 @@ public class ContactsPage extends AbstractWizardPage
     }
 
     
-    private boolean validate() {
-        String error;
-        if ((error = validate(commitAndGetContacts())) != null) {
-            errorField.setText(error);
-            return false;
-        }
-        errorField.setText("");
-        return true;
+    private void installFocusListeners() {
+        final FocusListener focusListener = new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                validate();
+            }
+        };
+        nameOfHikerField.addFocusListener(focusListener);
     }
     
     @SuppressWarnings("rawtypes")
@@ -177,55 +205,23 @@ public class ContactsPage extends AbstractWizardPage
         return model.getDataVector();
     }
     
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private String validate(Vector<Vector> contacts) {
-        if (StringUtil.isEmpty(nameOfHikerField.getText()))
-            return i18n("Your name must not be empty!");
-
-        int count = 0;
-        for (Vector<Object> contact : contacts) {
-            final String mailAddress = (String) contact.get(0);
-            if (StringUtil.isNotEmpty(mailAddress))
-                count++;
-        }
-        
-        if (count <= 0)
-            return i18n("You need at least one mail contact in list!");
-        
-        for (Vector<Object> contact : contacts) {
-            final String mailAddress = (String) contact.get(0);
-            if (StringUtil.isNotEmpty(mailAddress)) {
-                if (MailUtil.isMailAddress(mailAddress) == false)
-                    return i18n("There is an invalid mail address in contacts!");
-                
-                final String firstName = (String) contact.get(1);
-                final String lastName = (String) contact.get(2);
-                if (StringUtil.isEmpty(firstName) && StringUtil.isEmpty(lastName))
-                    return i18n("Either first or last name of contact must be given!");
-            }
-        }
-        
-        return null;
-    }
-
     private JComponent buildContactsTable() {
         alertContactsField = new JTable(buildTableModel(createEmptyDataVector(0))) {
             @Override
             public void editingStopped(ChangeEvent e) {
                 super.editingStopped(e);
                 removeEmptyRows(true);
+                validate();
                 addEmptyRowWhenNeeded();
             }
         };
         ((DefaultCellEditor) alertContactsField.getDefaultEditor(String.class)).setClickCountToStart(1);
         ((DefaultCellEditor) alertContactsField.getDefaultEditor(Integer.class)).setClickCountToStart(1);
         alertContactsField.getTableHeader().setReorderingAllowed(false);
-        alertContactsField.setToolTipText(i18n("To delete a row, erase the Mail Address field"));
+        alertContactsField.setToolTipText(i18n("Contacts for the emergency case. To delete a row, erase the 'Mail Address' field"));
         
         final JPanel tablePanel = new JPanel(new BorderLayout());
         tablePanel.add(new JScrollPane(alertContactsField), BorderLayout.CENTER);
-        
-        // TODO: Add and Remove buttons for table
         
         return tablePanel;
     }

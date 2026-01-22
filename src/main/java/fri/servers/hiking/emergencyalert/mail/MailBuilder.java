@@ -14,6 +14,11 @@ import fri.servers.hiking.emergencyalert.util.StringUtil;
  */
 public class MailBuilder
 {
+    public static final String MACRO_CONTACT = "$contact";
+    public static final String MACRO_NEXT_CONTACT = "$nextContact";
+    public static final String MACRO_ALL_CONTACTS = "$allContacts";
+    public static final String MACRO_PHONE = "$phone";
+
     private static final String CONTENT_TYPE = "text/plain; charset="+Platform.ENCODING;
     
     private final Contact contact;
@@ -39,7 +44,7 @@ public class MailBuilder
         
         final StringBuilder textBuilder = new StringBuilder();
         textBuilder.append(getContactTitle(contact)+" !\n");
-        textBuilder.append(hike.getAlert().getPassingToNextText()+"\n");
+        textBuilder.append(substitute(hike.getAlert().getPassingToNextText())+"\n");
         footer(hike, textBuilder);
 
         return new Mail(from(), to(), subject, textBuilder.toString(), CONTENT_TYPE, null, null);
@@ -58,19 +63,22 @@ public class MailBuilder
         final StringBuilder textBuilder = new StringBuilder();
                 
         textBuilder.append(getContactTitle(contact)+" !\n");
-        textBuilder.append(hike.getAlert().getHelpRequestText());
+        textBuilder.append(substitute(hike.getAlert().getHelpRequestText()));
         textBuilder.append("\n\n");
         textBuilder.append("MAIL-ID: "+hike.uniqueMailId);
         textBuilder.append("\n\n");
+        
         if (hike.getAlert().getProcedureTodos() != null) {
             for (int i = 0; i < hike.getAlert().getProcedureTodos().size(); i++) {
                 final String procedureTodo = hike.getAlert().getProcedureTodos().get(i);
-                textBuilder.append("("+(i + 1)+") "+procedureTodo+"\n");
+                textBuilder.append("("+(i + 1)+") "+substitute(procedureTodo)+"\n");
             }
             textBuilder.append("\n");
         }
+        
         if (hike.getRoute() != null)
             textBuilder.append("Route:\n"+hike.getRoute()+"\n");
+        
         footer(hike, textBuilder);
         
         return textBuilder.toString();
@@ -105,5 +113,49 @@ public class MailBuilder
             sb.append(hike.getAlert().getMailConfiguration().getMailFromAddress());
         sb.append("\n----------------------------------------\n");
         sb.append("Sent by Hiking-Emergency-Alert automaton version "+Version.get());
+    }
+    
+    
+    private String substitute(String text) {
+        text.replace(MACRO_CONTACT, getContactName(this.contact));
+        text.replace(MACRO_NEXT_CONTACT, getNextContactName());
+        text.replace(MACRO_ALL_CONTACTS, getAllContactNames());
+        text.replace(MACRO_PHONE, getPhone());
+        return text;
+    }
+
+    private String getContactName(Contact contact) {
+        final String fullName = 
+                (StringUtil.isNotEmpty(contact.getFirstName()) ? contact.getFirstName() : "")+
+                " "+
+                (StringUtil.isNotEmpty(contact.getLastName()) ? contact.getLastName() : "")
+            .trim();
+        return StringUtil.isNotEmpty(fullName) ? fullName : contact.getMailAddress();
+    }
+
+    private String getNextContactName() {
+        boolean found = false;
+        for (Contact c : hike.getAlert().getAlertContacts()) {
+            if (this.contact == c)
+                found = true;
+            else if (found)
+                return getContactName(c);
+        }
+        return "-"; // last
+    }
+    
+    private String getAllContactNames() {
+        final String suffix = ", ";
+        String all = "";
+        for (Contact c : hike.getAlert().getAlertContacts())
+            all += getContactName(c)+suffix;
+        if (all.length() > 0)
+            all = all.substring(0, all.length() - suffix.length());
+        return all;
+    }
+    
+    private String getPhone() {
+        final String phone = hike.getAlert().getPhoneNumberOfHiker();
+        return StringUtil.isNotEmpty(phone) ? phone : "-";
     }
 }

@@ -3,11 +3,13 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizard;
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -23,6 +25,9 @@ public abstract class AbstractWizardPage
     private final JPanel contentPanel;
     private Trolley trolley;
     private boolean uiWasBuilt;
+    
+    private JLabel errorField = new JLabel();
+
 
     /** Constructor visible to sub-classes only. */
     protected AbstractWizardPage() {
@@ -35,6 +40,10 @@ public abstract class AbstractWizardPage
                 BorderFactory.createEmptyBorder(8, 8, 0, 8),
                 BorderFactory.createLineBorder(Color.GRAY))
             );
+        
+        errorField = new JLabel();
+        errorField.setForeground(Color.RED);
+        addablePanel.add(errorField, BorderLayout.NORTH);
     }
     
     /** Package-visible for HikeWizard only, not for subclasses! */
@@ -52,30 +61,71 @@ public abstract class AbstractWizardPage
     /**
      * Called when entering this page. 
      * Build UI when not done, populate UI with data.
+     * @param goingForward true when going to next page, false when to previous.
      * @param trolley contains StateMachine, Hike and other data passed between pages.
      */
-    public final void enter(Trolley trolley) {
-        this.trolley = trolley;
-        if (uiWasBuilt == false) {
-            buildUi();
-            uiWasBuilt = true;
+    public final void enter(Trolley trolley, boolean goingForward) {
+        setWaitCursor();
+        try {
+            this.trolley = trolley;
+            if (uiWasBuilt == false) {
+                buildUi();
+                uiWasBuilt = true;
+            }
+            
+            if (goingForward)
+                populateUi(trolley.stateMachine.getHike());
         }
-        populateUi(trolley.stateMachine.getHike());
+        finally {
+            setDefaultCursor();
+        }
     }
 
     /**
      * Called when going forward or backward to another page. 
+     * @param goingForward true when going to next page, false when to previous.
      * @return null when <code>commit()</code> returned null, else the trolley.
      */
     public final Trolley leave(boolean goingForward) {
-        return commit(goingForward) ? trolley : null;
+        setWaitCursor();
+        try {
+            if (goingForward) {
+                final boolean valid = validate();
+                if (valid == false)
+                    return null;
+            }
+            return commit(goingForward) ? trolley : null;
+        }
+        finally {
+            setDefaultCursor();
+        }
+    }
+
+    /**
+     * Calls <code>validateFields()</code> and sets the resulting error to error-field.
+     * @return true when no error occurred, else false.
+     */
+    protected final boolean validate() {
+        final String error = validateFields();
+        final boolean valid = (error == null);
+        errorField.setText(valid ? "" : error);
+        return valid;
     }
     
     /**
-     * Called when going forward or backward to another page. 
+     * Called when going forward to next page. Validate UI fields. 
+     * This default implementation always returns null. To be overridden.
+     * @return null when all fields are valid, else an error message about the first invalid field.
+     */
+    protected String validateFields() {
+        return null;
+    }
+
+    /**
+     * Called when going forward or backward to another page, or user closes window. 
      * Commit UI fields into Hike data. 
      * @param goingForward true when "Next" was clicked, false when "Previous" or user closes window.
-     * @return true when can leave page.
+     * @return true when can leave page or not going forward, false when validation did not succeed.
      */
     protected abstract boolean commit(boolean goingForward);
 
@@ -86,34 +136,41 @@ public abstract class AbstractWizardPage
      * @return true when user clicked NO or save succeeded, else false.
      */
     public boolean windowClosing() {
-        commit(false);
-        
-        if (trolley.isHikeChanged()) {
-            final int saveChanges = JOptionPane.showConfirmDialog(
-                    getFrame(), 
-                    i18n("Save hike inputs?"), 
-                    i18n("Confirm Termination"), 
-                    JOptionPane.YES_NO_CANCEL_OPTION, 
-                    JOptionPane.QUESTION_MESSAGE);
-            if (saveChanges == JOptionPane.YES_OPTION) {
-                try {
-                    saveHikeToFile();
-                    return true;
+        setWaitCursor();
+        try {
+            commit(false);
+            
+            if (trolley.isHikeChanged()) {
+                final int saveChanges = JOptionPane.showConfirmDialog(
+                        getFrame(), 
+                        i18n("Save hike inputs?"), 
+                        i18n("Confirm Termination"), 
+                        JOptionPane.YES_NO_CANCEL_OPTION, 
+                        JOptionPane.QUESTION_MESSAGE);
+                if (saveChanges == JOptionPane.YES_OPTION) {
+                    try {
+                        saveHikeToFile();
+                        return true;
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                        JOptionPane.showMessageDialog(
+                                getFrame(),
+                                e.toString(),
+                                i18n("Error"),
+                                JOptionPane.ERROR_MESSAGE);
+                        return false;
+                    }
                 }
-                catch (IOException e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(
-                            getFrame(),
-                            e.toString(),
-                            i18n("Error"),
-                            JOptionPane.ERROR_MESSAGE);
+                else if (saveChanges == JOptionPane.CANCEL_OPTION) {
                     return false;
                 }
             }
-            else if (saveChanges == JOptionPane.CANCEL_OPTION) {
-                return false;
-            }
         }
+        finally {
+            setDefaultCursor();
+        }
+        
         return true;
     }
 
@@ -144,10 +201,18 @@ public abstract class AbstractWizardPage
         return getStateMachine().getHike();
     }
     
+    protected final JLabel getErrorField() {
+        return errorField;
+    }
+    
     protected final void setWaitCursor() {
-        getFrame().getContentPane().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        final Container contentPane = (getFrame() != null) ? getFrame().getContentPane() : null;
+        if (contentPane != null)
+            getFrame().getContentPane().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     }
     protected final void setDefaultCursor() {
-        getFrame().getContentPane().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        final Container contentPane = (getFrame() != null) ? getFrame().getContentPane() : null;
+        if (contentPane != null)
+            getFrame().getContentPane().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 }

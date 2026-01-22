@@ -38,16 +38,12 @@ public class HikeWizard extends JPanel
     
     private AbstractWizardPage[] pages = new AbstractWizardPage[] {
         new LanguagePage(),
-        
         new ContactsPage(),
         new MailTextsPage(),
         new IntervalsPage(),
         new MailConfigurationPage(),
-        
-        new RoutePage(),
-        new BeginAndHomeTimePage(),
+        new RouteAndTimesPage(),
         new ActivationPage(),
-        
         new ObservationPage(),
     };
     private int pageIndex;
@@ -174,7 +170,7 @@ public class HikeWizard extends JPanel
         contentPanel.add(newPage.getAddablePanel(), BorderLayout.CENTER);
         pageIndex = newIndex;
         
-        newPage.enter(trolley);
+        newPage.enter(trolley, goingForward);
         
         contentPanel.revalidate();
         contentPanel.repaint();

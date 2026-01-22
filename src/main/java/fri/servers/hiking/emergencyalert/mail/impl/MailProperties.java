@@ -21,10 +21,7 @@ public class MailProperties extends Properties
         CUSTOM_PROPERTIES.put("mail.debug", "true");
         
         CUSTOM_PROPERTIES.put("mail.smtp.username", "user.name");
-        CUSTOM_PROPERTIES.put("mail.smtp.from", "some@mail.address");
         CUSTOM_PROPERTIES.put("mail.smtp.auth", "true");
-        CUSTOM_PROPERTIES.put("mail.smtp.timeout", "10000");
-        CUSTOM_PROPERTIES.put("mail.smtp.connectiontimeout", "10000");
         
         CUSTOM_PROPERTIES.put("mail.smtp.port", "465 for SSL, 587 for STARTTLS");
         CUSTOM_PROPERTIES.put("mail.smtp.starttls.enable", "true");
@@ -45,7 +42,7 @@ public class MailProperties extends Properties
         CUSTOM_PROPERTIES.put("mail.pop3s.port", "995");
         CUSTOM_PROPERTIES.put("mail.pop3s.ssl.enable", "true");
         CUSTOM_PROPERTIES.put("mail.pop3s.ssl.trust", "*");
-        
+
         return CUSTOM_PROPERTIES;
     }
     
@@ -82,7 +79,8 @@ public class MailProperties extends Properties
         putProtocolProperties(
                 sendProtocol,
                 mailConfiguration.getSendMailHost(),
-                mailConfiguration.getSendMailPort());
+                mailConfiguration.getSendMailPort(),
+                mailConfiguration.getMaximumConnectionTestSeconds());
         
         final String mailFromAccount = mailConfiguration.getSendMailFromAccount();
         final String mailUser = mailConfiguration.getMailUser();
@@ -96,12 +94,18 @@ public class MailProperties extends Properties
         putProtocolProperties(
                 mailConfiguration.getReceiveMailProtocol(), 
                 mailConfiguration.getReceiveMailHost(), 
-                mailConfiguration.getReceiveMailPort());
+                mailConfiguration.getReceiveMailPort(),
+                mailConfiguration.getMaximumConnectionTestSeconds());
     }
     
-    private void putProtocolProperties(String protocol, String host, int port) {
-        put("mail."+protocol+".host", host);
-        put("mail."+protocol+".port", ""+port);
+    private void putProtocolProperties(String protocol, String host, int port, int timeoutSeconds) {
+        final String mailProtocol = "mail."+protocol+".";
+        put(mailProtocol+"host", host);
+        put(mailProtocol+"port", ""+port);
+        
+        final long timeoutMillis = timeoutSeconds * 1000;
+        put(mailProtocol+"timeout", ""+timeoutMillis);
+        put(mailProtocol+"connectiontimeout", ""+timeoutMillis);
     }
     
     private void putCustomProperties(List<List<String>> customProperties) {
