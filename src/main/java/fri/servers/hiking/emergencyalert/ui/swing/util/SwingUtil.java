@@ -2,12 +2,16 @@ package fri.servers.hiking.emergencyalert.ui.swing.util;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.text.DefaultFormatterFactory;
+import javax.swing.text.MaskFormatter;
 import javax.swing.text.NumberFormatter;
 
 public final class SwingUtil
@@ -22,9 +26,9 @@ public final class SwingUtil
     }
     
     public static JFormattedTextField buildNumberField(String title, String tooltip, int initialValue) {
-        final NumberFormat format = NumberFormat.getIntegerInstance();
-        format.setGroupingUsed(false);
-        final NumberFormatter numberFormatter = new NumberFormatter(format);
+        final NumberFormat numberFormat = NumberFormat.getIntegerInstance();
+        numberFormat.setGroupingUsed(false);
+        final NumberFormatter numberFormatter = new NumberFormatter(numberFormat);
         numberFormatter.setValueClass(Integer.class); 
         numberFormatter.setAllowsInvalid(false);
 
@@ -35,8 +39,8 @@ public final class SwingUtil
         return field;
     }
     
-    public static int getValue(JFormattedTextField numberField) {
-        final int errorReturn = 1;
+    public static int getNumberValue(JFormattedTextField numberField) {
+        final int errorReturn = -1;
         try {
             numberField.commitEdit();
         }
@@ -56,6 +60,18 @@ public final class SwingUtil
         return field;
     }
 
+    public static DateField buildDateField(String title, String tooltip, Date initialValue) {
+        final DateField field = new DateField(initialValue, "yyyy-MM-dd", "####-##-##");
+        setTitleAndTooltip(title, tooltip, field);
+        return field;
+    }
+    
+    public static DateField buildTimeField(String title, String tooltip, Date initialValue) {
+        final DateField field = new DateField(initialValue, "HH:mm", "##:##");
+        setTitleAndTooltip(title, tooltip, field);
+        return field;
+    }
+    
     public static JTextArea buildTextArea(String title, String tooltip, String initialValue) {
         final JTextArea field = new JTextArea();
         setTitleAndTooltip(title, tooltip, field);
@@ -71,6 +87,46 @@ public final class SwingUtil
             field.setBorder(BorderFactory.createTitledBorder(title));
         if (tooltip != null)
             field.setToolTipText(tooltip);
+    }
+    
+    
+    public static class DateField extends JFormattedTextField
+    {
+        private final SimpleDateFormat simpleDateFormat;
+
+        /** 
+         * @param date optional, initial value or null.
+         * @param formatString matching SimpleDateFormat like "yyyy-MM-dd hh:mm"
+         * @param formatMask matching MaskFormatter like "####-##-## ##:##"
+         */
+        public DateField(Date date, String formatString, String formatMask) {
+            this.simpleDateFormat = new SimpleDateFormat(formatString);
+            try {
+                final MaskFormatter maskFormatter = new MaskFormatter(formatMask);
+                setFormatterFactory(new DefaultFormatterFactory(maskFormatter));
+                setDateValue(date);
+            }
+            catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            setColumns(formatMask.length());
+        }
+        
+        public Date getDateValue() {
+            try {
+                commitEdit();
+                return simpleDateFormat.parse(getText());
+            }
+            catch (ParseException e) {
+                System.err.println(e.toString());
+                return null;
+            }
+        }
+        
+        public void setDateValue(Date date) {
+            final String text = simpleDateFormat.format((date != null) ? date : new Date());
+            setText(text);
+        }
     }
     
     
