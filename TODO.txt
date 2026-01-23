@@ -1,0 +1,15 @@
+
+Left side descriptions of current wizard page, in HTML
+
+Right side output and error consoles for System out/err streams.
+
+The whole application needs bigger fonts!
+
+The mail text needs $macros for plannedBeginTime, endTime
+    and name of "to"-contact person, maybe MAIL-ID.
+    
+Implement JSON Hike file loading and saving.
+
+Multi-language support for at least German.
+
+Write more unit tests with greenmail like StateMachineTest2.
