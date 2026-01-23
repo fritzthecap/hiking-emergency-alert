@@ -27,7 +27,7 @@ public class TestData
         
         final Date plannedBegin = 
                 DateUtil.eraseSeconds( // no seconds for JSON round-trip test
-                    DateUtil.addMinutes(1)); // begin must be at least 1 minute in future
+                    DateUtil.addMinutes(DateUtil.now(), 1)); // begin must be at least 1 minute in future
         final Date plannedHome = DateUtil.addMinutes(plannedBegin, 1);
         hike.setPlannedBegin(plannedBegin);
         hike.setPlannedHome(plannedHome);

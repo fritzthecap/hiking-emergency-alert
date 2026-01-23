@@ -31,12 +31,26 @@ public final class DateUtil
         calendar.setTime(date);
         return calendar.get(Calendar.MINUTE);
     }
-    
-    /** @return the now-date with given minutes added. */
-    public static Date addMinutes(int minutes) {
-        return addMinutes(DateUtil.now(), minutes);
+
+    /** @return a Date that has the day of beginDate and the time of beginTime. */
+    public static Date mergeDateAndTime(Date beginDate, Date beginTime) {
+        final Calendar dateCalendar = Calendar.getInstance();
+        dateCalendar.setTime(beginDate);
+        final Calendar timeCalendar = Calendar.getInstance();
+        timeCalendar.setTime(beginTime);
+        
+        dateCalendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));
+        dateCalendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));
+        dateCalendar.set(Calendar.SECOND, 0);
+        dateCalendar.set(Calendar.MILLISECOND, 0);
+        
+        return dateCalendar.getTime();
     }
     
+    public static Date addHours(Date date, int hours) {
+        return addMinutes(date, hours * 60);
+    }
+   
     /** @return a date with given minutes added to given date. */
     public static Date addMinutes(Date date, int minutes) {
         return addSeconds(date, minutes * 60);
