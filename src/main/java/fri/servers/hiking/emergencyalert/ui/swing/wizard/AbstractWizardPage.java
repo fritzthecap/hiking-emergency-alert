@@ -6,9 +6,12 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -202,10 +205,12 @@ public abstract class AbstractWizardPage
     protected final Trolley getTrolley() {
         return trolley;
     }
+    
     /** @return the StateMachine from trolley. */
     protected final StateMachine getStateMachine() {
         return getTrolley().stateMachine;
     }
+    
     /** @return the Hike from StateMachine. */
     protected final Hike getHike() {
         return getStateMachine().getHike();
@@ -213,6 +218,31 @@ public abstract class AbstractWizardPage
     
     protected final JLabel getErrorField() {
         return errorField;
+    }
+    
+    protected JButton getSmallButton(String label, String tooltip, ActionListener action) {
+        final JButton button = new JButton(label);
+        increaseFontSize(Font.BOLD, 14f, button);
+        button.setToolTipText(tooltip);
+        button.addActionListener(action);
+        forceSize(button, new Dimension(52, 24));
+        return button;
+    }
+
+    protected JComponent increaseFontSize(int fontStyle, float size, JComponent component) {
+        component.setFont(component.getFont().deriveFont(fontStyle, size));
+        return component;
+    }
+
+    protected JButton getAddOrRemoveButton(boolean isAdd, String tooltip, ActionListener action) {
+        return getSmallButton(isAdd ? "+" : "-", tooltip, action);
+    }
+    
+    protected JComponent forceSize(final JComponent component, Dimension size) {
+        component.setPreferredSize(size);
+        component.setMaximumSize(size);
+        component.setMinimumSize(size);
+        return component;
     }
     
     protected final void setWaitCursor() {

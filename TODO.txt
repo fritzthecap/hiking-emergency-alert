@@ -1,14 +1,16 @@
 
+It should be possible to press "Home Again" even
+    in state "Activated" when planned begin time has not yet arrived.
+    Currently this would give an error.
+    Follower state must be HomeAgain then.
+    
+Implement JSON Hike file loading and saving.
+
 Left side descriptions of current wizard page, in HTML
 
 Right side output and error consoles for System out/err streams.
 
 The whole application needs bigger fonts!
-
-The mail text needs $macros for plannedBeginTime, endTime
-    and name of "to"-contact person, maybe MAIL-ID.
-    
-Implement JSON Hike file loading and saving.
 
 Multi-language support for at least German.
 

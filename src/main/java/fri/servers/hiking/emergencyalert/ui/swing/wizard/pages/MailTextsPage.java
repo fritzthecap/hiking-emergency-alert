@@ -5,7 +5,6 @@ import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
@@ -75,8 +74,9 @@ public class MailTextsPage extends AbstractWizardPage
         passingToNextTextField.setRows(3);
         passingToNextTextField.setLineWrap(true);
         
-        final JButton macroHelpButton = new JButton(i18n("Variables"));
-        macroHelpButton.addActionListener(new ActionListener() {
+        final JButton variablesHelpButton = new JButton(i18n("Variables"));
+        variablesHelpButton.setToolTipText(i18n("Text substitution variables you can use here"));
+        variablesHelpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 showMacroListDialog();
@@ -91,7 +91,7 @@ public class MailTextsPage extends AbstractWizardPage
         final JPanel textFieldPanel = new JPanel(); // avoid field height stretched
         textFieldPanel.add(mailSubjectField);
         subjectTextPanel.add(textFieldPanel);
-        subjectTextPanel.add(macroHelpButton);
+        subjectTextPanel.add(variablesHelpButton);
         panel.add(subjectTextPanel);
         
         panel.add(new JScrollPane(mailIntroductionTextField)); // full width
@@ -220,34 +220,34 @@ public class MailTextsPage extends AbstractWizardPage
         cellEditor.setLineWrap(true);
         cellEditor.setRows(2);
         
-        final JButton add = new JButton(i18n("+"));
-        add.setToolTipText(i18n("Adds a new item below selected step, or at end"));
-        add.setFont(add.getFont().deriveFont(Font.BOLD, 14));
-        add.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final int selectedIndex = procedureTodosField.getSelectedIndex();
-                final int insertionIndex = (selectedIndex < 0) ? listModel.getSize() : selectedIndex + 1;
-                listModel.insertElementAt("", insertionIndex);
-                procedureTodosField.setSelectedIndex(insertionIndex);
-            }
-        });
+        final JButton add = getAddOrRemoveButton(
+                true, 
+                i18n("Adds a new item below selected step, or at end"),
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        final int selectedIndex = procedureTodosField.getSelectedIndex();
+                        final int insertionIndex = (selectedIndex < 0) ? listModel.getSize() : selectedIndex + 1;
+                        listModel.insertElementAt("", insertionIndex);
+                        procedureTodosField.setSelectedIndex(insertionIndex);
+                    }
+                });
         
-        final JButton remove = new JButton(i18n("-"));
-        remove.setFont(remove.getFont().deriveFont(Font.BOLD, 14));
-        remove.setToolTipText(i18n("Removes the selected step"));
+        final JButton remove = getAddOrRemoveButton(
+                false, 
+                i18n("Removes the selected step"),
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        final int selectedIndex = procedureTodosField.getSelectedIndex();
+                        if (selectedIndex >= 0) {
+                            listModel.remove(selectedIndex);
+                            cellEditor.setText("");
+                            ((JButton) e.getSource()).setEnabled(false);
+                        }
+                    }
+                });
         remove.setEnabled(false);
-        remove.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final int selectedIndex = procedureTodosField.getSelectedIndex();
-                if (selectedIndex >= 0) {
-                    listModel.remove(selectedIndex);
-                    cellEditor.setText("");
-                    remove.setEnabled(false);
-                }
-            }
-        });
         
         procedureTodosField.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -294,9 +294,6 @@ public class MailTextsPage extends AbstractWizardPage
         
         final JPanel buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
-        final Dimension buttonSize = new Dimension(48, 24);
-        forceSize(add, buttonSize);
-        forceSize(remove, buttonSize);
         buttonsPanel.add(add);
         buttonsPanel.add(remove);
         
@@ -314,12 +311,6 @@ public class MailTextsPage extends AbstractWizardPage
         fullSizePanel.add(listSplitPane, BorderLayout.CENTER);
         
         return fullSizePanel;
-    }
-
-    private void forceSize(JButton button, Dimension buttonSize) {
-        button.setPreferredSize(buttonSize);
-        button.setMaximumSize(buttonSize);
-        button.setMinimumSize(buttonSize);
     }
 
     private void showMacroListDialog() {

@@ -14,7 +14,10 @@ import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
  */
 public class MailProperties extends Properties
 {
-    /** Additional properties needed for secure mail. */
+    /**
+     * Additional properties needed for secure mail.
+     * @see https://mailtrap.io/blog/starttls-ssl-tls/
+     */
     public static Properties customProperties() {
         final Properties CUSTOM_PROPERTIES = new Properties();
         
@@ -23,12 +26,12 @@ public class MailProperties extends Properties
         CUSTOM_PROPERTIES.put("mail.smtp.username", "user.name");
         CUSTOM_PROPERTIES.put("mail.smtp.auth", "true");
         
-        CUSTOM_PROPERTIES.put("mail.smtp.port", "465 for SSL, 587 for STARTTLS");
+        CUSTOM_PROPERTIES.put("mail.smtp.port", "587, or 465 (old), or 2525");
         CUSTOM_PROPERTIES.put("mail.smtp.starttls.enable", "true");
-        
         CUSTOM_PROPERTIES.put("mail.smtp.ssl.enable", "true");
-        CUSTOM_PROPERTIES.put("mail.smtp.ssl.protocols", "TLSv1.3");
+        CUSTOM_PROPERTIES.put("mail.smtp.ssl.protocols", "TLSv1.2 or TLSv1.3");
         CUSTOM_PROPERTIES.put("mail.smtp.ssl.trust", "*");
+        CUSTOM_PROPERTIES.put("mail.smtp.ssl.checkserveridentity", "false");
         CUSTOM_PROPERTIES.put("mail.smtp.socketFactory.port", "465");
         CUSTOM_PROPERTIES.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         CUSTOM_PROPERTIES.put("mail.smtp.socketFactory.fallback", "false");
@@ -106,6 +109,7 @@ public class MailProperties extends Properties
         final long timeoutMillis = timeoutSeconds * 1000;
         put(mailProtocol+"timeout", ""+timeoutMillis);
         put(mailProtocol+"connectiontimeout", ""+timeoutMillis);
+        put(mailProtocol+"writetimeout", ""+timeoutMillis);
     }
     
     private void putCustomProperties(List<List<String>> customProperties) {

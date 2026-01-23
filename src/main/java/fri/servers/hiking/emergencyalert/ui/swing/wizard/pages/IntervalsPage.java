@@ -83,14 +83,14 @@ public class IntervalsPage extends AbstractWizardPage
     
     @Override
     protected String validateFields() {
-        if (SwingUtil.getValue(confirmationPollingMinutesField) <= 0)
+        if (SwingUtil.getNumberValue(confirmationPollingMinutesField) <= 0)
             return i18n("Confirmation Polling Minute must not be empty!");
         
         if (useContactDetectionMinutesField.isSelected() == false) {
-            if (SwingUtil.getValue(alertIntervalMinutesField) <= 0)
+            if (SwingUtil.getNumberValue(alertIntervalMinutesField) <= 0)
                 return i18n("Alert Interval Minutes must not be empty!");
             
-            if (SwingUtil.getValue(alertIntervalShrinkingField) <= 0)
+            if (SwingUtil.getNumberValue(alertIntervalShrinkingField) <= 0)
                 return i18n("Alert Interval Shrinking Percent must not be empty!");
         }
         
@@ -101,17 +101,17 @@ public class IntervalsPage extends AbstractWizardPage
     protected boolean commit(boolean goingForward) {
         final Hike hike = getHike();
         
-        final int alertIntervalMinutes = SwingUtil.getValue(alertIntervalMinutesField);
+        final int alertIntervalMinutes = SwingUtil.getNumberValue(alertIntervalMinutesField);
         if (alertIntervalMinutes > 0)
             hike.setAlertIntervalMinutes(alertIntervalMinutes);
         
-        final int alertIntervalShrinking = SwingUtil.getValue(alertIntervalShrinkingField);
+        final int alertIntervalShrinking = SwingUtil.getNumberValue(alertIntervalShrinkingField);
         if (alertIntervalShrinking > 0)
             hike.setAlertIntervalShrinking(percentToFloat(alertIntervalShrinking));
         
         hike.setUseContactDetectionMinutes(useContactDetectionMinutesField.isSelected());
         
-        final int confirmationPollingMinutes = SwingUtil.getValue(confirmationPollingMinutesField);
+        final int confirmationPollingMinutes = SwingUtil.getNumberValue(confirmationPollingMinutesField);
         hike.setConfirmationPollingMinutes(confirmationPollingMinutes);
         
         return true;

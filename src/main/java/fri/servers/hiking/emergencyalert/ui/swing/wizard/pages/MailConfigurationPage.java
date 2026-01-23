@@ -44,6 +44,32 @@ import jakarta.mail.Authenticator;
 
 /**
  * Configure mail send- and receive-connection.
+ * <p/>
+ * Securing mail:
+ * <ol>
+ * <li>Securing Email Transmission (Send/Receive) 
+ * <ul><li>
+ * Use TLS/SSL: Ensure your mail client/server uses 
+ * TLS 1.2 or higher for both SMTP (sending) and 
+ * IMAP/POP (receiving) to encrypt data between servers.
+ * </li><li>
+ * Configure Mail Clients: In Outlook/Gmail, 
+ * ensure settings for incoming and outgoing servers 
+ * are set to "SSL/TLS" rather than "None" or "STARTTLS" 
+ * (if a higher encryption option is available). 
+ * </li>
+ * </ul>
+ * </ol>
+ * Die Mailserver Konfiguration ist auf Android phones zu finden unter:
+ * <blockquote>
+ *     Einstellungen -> Apps -> E-Mail ->
+ *     E-Mail-Einstellungen -> 
+ *     Tippe auf das Konto (Mail-Adresse) ->
+ *     Ganz hinunter scrollen zu Servereinstellungen -> 
+ *     Eingangssserver, Ausgangsserver.
+ * </blockquote>
+ * Die Ports nur übernehmen, wenn SSL-Zertifikate des Mail-Providers
+ * auf dem Computer installiert wurden!
  */
 public class MailConfigurationPage extends AbstractWizardPage
 {
@@ -172,7 +198,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         if (StringUtil.isEmpty((String) receiveMailProtocolField.getSelectedItem()))
             return i18n("Receive Protocol name is missing!");
         
-        if (SwingUtil.getValue(receiveMailPortField) <= 0)
+        if (SwingUtil.getNumberValue(receiveMailPortField) <= 0)
             return i18n("Receive Port number is missing!");
         
         if (StringUtil.isEmpty(sendMailHostField.getText()))
@@ -181,7 +207,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         if (StringUtil.isEmpty((String) sendMailProtocolField.getSelectedItem()))
             return i18n("Send Protocol name is missing!");
         
-        if (SwingUtil.getValue(sendMailPortField) <= 0)
+        if (SwingUtil.getNumberValue(sendMailPortField) <= 0)
             return i18n("Send Port number is missing!");
         
         final String sendMailFromAccount = sendMailFromAccountField.getText();
@@ -220,7 +246,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         if (StringUtil.isNotEmpty((String) receiveMailHostField.getText()))
             mailConfiguration.setReceiveMailHost(receiveMailHostField.getText());
         
-        final int receivePort = SwingUtil.getValue(receiveMailPortField);
+        final int receivePort = SwingUtil.getNumberValue(receiveMailPortField);
         if (receivePort > 0)
             mailConfiguration.setReceiveMailPort(receivePort);
 
@@ -229,14 +255,14 @@ public class MailConfigurationPage extends AbstractWizardPage
         if (StringUtil.isNotEmpty(sendMailHostField.getText()))
             mailConfiguration.setSendMailHost(sendMailHostField.getText());
         
-        final int sendPort = SwingUtil.getValue(sendMailPortField);
+        final int sendPort = SwingUtil.getNumberValue(sendMailPortField);
         if (sendPort > 0)
             mailConfiguration.setSendMailPort(sendPort);
         
         if (StringUtil.isNotEmpty(sendMailFromAccountField.getText()))
             mailConfiguration.setSendMailFromAccount(sendMailFromAccountField.getText());
         
-        final int maximumConnectionTestSeconds = SwingUtil.getValue(maximumConnectionTestSecondsField);
+        final int maximumConnectionTestSeconds = SwingUtil.getNumberValue(maximumConnectionTestSecondsField);
         if (maximumConnectionTestSeconds > 0)
             mailConfiguration.setMaximumConnectionTestSeconds(maximumConnectionTestSeconds);
         
@@ -377,7 +403,7 @@ public class MailConfigurationPage extends AbstractWizardPage
             @Override
             public void focusLost(FocusEvent e) {
                 final boolean valid = validate();
-                mailPropertiesButton.setEnabled(valid);
+                
                 mailPropertiesButton.setEnabled(valid);
                 mailTestButton.setEnabled(valid);
             }

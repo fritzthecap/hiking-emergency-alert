@@ -295,6 +295,5 @@ public class ContactsPage extends AbstractWizardPage
         nameOfHikerField.addFocusListener(focusListener);
         addressOfHikerField.addFocusListener(focusListener);
         phoneNumberOfHikerField.addFocusListener(focusListener);
-        //alertContactsField.addFocusListener(focusListener);
     }
 }
