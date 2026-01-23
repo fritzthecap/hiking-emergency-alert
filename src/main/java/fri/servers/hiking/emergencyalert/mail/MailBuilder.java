@@ -6,6 +6,7 @@ import java.util.List;
 import fri.servers.hiking.emergencyalert.Version;
 import fri.servers.hiking.emergencyalert.persistence.Contact;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.util.DateUtil;
 import fri.servers.hiking.emergencyalert.util.Platform;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
 
@@ -17,7 +18,10 @@ public class MailBuilder
     public static final String MACRO_CONTACT = "$contact";
     public static final String MACRO_NEXT_CONTACT = "$nextContact";
     public static final String MACRO_ALL_CONTACTS = "$allContacts";
-    public static final String MACRO_PHONE = "$phone";
+    public static final String MACRO_ME = "$me";
+    public static final String MACRO_MY_PHONE = "$phone";
+    public static final String MACRO_BEGIN_TIME = "$begin";
+    public static final String MACRO_END_TIME = "$end";
 
     private static final String CONTENT_TYPE = "text/plain; charset="+Platform.ENCODING;
     
@@ -31,7 +35,7 @@ public class MailBuilder
     
     /** This is sent when hike is overdue. */
     public Mail buildAlertMail() {
-        final String subject = hike.getAlert().getHelpRequestTitle();
+        final String subject = subject();
         final String text = buildAlertMailText(hike, contact);
         final List<File> attachments = buildAttachments(hike.getRouteImages());
         
@@ -40,7 +44,7 @@ public class MailBuilder
 
     /** This is sent when overdue contact did not respond in time. */
     public Mail buildPassingToNextMail() {
-        final String subject = "FWD: "+hike.getAlert().getHelpRequestTitle();
+        final String subject = "FWD: "+subject();
         
         final StringBuilder textBuilder = new StringBuilder();
         textBuilder.append(getContactTitle(contact)+" !\n");
@@ -50,6 +54,10 @@ public class MailBuilder
         return new Mail(from(), to(), subject, textBuilder.toString(), CONTENT_TYPE, null, null);
     }
 
+    
+    private String subject() {
+        return substitute(hike.getAlert().getHelpRequestTitle());
+    }
     
     private String from() {
         return hike.getAlert().getMailConfiguration().getMailFromAddress();
@@ -120,7 +128,10 @@ public class MailBuilder
         text.replace(MACRO_CONTACT, getContactName(this.contact));
         text.replace(MACRO_NEXT_CONTACT, getNextContactName());
         text.replace(MACRO_ALL_CONTACTS, getAllContactNames());
-        text.replace(MACRO_PHONE, getPhone());
+        text.replace(MACRO_ME, hike.getAlert().getNameOfHiker());
+        text.replace(MACRO_MY_PHONE, hike.getAlert().getPhoneNumberOfHiker());
+        text.replace(MACRO_BEGIN_TIME, DateUtil.toString(hike.getPlannedBegin()));
+        text.replace(MACRO_END_TIME, DateUtil.toString(hike.getPlannedHome()));
         return text;
     }
 
@@ -152,10 +163,5 @@ public class MailBuilder
         if (all.length() > 0)
             all = all.substring(0, all.length() - suffix.length());
         return all;
-    }
-    
-    private String getPhone() {
-        final String phone = hike.getAlert().getPhoneNumberOfHiker();
-        return StringUtil.isNotEmpty(phone) ? phone : "-";
     }
 }

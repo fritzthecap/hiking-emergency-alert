@@ -29,7 +29,7 @@ import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
 
 /**
- * Hiker name and address, and a list of mail contacts.
+ * Hiker name, address and phone, and a list of mail contacts.
  */
 public class ContactsPage extends AbstractWizardPage
 {
@@ -110,21 +110,21 @@ public class ContactsPage extends AbstractWizardPage
     }
     
     @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({ "rawtypes" })
     protected String validateFields() {
         if (StringUtil.isEmpty(nameOfHikerField.getText()))
             return i18n("Your name must not be empty!");
 
-        final Vector<Vector> contacts = commitAndGetContacts();
+        final Vector<Vector> dataVector = commitAndGetContacts();
         int count = 0;
-        for (Vector<Object> contact : contacts) {
-            final String mailAddress = (String) contact.get(0);
-            if (StringUtil.isNotEmpty(mailAddress)) {
+        for (int row = 0; row < dataVector.size(); row++) {
+            if (isEmptyRow(dataVector, row) == false) {
+                final String mailAddress = (String) dataVector.get(row).get(0);
                 if (MailUtil.isMailAddress(mailAddress) == false)
                     return i18n("There is an invalid mail address in contacts!");
                 
-                final String firstName = (String) contact.get(1);
-                final String lastName = (String) contact.get(2);
+                final String firstName = (String) dataVector.get(row).get(1);
+                final String lastName = (String) dataVector.get(row).get(2);
                 if (StringUtil.isEmpty(firstName) && StringUtil.isEmpty(lastName))
                     return i18n("Either first or last name of contact must be given!");
                 
@@ -156,16 +156,14 @@ public class ContactsPage extends AbstractWizardPage
         else 
             alert.getAlertContacts().clear();
         
-        for (Vector dataRow : dataVector) {
-            final String mailAddress = (String) dataRow.get(0);
-            if (StringUtil.isNotEmpty(mailAddress)) {
-                final String firstName = (String) dataRow.get(1);
-                final String lastName = (String) dataRow.get(2);
-                
-                final Object column3 = dataRow.get(3);
-                final int detectionMinutes = (column3 != null) ? (Integer) column3 : -1;
-                
-                final boolean absent = (Boolean) dataRow.get(4);
+        for (int row = 0; row < dataVector.size(); row++) {
+            if (isEmptyRow(dataVector, row) == false) {
+                final String mailAddress = (String) dataVector.get(row).get(0);
+                final String firstName = (String) dataVector.get(row).get(1);
+                final String lastName = (String) dataVector.get(row).get(2);
+                final Object number = dataVector.get(row).get(3);
+                final int detectionMinutes = (number != null) ? (Integer) number : -1;
+                final boolean absent = (Boolean) dataVector.get(row).get(4);
                 
                 final Contact contact = new Contact();
                 contact.setMailAddress(mailAddress);
@@ -183,87 +181,38 @@ public class ContactsPage extends AbstractWizardPage
     }
 
     
-    private void installFocusListeners() {
-        final FocusListener focusListener = new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                validate();
-            }
-        };
-        nameOfHikerField.addFocusListener(focusListener);
-    }
-    
     @SuppressWarnings("rawtypes")
     private Vector<Vector> commitAndGetContacts() {
-        final DefaultCellEditor cellEditor = (DefaultCellEditor) alertContactsField.getCellEditor();
-        if (cellEditor != null)
-            cellEditor.stopCellEditing();
-        else
-            alertContactsField.editingStopped(null);
-        
         final DefaultTableModel model = (DefaultTableModel) alertContactsField.getModel();
         return model.getDataVector();
     }
     
     private JComponent buildContactsTable() {
         alertContactsField = new JTable(buildTableModel(createEmptyDataVector(0))) {
+            /** When editing stops, remove empty rows, validate and and an empty row when needed. */
             @Override
             public void editingStopped(ChangeEvent e) {
                 super.editingStopped(e);
-                removeEmptyRows(true);
-                validate();
-                addEmptyRowWhenNeeded();
+                
+                removeEmptyRowsExceptLast();
+                if (ContactsPage.this.validate()) // do not call Container.validate() here!
+                    addEmptyRowWhenNeeded();
             }
         };
+        
+        // commit cell editing on focus-lost
+        alertContactsField.putClientProperty("terminateEditOnFocusLost", true); // is null by default
+        
         ((DefaultCellEditor) alertContactsField.getDefaultEditor(String.class)).setClickCountToStart(1);
         ((DefaultCellEditor) alertContactsField.getDefaultEditor(Integer.class)).setClickCountToStart(1);
+        
         alertContactsField.getTableHeader().setReorderingAllowed(false);
-        alertContactsField.setToolTipText(i18n("Contacts for the emergency case. To delete a row, erase the 'Mail Address' field"));
+        alertContactsField.setToolTipText(i18n("Contacts for the emergency case. To delete a row, erase all fields!"));
         
         final JPanel tablePanel = new JPanel(new BorderLayout());
         tablePanel.add(new JScrollPane(alertContactsField), BorderLayout.CENTER);
         
         return tablePanel;
-    }
-
-    private Vector<Vector<Object>> createEmptyDataVector(int numberOfEmptyRows) {
-        final Vector<Vector<Object>> data = new Vector<>();
-        for (int i = 0; i < numberOfEmptyRows; i++)
-            data.add(createEmptyRow());
-        return data;
-    }
-
-    private Vector<Object> createEmptyRow() {
-        final Vector<Object> emptyRow = new Vector<>();
-        emptyRow.add("");
-        emptyRow.add("");
-        emptyRow.add("");
-        emptyRow.add(60);
-        emptyRow.add(false);
-        return emptyRow;
-    }
-
-    private void addEmptyRowWhenNeeded() {
-        final DefaultTableModel model = (DefaultTableModel) alertContactsField.getModel();
-        final int lastRow = model.getRowCount() - 1;
-        if (lastRow >= 0) {
-            final String mailAddress = (String) model.getValueAt(lastRow, 0);
-            if (StringUtil.isNotEmpty(mailAddress))
-                model.addRow(createEmptyRow());
-        }
-    }
-
-    private void removeEmptyRows(boolean whenNotLast) {
-        final DefaultTableModel model = (DefaultTableModel) alertContactsField.getModel();
-        @SuppressWarnings("rawtypes")
-        final Vector<Vector> dataVector = model.getDataVector();
-        
-        final int startDecrement = (whenNotLast ? 2 : 1);
-        for (int i = dataVector.size() - startDecrement; i >= 0; i--) {
-            final String mailAddress = (String) model.getValueAt(i, 0);
-            if (StringUtil.isEmpty(mailAddress))
-                model.removeRow(i);
-        }
     }
 
     private TableModel buildTableModel(Vector<Vector<Object>> data) {
@@ -284,5 +233,68 @@ public class ContactsPage extends AbstractWizardPage
                 return String.class;
             }
         };
+    }
+
+    private Vector<Vector<Object>> createEmptyDataVector(int numberOfEmptyRows) {
+        final Vector<Vector<Object>> data = new Vector<>();
+        for (int i = 0; i < numberOfEmptyRows; i++)
+            data.add(createEmptyRow());
+        return data;
+    }
+
+    private Vector<Object> createEmptyRow() {
+        final Vector<Object> emptyRow = new Vector<>();
+        emptyRow.add("");
+        emptyRow.add("");
+        emptyRow.add("");
+        emptyRow.add(null);
+        emptyRow.add(false);
+        return emptyRow;
+    }
+
+    private void addEmptyRowWhenNeeded() {
+        final DefaultTableModel model = (DefaultTableModel) alertContactsField.getModel();
+        final int lastRow = model.getRowCount() - 1;
+        if (lastRow >= 0)
+            if (isEmptyRow(model, lastRow) == false)
+                model.addRow(createEmptyRow());
+    }
+
+    private void removeEmptyRowsExceptLast() {
+        final DefaultTableModel model = (DefaultTableModel) alertContactsField.getModel();
+        @SuppressWarnings("rawtypes")
+        final Vector<Vector> dataVector = model.getDataVector();
+        
+        final int startDecrement = 2;
+        for (int row = dataVector.size() - startDecrement; row >= 0; row--)
+            if (isEmptyRow(model, row))
+                model.removeRow(row);
+    }
+        
+    private boolean isEmptyRow(DefaultTableModel model, int rowIndex) {
+        return isEmptyRow(model.getDataVector(), rowIndex);
+    }
+    
+    @SuppressWarnings("rawtypes")
+    private boolean isEmptyRow(Vector<Vector> dataVector, int rowIndex) {
+        final String mailAddress = (String) dataVector.get(rowIndex).get(0);
+        final String firstName = (String) dataVector.get(rowIndex).get(1);
+        final String lastName = (String) dataVector.get(rowIndex).get(2);
+        return (StringUtil.isEmpty(mailAddress) &&
+                StringUtil.isEmpty(firstName) &&
+                StringUtil.isEmpty(lastName));
+    }
+    
+    private void installFocusListeners() {
+        final FocusListener focusListener = new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                validate();
+            }
+        };
+        nameOfHikerField.addFocusListener(focusListener);
+        addressOfHikerField.addFocusListener(focusListener);
+        phoneNumberOfHikerField.addFocusListener(focusListener);
+        //alertContactsField.addFocusListener(focusListener);
     }
 }

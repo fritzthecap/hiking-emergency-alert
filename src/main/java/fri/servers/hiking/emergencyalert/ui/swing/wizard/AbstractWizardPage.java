@@ -5,8 +5,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.io.IOException;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -41,9 +43,13 @@ public abstract class AbstractWizardPage
                 BorderFactory.createLineBorder(Color.GRAY))
             );
         
-        errorField = new JLabel();
+        errorField = new JLabel(" ");
         errorField.setForeground(Color.RED);
-        addablePanel.add(errorField, BorderLayout.NORTH);
+        //errorField.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2, true));
+        final JPanel errorPanel = new JPanel();
+        errorPanel.add(Box.createRigidArea(new Dimension(1, 20)));
+        errorPanel.add(errorField);
+        addablePanel.add(errorPanel, BorderLayout.NORTH);
     }
     
     /** Package-visible for HikeWizard only, not for subclasses! */
@@ -73,8 +79,10 @@ public abstract class AbstractWizardPage
                 uiWasBuilt = true;
             }
             
-            if (goingForward)
+            if (goingForward) {
                 populateUi(trolley.stateMachine.getHike());
+                validate();
+            }
         }
         finally {
             setDefaultCursor();
@@ -103,12 +111,14 @@ public abstract class AbstractWizardPage
 
     /**
      * Calls <code>validateFields()</code> and sets the resulting error to error-field.
+     * Enables the "Next" button when valid.
      * @return true when no error occurred, else false.
      */
     protected final boolean validate() {
         final String error = validateFields();
         final boolean valid = (error == null);
         errorField.setText(valid ? "" : error);
+        trolley.setNextEnabled(valid);
         return valid;
     }
     

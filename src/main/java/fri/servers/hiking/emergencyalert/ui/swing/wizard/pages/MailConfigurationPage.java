@@ -198,9 +198,6 @@ public class MailConfigurationPage extends AbstractWizardPage
     @Override
     protected boolean commit(boolean goingForward) {
         if (goingForward) {
-            if (validate() == false)
-                return false;
-            
             final boolean connectionOk = connectionTest(false); // not showing success dialog
             if (connectionOk == false) 
                 return false;

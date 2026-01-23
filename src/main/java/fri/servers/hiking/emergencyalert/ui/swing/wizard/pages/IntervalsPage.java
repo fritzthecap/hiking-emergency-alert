@@ -99,9 +99,6 @@ public class IntervalsPage extends AbstractWizardPage
 
     @Override
     protected boolean commit(boolean goingForward) {
-        if (goingForward && validate() == false)
-            return false;
-        
         final Hike hike = getHike();
         
         final int alertIntervalMinutes = SwingUtil.getValue(alertIntervalMinutesField);

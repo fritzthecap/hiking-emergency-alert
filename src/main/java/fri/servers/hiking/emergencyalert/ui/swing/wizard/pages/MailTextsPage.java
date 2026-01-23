@@ -46,25 +46,25 @@ import fri.servers.hiking.emergencyalert.util.StringUtil;
  */
 public class MailTextsPage extends AbstractWizardPage
 {
-    private JTextField helpRequestTitleField;
-    private JTextArea helpRequestTextField;
+    private JTextField mailSubjectField;
+    private JTextArea mailIntroductionTextField;
     private JList<String> procedureTodosField;
     private JTextArea passingToNextTextField;
     
     @Override
     protected void buildUi() {
-        helpRequestTitleField = SwingUtil.buildTextField(
+        mailSubjectField = SwingUtil.buildTextField(
                 i18n("Alert Mail Subject"),
                 i18n("The text that will be in mail subject"),
                 i18n("Hiking emergency - I need help!"));
-        helpRequestTitleField.setColumns(30);
+        mailSubjectField.setColumns(30);
         
-        helpRequestTextField = SwingUtil.buildTextArea(
-                i18n("Alert Mail Text"),
+        mailIntroductionTextField = SwingUtil.buildTextArea(
+                i18n("Alert Mail Introduction Text"),
                 i18n("The message's content text"),
                 i18n("I had an accident while hiking and need help. This is serious!"));
-        helpRequestTextField.setRows(5);
-        helpRequestTextField.setLineWrap(true);
+        mailIntroductionTextField.setRows(3);
+        mailIntroductionTextField.setLineWrap(true);
         
         final JComponent todoList = buildProcedureTodosList();
         
@@ -75,7 +75,7 @@ public class MailTextsPage extends AbstractWizardPage
         passingToNextTextField.setRows(3);
         passingToNextTextField.setLineWrap(true);
         
-        final JButton macroHelpButton = new JButton(i18n("Text Macros"));
+        final JButton macroHelpButton = new JButton(i18n("Variables"));
         macroHelpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -86,12 +86,15 @@ public class MailTextsPage extends AbstractWizardPage
         final JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         
-        final JPanel textFieldPanel = new JPanel(); // center one-line text field
-        textFieldPanel.add(helpRequestTitleField);
-        panel.add(textFieldPanel);
-        panel.add(macroHelpButton);
+        final JPanel subjectTextPanel = new JPanel();
+        subjectTextPanel.setLayout(new BoxLayout(subjectTextPanel, BoxLayout.X_AXIS));
+        final JPanel textFieldPanel = new JPanel(); // avoid field height stretched
+        textFieldPanel.add(mailSubjectField);
+        subjectTextPanel.add(textFieldPanel);
+        subjectTextPanel.add(macroHelpButton);
+        panel.add(subjectTextPanel);
         
-        panel.add(new JScrollPane(helpRequestTextField)); // full width
+        panel.add(new JScrollPane(mailIntroductionTextField)); // full width
         
         panel.add(todoList, BorderLayout.CENTER);
         
@@ -110,10 +113,10 @@ public class MailTextsPage extends AbstractWizardPage
         final Alert alert = getHike().getAlert();
         
         if (StringUtil.isNotEmpty(alert.getHelpRequestTitle()))
-            helpRequestTitleField.setText(alert.getHelpRequestTitle());
+            mailSubjectField.setText(alert.getHelpRequestTitle());
         
         if (StringUtil.isNotEmpty(alert.getHelpRequestText()))
-            helpRequestTextField.setText(hike.getAlert().getHelpRequestText());
+            mailIntroductionTextField.setText(hike.getAlert().getHelpRequestText());
         
         if (alert.getProcedureTodos() != null && alert.getProcedureTodos().size() > 0) {
             final DefaultListModel<String> listModel = (DefaultListModel<String>) procedureTodosField.getModel();
@@ -129,10 +132,10 @@ public class MailTextsPage extends AbstractWizardPage
     
     @Override
     protected String validateFields() {
-        if (StringUtil.isEmpty(helpRequestTitleField.getText()))
+        if (StringUtil.isEmpty(mailSubjectField.getText()))
             return i18n("Mail Subject must not be empty!");
 
-        if (StringUtil.isEmpty(helpRequestTextField.getText()) && procedureTodosAreEmpty())
+        if (StringUtil.isEmpty(mailIntroductionTextField.getText()) && procedureTodosAreEmpty())
             return i18n("Either Mail Text or Steps to be Taken must have content!");
         
         if (StringUtil.isEmpty(passingToNextTextField.getText()))
@@ -143,15 +146,12 @@ public class MailTextsPage extends AbstractWizardPage
 
     @Override
     protected boolean commit(boolean goingForward) {
-        if (goingForward && validate() == false)
-            return false;
-        
         final Alert alert = getHike().getAlert();
         
-        if (StringUtil.isNotEmpty(helpRequestTitleField.getText()))
-            alert.setHelpRequestTitle(helpRequestTitleField.getText());
+        if (StringUtil.isNotEmpty(mailSubjectField.getText()))
+            alert.setHelpRequestTitle(mailSubjectField.getText());
         
-        alert.setHelpRequestText(helpRequestTextField.getText());
+        alert.setHelpRequestText(mailIntroductionTextField.getText());
         
         final DefaultListModel<String> listModel = (DefaultListModel<String>) procedureTodosField.getModel();
         if (listModel.getSize() > 0) {
@@ -188,7 +188,7 @@ public class MailTextsPage extends AbstractWizardPage
                 validate();
             }
         };
-        helpRequestTitleField.addFocusListener(focusListener);
+        mailSubjectField.addFocusListener(focusListener);
         passingToNextTextField.addFocusListener(focusListener);
         procedureTodosField.addFocusListener(focusListener);
     }
@@ -218,9 +218,10 @@ public class MailTextsPage extends AbstractWizardPage
         final JTextArea cellEditor = new JTextArea();
         cellEditor.setToolTipText(i18n("Edit text of this step"));
         cellEditor.setLineWrap(true);
+        cellEditor.setRows(2);
         
         final JButton add = new JButton(i18n("+"));
-        add.setToolTipText(i18n("Adds a new item below selected step"));
+        add.setToolTipText(i18n("Adds a new item below selected step, or at end"));
         add.setFont(add.getFont().deriveFont(Font.BOLD, 14));
         add.addActionListener(new ActionListener() {
             @Override
@@ -289,11 +290,11 @@ public class MailTextsPage extends AbstractWizardPage
         // layout
         
         final JComponent scrollTable = new JScrollPane(procedureTodosField);
-        procedureTodosField.setVisibleRowCount(4);
+        procedureTodosField.setVisibleRowCount(3);
         
         final JPanel buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
-        final Dimension buttonSize = new Dimension(50, 26);
+        final Dimension buttonSize = new Dimension(48, 24);
         forceSize(add, buttonSize);
         forceSize(remove, buttonSize);
         buttonsPanel.add(add);
@@ -304,7 +305,7 @@ public class MailTextsPage extends AbstractWizardPage
         tablePanel.add(buttonsPanel, BorderLayout.EAST);
         
         final JSplitPane listSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        listSplitPane.setResizeWeight(0.5);
+        listSplitPane.setResizeWeight(0.7);
         listSplitPane.setTopComponent(tablePanel);
         listSplitPane.setBottomComponent(new JScrollPane(cellEditor));
 
@@ -323,17 +324,20 @@ public class MailTextsPage extends AbstractWizardPage
 
     private void showMacroListDialog() {
         final String text = 
-            "<html><body><h3>"+i18n("Macros you can use in all mail texts:")+"</h3><ul>"+
+            "<html><body><h3>"+i18n("Variables you can use in all mail text parts here:")+"</h3><ul>"+
             "<li><b>"+MACRO_CONTACT+"</b> - "+i18n("the name of the contact the mail will be sent to")+"</li>"+
             "<li><b>"+MACRO_NEXT_CONTACT+"</b> - "+i18n("the name of the contact the next mail will be sent to")+"</li>"+
             "<li><b>"+MACRO_ALL_CONTACTS+"</b> - "+i18n("all contact names that may receive an alert mail")+"</li>"+
-            "<li><b>"+MACRO_PHONE+"</b> - "+i18n("your phone number, if you entered it")+"</li>"+
+            "<li><b>"+MACRO_ME+"</b> - "+i18n("your name, if you entered it")+"</li>"+
+            "<li><b>"+MACRO_MY_PHONE+"</b> - "+i18n("your phone number, if you entered it")+"</li>"+
+            "<li><b>"+MACRO_BEGIN_TIME+"</b> - "+i18n("the begin date/time of your absence")+"</li>"+
+            "<li><b>"+MACRO_END_TIME+"</b> - "+i18n("the end date/time of your absence")+"</li>"+
             "<ul></body></html>";
         final JEditorPane message = new JEditorPane("text/html", text);
         JOptionPane.showMessageDialog(
                 getFrame(), 
                 message,
-                i18n("Text Macros"), 
+                i18n("Text Substitutions"), 
                 JOptionPane.INFORMATION_MESSAGE);
     }
 }

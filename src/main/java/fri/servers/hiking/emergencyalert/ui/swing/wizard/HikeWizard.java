@@ -159,7 +159,7 @@ public class HikeWizard extends JPanel
         
         final Trolley trolley;
         if (isFirstCall)
-            trolley = new Trolley(stateMachine);
+            trolley = new Trolley(stateMachine, nextButton);
         else
             if ((trolley = oldPage.leave(goingForward)) != null) // can leave
                 contentPanel.remove(oldPage.getAddablePanel());
@@ -170,12 +170,12 @@ public class HikeWizard extends JPanel
         contentPanel.add(newPage.getAddablePanel(), BorderLayout.CENTER);
         pageIndex = newIndex;
         
+        setButtonsEnabled(); // do this before enter() to allow "Next" disabled by page
+        
         newPage.enter(trolley, goingForward);
         
         contentPanel.revalidate();
         contentPanel.repaint();
-        
-        setButtonsEnabled();
     }
     
     private void setButtonsEnabled() {
