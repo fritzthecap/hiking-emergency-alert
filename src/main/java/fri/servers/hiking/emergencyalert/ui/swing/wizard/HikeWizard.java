@@ -37,11 +37,11 @@ public class HikeWizard extends JPanel
     private JButton nextButton;
     
     private AbstractWizardPage[] pages = new AbstractWizardPage[] {
-//        new LanguagePage(),
-//        new ContactsPage(),
-//        new MailTextsPage(),
-//        new IntervalsPage(),
-//        new MailConfigurationPage(),
+        new LanguagePage(),
+        new ContactsPage(),
+        new MailTextsPage(),
+        new IntervalsPage(),
+        new MailConfigurationPage(),
         new RouteAndTimesPage(),
         new ActivationPage(),
         new ObservationPage(),

@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
@@ -46,12 +48,12 @@ public abstract class AbstractWizardPage
                 BorderFactory.createLineBorder(Color.GRAY))
             );
         
-        errorField = new JLabel(" ");
+        errorField = new JLabel();
         errorField.setForeground(Color.RED);
-        //errorField.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2, true));
-        final JPanel errorPanel = new JPanel();
+        final JPanel errorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         errorPanel.add(Box.createRigidArea(new Dimension(1, 20)));
-        errorPanel.add(errorField);
+        errorPanel.add(errorField, BorderLayout.CENTER);
+        
         addablePanel.add(errorPanel, BorderLayout.NORTH);
     }
     
