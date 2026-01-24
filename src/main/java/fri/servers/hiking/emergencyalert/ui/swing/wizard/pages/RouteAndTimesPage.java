@@ -53,6 +53,11 @@ public class RouteAndTimesPage extends AbstractWizardPage
     private FileChooser fileChooser;
 
     @Override
+    protected String getTitle() {
+        return i18n("Times and Route");
+    }
+    
+    @Override
     protected void buildUi() {
         fileChooser = new FileChooser(getContentPanel(), null);
 
@@ -263,6 +268,8 @@ public class RouteAndTimesPage extends AbstractWizardPage
                 view.setEnabled(selectionExists);
             }
         });
+        
+        SwingUtil.makeComponentFocusable(routeImagesField);
         
         // layout
         

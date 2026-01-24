@@ -93,6 +93,11 @@ public class MailConfigurationPage extends AbstractWizardPage
     private Authenticator validAuthenticator;
     
     @Override
+    protected String getTitle() {
+        return i18n("Mail Connection Configuration");
+    }
+    
+    @Override
     protected void buildUi() {
         mailUserField = SwingUtil.buildTextField(
                 i18n("Mail User"), 
@@ -315,7 +320,7 @@ public class MailConfigurationPage extends AbstractWizardPage
             validAuthenticator = success ? connectionCheck.getValidAuthenticator() : null;
         }
         catch (MailException e) {
-            e.printStackTrace();
+            System.err.println(e.toString());
             error = e.getMessage();
         }
         finally {

@@ -1,4 +1,7 @@
 
+Passingto-next should be optional, not mandatory.
+    Add a checkbox on UI.
+
 It should be possible to press "Home Again" even
     in state "Activated" when planned begin time has not yet arrived.
     Currently this would give an error.

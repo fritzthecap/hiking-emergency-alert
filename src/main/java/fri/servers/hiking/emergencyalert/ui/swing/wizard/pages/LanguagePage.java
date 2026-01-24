@@ -19,6 +19,11 @@ public class LanguagePage extends AbstractWizardPage
     private JComboBox<Item> languageChoiceField;
     
     @Override
+    protected String getTitle() {
+        return i18n("Language");
+    }
+    
+    @Override
     protected void buildUi() {
         languageChoiceField = new JComboBox<Item>();
         

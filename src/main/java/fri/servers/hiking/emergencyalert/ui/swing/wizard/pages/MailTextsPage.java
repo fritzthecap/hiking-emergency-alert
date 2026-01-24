@@ -51,6 +51,11 @@ public class MailTextsPage extends AbstractWizardPage
     private JTextArea passingToNextTextField;
     
     @Override
+    protected String getTitle() {
+        return i18n("Mail Texts");
+    }
+    
+    @Override
     protected void buildUi() {
         mailSubjectField = SwingUtil.buildTextField(
                 i18n("Alert Mail Subject"),
@@ -91,14 +96,16 @@ public class MailTextsPage extends AbstractWizardPage
         final JPanel textFieldPanel = new JPanel(); // avoid field height stretched
         textFieldPanel.add(mailSubjectField);
         subjectTextPanel.add(textFieldPanel);
+        subjectTextPanel.add(Box.createRigidArea(new Dimension(6, 1)));
         subjectTextPanel.add(variablesHelpButton);
+        subjectTextPanel.add(Box.createRigidArea(new Dimension(4, 1)));
         panel.add(subjectTextPanel);
         
         panel.add(new JScrollPane(mailIntroductionTextField)); // full width
         
         panel.add(todoList, BorderLayout.CENTER);
         
-        panel.add(Box.createRigidArea(new Dimension(1, 10)));
+        panel.add(Box.createRigidArea(new Dimension(1, 20)));
         panel.add(new JScrollPane(passingToNextTextField));
         
         final JPanel contentPanel = new JPanel(new BorderLayout());
@@ -197,8 +204,8 @@ public class MailTextsPage extends AbstractWizardPage
         final DefaultListModel<String> listModel = new DefaultListModel<>();
         listModel.addElement(i18n("First try to reach me by phone: 123456789."));
         listModel.addElement(i18n("If I do not respond, please call the local emergency service."));
-        listModel.addElement(i18n("Forward this mail to them. If they have no mail, tell them my trail from description below."));
-        listModel.addElement(i18n("IMPORTANT: when you could organize help, please send a response-mail to this. The MAIL-ID above must be contained in it. That prevents further contacts to be distressed."));
+        listModel.addElement(i18n("Forward this mail to them, or tell them my trail from description below."));
+        listModel.addElement(i18n("IMPORTANT: when you could organize help, please send a response-mail. The MAIL-ID above must be contained in it. That prevents further contacts to be distressed."));
         
         procedureTodosField = new JList<>(listModel); // list of 1-n multiline text-areas
         procedureTodosField.setToolTipText(i18n("Tell the contact what to do when receiving this mail"));
@@ -216,7 +223,7 @@ public class MailTextsPage extends AbstractWizardPage
         });
         
         final JTextArea cellEditor = new JTextArea();
-        cellEditor.setToolTipText(i18n("Edit text of this step"));
+        cellEditor.setToolTipText(i18n("Edit text of this todo step"));
         cellEditor.setLineWrap(true);
         cellEditor.setRows(2);
         
@@ -317,8 +324,8 @@ public class MailTextsPage extends AbstractWizardPage
         final String text = 
             "<html><body><h3>"+i18n("Variables you can use in all mail text parts here:")+"</h3><ul>"+
             "<li><b>"+MACRO_CONTACT+"</b> - "+i18n("the name of the contact the mail will be sent to")+"</li>"+
-            "<li><b>"+MACRO_NEXT_CONTACT+"</b> - "+i18n("the name of the contact the next mail will be sent to")+"</li>"+
-            "<li><b>"+MACRO_ALL_CONTACTS+"</b> - "+i18n("all contact names that may receive an alert mail")+"</li>"+
+            "<li><b>"+MACRO_NEXT_CONTACT+"</b> - "+i18n("the name of the next contact a mail will be sent to")+"</li>"+
+            "<li><b>"+MACRO_ALL_CONTACTS+"</b> - "+i18n("all contact names that may receive an alert mail in a row")+"</li>"+
             "<li><b>"+MACRO_ME+"</b> - "+i18n("your name, if you entered it")+"</li>"+
             "<li><b>"+MACRO_MY_PHONE+"</b> - "+i18n("your phone number, if you entered it")+"</li>"+
             "<li><b>"+MACRO_BEGIN_TIME+"</b> - "+i18n("the begin date/time of your absence")+"</li>"+

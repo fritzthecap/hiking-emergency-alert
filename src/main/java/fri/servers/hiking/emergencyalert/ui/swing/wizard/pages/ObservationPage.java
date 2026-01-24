@@ -39,6 +39,11 @@ public class ObservationPage extends AbstractWizardPage
     private JTextArea consoleOut;
     private JTextArea consoleErr;
     
+    @Override
+    protected String getTitle() {
+        return i18n("Observation");
+    }
+    
     /** Prevent going back to previous page while stateMachine is running. */
     @Override
     protected boolean commit(boolean goingForward) {

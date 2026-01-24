@@ -29,23 +29,28 @@ public class IntervalsPage extends AbstractWizardPage
     private JFormattedTextField confirmationPollingMinutesField;
     
     @Override
+    protected String getTitle() {
+        return i18n("Send and Receive Intervals");
+    }
+    
+    @Override
     protected void buildUi() {
         alertIntervalMinutesField = SwingUtil.buildNumberField(
-                i18n("Alert Interval Minutes"), 
+                i18n("Alert Send Interval Minutes"), 
                 i18n("Minutes to wait for response before sending an alert mail to the next contact"), 
                 60);
         
         alertIntervalShrinkingField = SwingUtil.buildNumberField(
                 i18n("Alert Interval Shrinking Percent"), 
-                i18n("With 75% and a 60 minutes alert interval, the 2nd interval would would be just 45 minutes, the 3rd 34, etc."), 
+                i18n("75% on a 60 minutes interval would mean the 2nd interval be just 45 minutes, the 3rd just 34, etc."), 
                 100);
         
         useContactDetectionMinutesField = new JCheckBox(i18n("Use Mail Detection Minutes of Contacts"));
         useContactDetectionMinutesField.setToolTipText(
-                i18n("For alert intervals, use the estimated minutes the contact needs to detect a mail"));
+                i18n("For alert intervals, use the estimated mail detection minutes of listed contacts"));
         
         confirmationPollingMinutesField = SwingUtil.buildNumberField(
-                i18n("Confirmation Polling Minutes"), 
+                i18n("Confirmation Receive Interval Minutes"), 
                 i18n("Minutes to wait between attempts to receive a response mail from an alerted contact"), 
                 2);
         

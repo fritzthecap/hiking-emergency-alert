@@ -3,9 +3,11 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Vector;
 import javax.swing.BorderFactory;
@@ -17,8 +19,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import fri.servers.hiking.emergencyalert.mail.MailUtil;
 import fri.servers.hiking.emergencyalert.persistence.Alert;
@@ -37,6 +42,11 @@ public class ContactsPage extends AbstractWizardPage
     private JTextField addressOfHikerField;
     private JTextField phoneNumberOfHikerField;
     private JTable alertContactsField;
+    
+    @Override
+    protected String getTitle() {
+        return i18n("Contacts");
+    }
     
     @Override
     protected void buildUi() {
@@ -128,12 +138,14 @@ public class ContactsPage extends AbstractWizardPage
                 if (StringUtil.isEmpty(firstName) && StringUtil.isEmpty(lastName))
                     return i18n("Either first or last name of contact must be given!");
                 
-                count++;
+                final boolean absent = (Boolean) dataVector.get(row).get(4);
+                if (absent == false)
+                    count++;
             }
         }
         
         if (count <= 0)
-            return i18n("You need at least one valid mail contact in list!");
+            return i18n("You need at least one non-absent mail contact in list!");
         
         return null;
     }
@@ -146,9 +158,11 @@ public class ContactsPage extends AbstractWizardPage
         if (StringUtil.isNotEmpty(nameOfHikerField.getText()))
             alert.setNameOfHiker(nameOfHikerField.getText());
         
-        alert.setAddressOfHiker(addressOfHikerField.getText());
+        if (StringUtil.isNotEmpty(addressOfHikerField.getText()))
+            alert.setAddressOfHiker(addressOfHikerField.getText());
         
-        alert.setPhoneNumberOfHiker(phoneNumberOfHikerField.getText());
+        if (StringUtil.isNotEmpty(phoneNumberOfHikerField.getText()))
+            alert.setPhoneNumberOfHiker(phoneNumberOfHikerField.getText());
         
         final Vector<Vector> dataVector = commitAndGetContacts();
         if (alert.getAlertContacts() == null)
@@ -198,6 +212,28 @@ public class ContactsPage extends AbstractWizardPage
                 if (ContactsPage.this.validate()) // do not call Container.validate() here!
                     addEmptyRowWhenNeeded();
             }
+            
+            /** Implement table header tool tips. */
+            @Override
+            protected JTableHeader createDefaultTableHeader() {
+                return new JTableHeader(columnModel) {
+                    private String[] columnToolTips = new String[] {
+                            i18n("The contact's mail address"),
+                            i18n("The first name of the contact person"),
+                            i18n("The last name of the contact person"),
+                            i18n("How many minutes the person would need to detect an arrived mail"),
+                            i18n("Absent contacts would not be part of the alert mail chain"),
+                    };
+                    
+                    @Override
+                    public String getToolTipText(MouseEvent e) {
+                        Point p = e.getPoint();
+                        int index = columnModel.getColumnIndexAtX(p.x);
+                        int realIndex = columnModel.getColumn(index).getModelIndex();
+                        return columnToolTips[realIndex];
+                    }
+                };
+            }
         };
         
         // commit cell editing on focus-lost
@@ -206,11 +242,22 @@ public class ContactsPage extends AbstractWizardPage
         ((DefaultCellEditor) alertContactsField.getDefaultEditor(String.class)).setClickCountToStart(1);
         ((DefaultCellEditor) alertContactsField.getDefaultEditor(Integer.class)).setClickCountToStart(1);
         
+        SwingUtilities.invokeLater(() -> { // unreliable! set column widths
+            final TableColumnModel columnModel = alertContactsField.getColumnModel();
+            columnModel.getColumn(0).setPreferredWidth(100);
+            columnModel.getColumn(1).setPreferredWidth(40);
+            columnModel.getColumn(2).setPreferredWidth(40);
+            columnModel.getColumn(3).setPreferredWidth(16);
+            columnModel.getColumn(4).setPreferredWidth(10);
+        });
+        
         alertContactsField.getTableHeader().setReorderingAllowed(false);
-        alertContactsField.setToolTipText(i18n("Contacts for the emergency case. To delete a row, erase all fields!"));
+        alertContactsField.setRowHeight(24);
         
         final JPanel tablePanel = new JPanel(new BorderLayout());
         tablePanel.add(new JScrollPane(alertContactsField), BorderLayout.CENTER);
+        
+        SwingUtil.makeComponentFocusable(alertContactsField);
         
         return tablePanel;
     }
@@ -220,7 +267,7 @@ public class ContactsPage extends AbstractWizardPage
         columnNames.add(i18n("Mail Address"));
         columnNames.add(i18n("First Name"));
         columnNames.add(i18n("Last Name"));
-        columnNames.add(i18n("Mail Detection Minutes"));
+        columnNames.add(i18n("Minutes to Detect Mail"));
         columnNames.add(i18n("Absent"));
         
         return new DefaultTableModel(data, columnNames) {

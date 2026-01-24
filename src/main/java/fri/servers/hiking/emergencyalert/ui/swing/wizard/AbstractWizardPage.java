@@ -18,10 +18,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
+import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 
 /**
  * Shared logic for all wizard pages.
@@ -33,20 +33,20 @@ public abstract class AbstractWizardPage
     private Trolley trolley;
     private boolean uiWasBuilt;
     
-    private JLabel errorField = new JLabel();
-
+    private JLabel titleField;
+    private JLabel errorField;
 
     /** Constructor visible to sub-classes only. */
     protected AbstractWizardPage() {
         this.addablePanel = new JPanel(new BorderLayout());
-        this.contentPanel = new JPanel(new BorderLayout());
-        
-        addablePanel.add(contentPanel, BorderLayout.CENTER);
-        
         addablePanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(8, 8, 0, 8),
                 BorderFactory.createLineBorder(Color.GRAY))
             );
+        
+        titleField = new JLabel();
+        titleField.setFont(titleField.getFont().deriveFont(Font.BOLD, 20));
+        titleField.setHorizontalAlignment(JLabel.CENTER);
         
         errorField = new JLabel();
         errorField.setForeground(Color.RED);
@@ -54,7 +54,14 @@ public abstract class AbstractWizardPage
         errorPanel.add(Box.createRigidArea(new Dimension(1, 20)));
         errorPanel.add(errorField, BorderLayout.CENTER);
         
-        addablePanel.add(errorPanel, BorderLayout.NORTH);
+        final JPanel titleAndError = new JPanel(new BorderLayout());
+        titleAndError.add(titleField, BorderLayout.CENTER);
+        titleAndError.add(errorPanel, BorderLayout.SOUTH);
+        addablePanel.add(titleAndError, BorderLayout.NORTH);
+        SwingUtil.makeComponentFocusable(addablePanel);
+        
+        this.contentPanel = new JPanel(new BorderLayout());
+        addablePanel.add(contentPanel, BorderLayout.CENTER);
     }
     
     /** Package-visible for HikeWizard only, not for subclasses! */
@@ -80,6 +87,7 @@ public abstract class AbstractWizardPage
         try {
             this.trolley = trolley;
             if (uiWasBuilt == false) {
+                titleField.setText(getTitle());
                 buildUi();
                 uiWasBuilt = true;
             }
@@ -93,6 +101,9 @@ public abstract class AbstractWizardPage
             setDefaultCursor();
         }
     }
+
+    /** @return the title of this wizard page, appearing on top. */
+    protected abstract String getTitle();
 
     /**
      * Called when going forward or backward to another page. 

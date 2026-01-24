@@ -1,5 +1,8 @@
 package fri.servers.hiking.emergencyalert.ui.swing.util;
 
+import java.awt.Container;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -10,6 +13,7 @@ import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JViewport;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.MaskFormatter;
 import javax.swing.text.NumberFormatter;
@@ -79,6 +83,22 @@ public final class SwingUtil
             field.setText(initialValue);
         
         return field;
+    }
+    
+    /** Any contained component should lose focus on click onto given panel container. */
+    public static void makeComponentFocusable(Container component) {
+        if (component.getParent() instanceof JViewport) {
+            makeComponentFocusable(component.getParent());
+        }
+        else {
+            component.setFocusable(true);
+            component.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    component.requestFocusInWindow();
+                }
+            });
+        }
     }
 
     

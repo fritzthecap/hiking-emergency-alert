@@ -16,15 +16,15 @@ public class Hike
      */
     public final transient String uniqueMailId = UUID.randomUUID().toString();
 
-    /** Date-oriented suggestion for plannedBegin and PlannedHome. */
-    private final transient Date todayNow = DateUtil.eraseSeconds(DateUtil.now());
-    private final transient Date todayNowPlus12Hours = DateUtil.addHours(todayNow, 12);
+    /** Date-oriented suggestion for <code>plannedBegin</code> and <code>plannedHome</code>. */
+    private final transient Date suggestedStart = DateUtil.eraseSeconds(DateUtil.addHours(DateUtil.now(), 1));
+    private final transient Date suggestedEnd = DateUtil.addHours(suggestedStart, 12);
     
     private String route; // description text
     private List<String> routeImages = new ArrayList<>(); // paths of image files
     
-    private Date plannedBegin = todayNow; // timer starts here
-    private Date plannedHome = todayNowPlus12Hours; // timer begins alerting here
+    private Date plannedBegin = suggestedStart; // timer starts here
+    private Date plannedHome = suggestedEnd; // timer begins alerting here
     
     private int alertIntervalMinutes = 60; // alerting interval
     private float alertIntervalShrinking = 1.0f; // how the interval gets smaller over time
