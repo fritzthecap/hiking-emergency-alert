@@ -30,19 +30,17 @@ public class HikeWizard extends JPanel
     private final JFrame frame;
     private final StateMachine stateMachine;
     private final JPanel contentPanel;
-    private final JSplitPane leftSplitPane;
-    private final JSplitPane rightSplitPane;
     
     private JButton previousButton;
     private JButton nextButton;
     
     private AbstractWizardPage[] pages = new AbstractWizardPage[] {
-        new LanguagePage(),
+//        new LanguagePage(),
         new ContactsPage(),
         new MailTextsPage(),
-        new IntervalsPage(),
-        new MailConfigurationPage(),
+//        new IntervalsPage(),
         new RouteAndTimesPage(),
+        new MailConfigurationPage(),
         new ActivationPage(),
         new ObservationPage(),
     };
@@ -56,18 +54,12 @@ public class HikeWizard extends JPanel
         
         this.contentPanel = new JPanel(new BorderLayout());
         
-        leftSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        leftSplitPane.setResizeWeight(0.33);
+        final JSplitPane leftSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        leftSplitPane.setResizeWeight(0.4);
         leftSplitPane.setOneTouchExpandable(true);
         leftSplitPane.setLeftComponent(new JPanel()); // TODO: HTML description texts
         
-        rightSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        rightSplitPane.setResizeWeight(0.5);
-        rightSplitPane.setOneTouchExpandable(true);
-        rightSplitPane.setLeftComponent(contentPanel);
-        rightSplitPane.setRightComponent(new JPanel()); // TODO: consoles
-        
-        leftSplitPane.setRightComponent(rightSplitPane);
+        leftSplitPane.setRightComponent(contentPanel);
         
         add(leftSplitPane, BorderLayout.CENTER);
         
@@ -159,7 +151,7 @@ public class HikeWizard extends JPanel
         
         final Trolley trolley;
         if (isFirstCall)
-            trolley = new Trolley(stateMachine, nextButton);
+            trolley = new Trolley(stateMachine, nextButton, previousButton);
         else
             if ((trolley = oldPage.leave(goingForward)) != null) // can leave
                 contentPanel.remove(oldPage.getAddablePanel());

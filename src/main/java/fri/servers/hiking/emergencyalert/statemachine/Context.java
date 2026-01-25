@@ -57,16 +57,21 @@ public class Context
         eventParameter = parameter;
     }
     
-    // exposing private fields
+    // exposing private fields to StateMachine
     
     /** @return the observed Hike. */
-    public Hike getHike() {
+    Hike getHike() {
         return hike;
     }
     
     /** @return the user interface. */
-    public UserInterface getUserInterface() {
+    UserInterface getUserInterface() {
         return userInterface;
+    }
+    
+    /** @return the mailer. */
+    Mailer getMailer() {
+        return mailer;
     }
     
     // event- and service-methods

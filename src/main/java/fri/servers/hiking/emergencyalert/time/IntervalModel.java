@@ -5,6 +5,9 @@ import java.util.List;
 import fri.servers.hiking.emergencyalert.persistence.Contact;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 
+/**
+ * Calculation of alert times from a Hike.
+ */
 public class IntervalModel
 {
     private int alertIntervalMinutes;
@@ -18,13 +21,14 @@ public class IntervalModel
         this.alertIntervalMinutes = hike.getAlertIntervalMinutes();
         this.alertIntervalShrinking = hike.getAlertIntervalShrinking();
         this.contactDetectionMinutes = new ArrayList<>();
-        
-        for (Contact contact : hike.getAlert().getNonAbsentContacts())
-            contactDetectionMinutes.add((contact.getDetectionMinutes() > 0)
-                    ? contact.getDetectionMinutes()
-                    : alertIntervalMinutes);
-        
         this.useContactDetectionMinutes = hike.isUseContactDetectionMinutes();
+        
+        if (useContactDetectionMinutes)
+            for (Contact contact : hike.getAlert().getNonAbsentContacts())
+                contactDetectionMinutes.add((contact.getDetectionMinutes() > 0)
+                        ? contact.getDetectionMinutes()
+                        : alertIntervalMinutes);
+        
     }
     
     /** Every call may deliver a different minutes amount. */

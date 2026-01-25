@@ -19,11 +19,13 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
+import fri.servers.hiking.emergencyalert.statemachine.states.HikeActivated;
 import fri.servers.hiking.emergencyalert.statemachine.states.OnTheWay;
 import fri.servers.hiking.emergencyalert.statemachine.states.OverdueAlert;
 import fri.servers.hiking.emergencyalert.ui.swing.Log;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
+import jakarta.mail.Authenticator;
 
 /**
  * After activation this page shows StateMachine
@@ -42,6 +44,12 @@ public class ObservationPage extends AbstractWizardPage
     @Override
     protected String getTitle() {
         return i18n("Observation");
+    }
+    
+    /** Overridden to avoid "Next" being enabled. There is nothing to validate here. */
+    @Override
+    protected boolean validate() {
+        return true;
     }
     
     /** Prevent going back to previous page while stateMachine is running. */
@@ -63,19 +71,14 @@ public class ObservationPage extends AbstractWizardPage
     
     @Override
     protected void buildUi() {
-        final int BORDER = 16; // empty border space
-        
         // top
         instructionsArea = new JTextArea();
+        final int BORDER = 12; // empty border space
         instructionsArea.setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER, BORDER));
         instructionsArea.setEditable(false);
         instructionsArea.setOpaque(false);
-        final JPanel instructionsPanel = new JPanel(new BorderLayout());
-        instructionsPanel.add(instructionsArea, BorderLayout.CENTER);
         timePanel = new JLabel("", JLabel.CENTER);
         timePanel.setFont(timePanel.getFont().deriveFont(20f));
-        instructionsPanel.add(timePanel, BorderLayout.SOUTH);
-        getContentPanel().add(instructionsPanel, BorderLayout.NORTH);
         
         // center
         consoleOut = new JTextArea();
@@ -88,13 +91,6 @@ public class ObservationPage extends AbstractWizardPage
         consoleErr.setBackground(new Color(255, 0, 0, 42)); // LIGHT_RED
         Log.redirectErr(consoleErr);
         
-        final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setTopComponent(scrollPaneForColoredConsole(splitPane, consoleOut, "Progress"));
-        splitPane.setBottomComponent(scrollPaneForColoredConsole(splitPane, consoleErr, "Errors"));
-        splitPane.setResizeWeight(0.5);
-        
-        getContentPanel().add(splitPane, BorderLayout.CENTER);
-        
         // bottom
         homeAgainListener = new ActionListener() {
             @Override
@@ -103,10 +99,22 @@ public class ObservationPage extends AbstractWizardPage
             }
         };
         homeAgain = new JButton(i18n("Home Again"));
+        
+        final JPanel instructionsPanel = new JPanel(new BorderLayout());
+        instructionsPanel.add(timePanel, BorderLayout.NORTH);
+        instructionsPanel.add(instructionsArea, BorderLayout.CENTER);
+        
+        final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPane.setTopComponent(scrollPaneForColoredConsole(splitPane, consoleOut, "Progress"));
+        splitPane.setBottomComponent(scrollPaneForColoredConsole(splitPane, consoleErr, "Errors"));
+        splitPane.setResizeWeight(0.5);
+        
         final JPanel buttonPanel = new JPanel(new FlowLayout()); // centers button
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER, BORDER));
         buttonPanel.add(homeAgain);
         
+        getContentPanel().add(instructionsPanel, BorderLayout.NORTH);
+        getContentPanel().add(splitPane, BorderLayout.CENTER);
         getContentPanel().add(buttonPanel, BorderLayout.SOUTH);
     }
     
@@ -115,9 +123,10 @@ public class ObservationPage extends AbstractWizardPage
         final String plannedHome = DateUtil.toString(hike.getPlannedHome());
         
         final String instructions = 
-                i18n("This window can be closed only by stopping the hike observation.")+"\n"+
-                i18n("Click the 'Home Again' button as soon as you return from your hike.")+"\n"+
-                i18n("Emergency alert mails will be sent starting from")+" "+plannedHome;
+                i18n("This window can be closed only by the 'Home Again' button.")+"\n"+
+                i18n("Click it as soon as you return.")+"\n"+
+                i18n("Emergency alert mails will be sent starting from")+" "+plannedHome+".\n"+
+                i18n("If you kill this window, the running observation will end!");
         instructionsArea.setText(instructions);
         timePanel.setText(DateUtil.toString(hike.getPlannedBegin())+"   \u2192   "+plannedHome); // arrow right
         
@@ -125,6 +134,7 @@ public class ObservationPage extends AbstractWizardPage
         consoleErr.setText("");
         
         canClose = false;
+        getTrolley().setPreviousEnabled(false);
         
         homeAgain.setForeground(Color.RED);
         homeAgain.setEnabled(true);
@@ -132,8 +142,14 @@ public class ObservationPage extends AbstractWizardPage
         homeAgain.setToolTipText(
                 i18n("Click to stop alert mails from being sent after")+" "+plannedHome);
         
-        SwingUtilities.invokeLater(() -> {
+        SwingUtilities.invokeLater(() -> { // call the StateMachine
             try {
+                // avoid another password dialog
+                final Authenticator authenticator = getTrolley().getAuthenticator();
+                if (authenticator != null)
+                    getStateMachine().getMailer().setCheckedAuthentication(authenticator);
+                
+                // change to state HikeActivated
                 getStateMachine().getUserInterface().activateHike(hike);
             }
             catch (Exception e) { // validation assertions could strike
@@ -148,8 +164,7 @@ public class ObservationPage extends AbstractWizardPage
         final JScrollPane scrollPane = new JScrollPane(console);
         scrollPane.setBorder(BorderFactory.createTitledBorder(i18n(title)));
         
-        // workaround for the Swing repaint bug 
-        // when textArea is opaque and has a background color
+        // workaround for the Swing repaint bug when textArea is opaque and has a background color
         final AdjustmentListener scrollBarListener = new AdjustmentListener() {
             @Override
             public void adjustmentValueChanged(AdjustmentEvent e) {
@@ -162,21 +177,23 @@ public class ObservationPage extends AbstractWizardPage
         return scrollPane;
     }
 
-    private void homeAgain(final StateMachine stateMachine, final JButton homeAgain) {
+    private void homeAgain(StateMachine stateMachine, JButton homeAgain) {
         String message = null;
-        if (stateMachine.getState().getClass().equals(OnTheWay.class)) // home too early
+        if (stateMachine.getState().getClass().equals(HikeActivated.class)) // hike has not even started
+            message = i18n("You want to cancel the hike?");
+        else if (stateMachine.getState().getClass().equals(OnTheWay.class)) // home before planned end
             message = i18n("Welcome back, you are in time!");
         else if (stateMachine.getState().getClass().equals(OverdueAlert.class)) // home after first alert mail
             message = i18n("Welcome back, you are late!");
         
         if (message != null) {
-            message += "\n"+
-                    i18n("Press 'Yes' if that is you,")+"\n"+
-                    i18n("or 'No' to continue observing the hike.");
+            message += "\n\n"+
+                    i18n("Press 'Yes' if that is you, ")+getHike().getAlert().getNameOfHiker()+",\n"+
+                    i18n("or 'No' to continue the running observation.\n");
             final int response = JOptionPane.showConfirmDialog(
                     homeAgain,
                     message,
-                    "Confirm Termination",
+                    i18n("Confirm Termination"),
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE);
             
@@ -196,5 +213,7 @@ public class ObservationPage extends AbstractWizardPage
         homeAgain.removeActionListener(homeAgainListener);
         
         canClose = true; // allows window close
+        
+        getTrolley().setPreviousEnabled(true);
     }
 }

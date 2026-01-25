@@ -91,6 +91,11 @@ public class StateMachine implements
         return context.getUserInterface();
     }
     
+    /** @return the mail tool. */
+    public final Mailer getMailer() {
+        return context.getMailer();
+    }
+    
     /** @return true when timer is already running, i.e. ACTIVATION took place. */
     public final boolean isRunning() {
         return context.isRunning();

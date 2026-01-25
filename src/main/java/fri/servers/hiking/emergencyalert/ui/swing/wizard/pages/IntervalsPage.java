@@ -71,9 +71,9 @@ public class IntervalsPage extends AbstractWizardPage
             }
         });
         
-        final JPanel contentPanel = new JPanel(new GridBagLayout());
-        contentPanel.add(panel);
-        getContentPanel().add(contentPanel);
+        final JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.add(panel);
+        getContentPanel().add(centerPanel);
         
         installFocusListeners();
     }

@@ -4,6 +4,7 @@ import fri.servers.hiking.emergencyalert.persistence.Contact;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
 import fri.servers.hiking.emergencyalert.statemachine.Event;
+import jakarta.mail.Authenticator;
 
 /**
  * Messaging communication responsibilities.
@@ -26,6 +27,13 @@ public interface Mailer
      */
     public boolean ensureMailConnection(MailConfiguration mailConfiguration) throws MailException;
     
+    /**
+     * This is for the user interface that wants to avoid repeated password dialogs.
+     * @param authenticator a predefined tested authenticator to use instead of 
+     * calling <code>ensureMailConnection()</code>.
+     */
+    public void setCheckedAuthentication(Authenticator authenticator);
+
     /**
      * Sends a mail, built from given hike, to given contact.
      * @param contact where to send the mail to.

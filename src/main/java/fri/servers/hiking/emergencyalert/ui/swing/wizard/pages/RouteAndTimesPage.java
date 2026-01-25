@@ -62,9 +62,8 @@ public class RouteAndTimesPage extends AbstractWizardPage
         fileChooser = new FileChooser(getContentPanel(), null);
 
         routeField = SwingUtil.buildTextArea(
-                i18n("Route Description"),
-                i18n("A description of your hike path rescuers should be able to understand"),
-                null);
+                i18n("A description of your hike path rescuers should be able to understand"), 
+                true);
         routeField.setRows(6);
         
         final JComponent imageTable = buildImagesTable();
@@ -111,7 +110,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
         
         final JSplitPane routePanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         routePanel.setResizeWeight(0.5);
-        routePanel.setTopComponent(new JScrollPane(routeField));
+        routePanel.setTopComponent(SwingUtil.buildScrollPane(i18n("Route Description"), routeField));
         routePanel.setBottomComponent(imageTable);
         final JPanel splitPanel = new JPanel(new BorderLayout());
         splitPanel.add(routePanel, BorderLayout.CENTER);
@@ -131,6 +130,8 @@ public class RouteAndTimesPage extends AbstractWizardPage
     protected void populateUi(Hike hike) {
         if (StringUtil.isNotEmpty(hike.getRoute()))
             routeField.setText(hike.getRoute());
+        
+        routeImagesField.setModel(buildTableModel()); // remove all rows
         
         if (hike.getRouteImages() != null)
             for (String imageFile : hike.getRouteImages())
@@ -186,10 +187,13 @@ public class RouteAndTimesPage extends AbstractWizardPage
             hike.getRouteImages().clear();
         
         for (int row = 0; row < dataVector.size(); row++) {
-            final String imagePath = (String) dataVector.get(row).get(0);
-            
-            if (StringUtil.isNotEmpty(imagePath))
-                hike.getRouteImages().add(imagePath);
+            final String imageFileName = (String) dataVector.get(row).get(0);
+            final String imagePath = (String) dataVector.get(row).get(1);
+            final String filePath =
+                    imagePath+
+                    (imagePath.endsWith(File.separator) ? "" : File.separator)+
+                    imageFileName;
+            hike.getRouteImages().add(filePath);
         }
         
         final Date beginDate = plannedBeginDateField.getDateValue();

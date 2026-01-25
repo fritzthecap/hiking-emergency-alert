@@ -13,14 +13,15 @@ import jakarta.mail.Authenticator;
 public class Trolley
 {
     public final StateMachine stateMachine;
-    private final JButton nextButton;
+    private final JButton nextButton, previousButton;
     private final String hikeCopy;
     
     private Authenticator authenticator;
     
-    public Trolley(StateMachine stateMachine, JButton nextButton) {
+    public Trolley(StateMachine stateMachine, JButton nextButton, JButton previousButton) {
         this.stateMachine = Objects.requireNonNull(stateMachine);
         this.nextButton = nextButton;
+        this.previousButton = previousButton;
         
         this.hikeCopy = hikeToJsonString(stateMachine.getHike());
     }
@@ -42,6 +43,9 @@ public class Trolley
     
     public void setNextEnabled(boolean enabled) {
         nextButton.setEnabled(enabled);
+    }
+    public void setPreviousEnabled(boolean enabled) {
+        previousButton.setEnabled(enabled);
     }
     
     private String hikeToJsonString(Hike hike) {

@@ -1,6 +1,7 @@
 package fri.servers.hiking.emergencyalert.mail.impl;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import fri.servers.hiking.emergencyalert.mail.Mail;
 import fri.servers.hiking.emergencyalert.mail.MailBuilder;
@@ -22,16 +23,24 @@ public class MailerImpl implements Mailer
     
     @Override
     public boolean ensureMailConnection(MailConfiguration mailConfiguration) throws MailException {
+        if (authenticator != null) // has been set by UserInterface
+            return true;
+        
         final ConnectionCheck check = newConnectionCheck(mailConfiguration);
         try {
             final boolean roundTripDone = check.trySendAndReceive(); // true when mail was deleted
-            this.authenticator = check.getValidAuthenticator(); // now we have a reusable password holder
+            authenticator = check.getValidAuthenticator(); // now we have a reusable password holder
             
             return roundTripDone;
         }
         catch (MailException e) {
             throw e;
         }
+    }
+    
+    @Override
+    public void setCheckedAuthentication(Authenticator authenticator) {
+        this.authenticator = Objects.requireNonNull(authenticator);
     }
     
     @Override

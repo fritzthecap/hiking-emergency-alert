@@ -30,12 +30,12 @@ public abstract class AbstractWizardPage
 {
     private final JPanel addablePanel;
     private final JPanel contentPanel;
+    private final JLabel titleField;
+    private final JLabel errorField;
+
     private Trolley trolley;
     private boolean uiWasBuilt;
     
-    private JLabel titleField;
-    private JLabel errorField;
-
     /** Constructor visible to sub-classes only. */
     protected AbstractWizardPage() {
         this.addablePanel = new JPanel(new BorderLayout());
@@ -130,7 +130,7 @@ public abstract class AbstractWizardPage
      * Enables the "Next" button when valid.
      * @return true when no error occurred, else false.
      */
-    protected final boolean validate() {
+    protected boolean validate() {
         final String error = validateFields();
         final boolean valid = (error == null);
         errorField.setText(valid ? "" : error);
@@ -227,10 +227,6 @@ public abstract class AbstractWizardPage
     /** @return the Hike from StateMachine. */
     protected final Hike getHike() {
         return getStateMachine().getHike();
-    }
-    
-    protected final JLabel getErrorField() {
-        return errorField;
     }
     
     protected JButton getSmallButton(String label, String tooltip, ActionListener action) {

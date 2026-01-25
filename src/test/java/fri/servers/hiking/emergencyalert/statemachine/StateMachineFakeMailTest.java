@@ -15,6 +15,7 @@ import fri.servers.hiking.emergencyalert.persistence.TestData;
 import fri.servers.hiking.emergencyalert.time.HikeTimer;
 import fri.servers.hiking.emergencyalert.time.ImpatientTimer;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
+import jakarta.mail.Authenticator;
 
 /** Weak test that uses fake-mailing. */
 class StateMachineFakeMailTest
@@ -83,6 +84,9 @@ class StateMachineFakeMailTest
             @Override
             public boolean ensureMailConnection(MailConfiguration mailConfiguration) throws MailException {
                 return true;
+            }
+            @Override
+            public void setCheckedAuthentication(Authenticator authenticator) {
             }
             @Override
             public void sendAlert(Contact contact, Hike hike) throws MailSendException {

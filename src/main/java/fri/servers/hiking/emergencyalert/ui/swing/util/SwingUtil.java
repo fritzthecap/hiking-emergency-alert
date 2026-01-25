@@ -1,5 +1,6 @@
 package fri.servers.hiking.emergencyalert.ui.swing.util;
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -11,6 +12,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
@@ -76,16 +78,46 @@ public final class SwingUtil
         return field;
     }
     
-    public static JTextArea buildTextArea(String title, String tooltip, String initialValue) {
-        final JTextArea field = new JTextArea();
-        setTitleAndTooltip(title, tooltip, field);
+    /** @return non-editable text area. */
+    public static JTextArea buildTextArea(String title) {
+        final JTextArea field = buildTextArea(null, false);
+        setTitleAndTooltip(title, null, field);
+        return field;
+    }
+    
+    /** @return optionally editable text area. */
+    public static JTextArea buildTextArea(String tooltip, boolean editable) {
+        final JTextArea textArea = buildTextArea(tooltip, null);
+        textArea.setEditable(editable);
+        return textArea;
+    }
+    
+    /** @return editable text area. */
+    public static JTextArea buildTextArea(String tooltip, String initialValue) {
+        final JTextArea field = new JTextArea() {
+            @Override
+            public void setText(String text) {
+                super.setText(text);
+                setCaretPosition(0); // should scroll to top
+            }
+        };
+        field.setLineWrap(true);
+        
+        setTitleAndTooltip(null, tooltip, field);
+        
         if (initialValue != null)
             field.setText(initialValue);
         
         return field;
     }
+
+    public static JScrollPane buildScrollPane(String title, JComponent componentToWrap) {
+        final JScrollPane scrollPane = new JScrollPane(componentToWrap);
+        setTitleAndTooltip(title, null, scrollPane);
+        return scrollPane;
+    }
     
-    /** Any contained component should lose focus on click onto given panel container. */
+    /** Any contained component should lose focus when clicking onto given panel container. */
     public static void makeComponentFocusable(Container component) {
         if (component.getParent() instanceof JViewport) {
             makeComponentFocusable(component.getParent());
@@ -100,15 +132,15 @@ public final class SwingUtil
             });
         }
     }
-
     
-    private static void setTitleAndTooltip(String title, String tooltip, final JComponent field) {
+    
+    private static void setTitleAndTooltip(String title, String tooltip, JComponent field) {
         if (title != null)
             field.setBorder(BorderFactory.createTitledBorder(title));
         if (tooltip != null)
             field.setToolTipText(tooltip);
     }
-    
+
     
     public static class DateField extends JFormattedTextField
     {

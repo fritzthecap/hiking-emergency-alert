@@ -8,7 +8,7 @@ import java.util.Date;
 public final class DateUtil
 {
     public static final String DATE_FORMAT_MINUTES = "yyyy-MM-dd HH:mm";
-    public static final String DATE_FORMAT_SECONDS = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATE_FORMAT_SECONDS = "yyyy-MM-dd HH:mm:ss";
     
     /** @return the millisecond-precise now-date. */
     public static Date now() {
@@ -60,6 +60,18 @@ public final class DateUtil
     public static Date addSeconds(Date date, int seconds) {
         final long nextMillis = date.getTime() + ((long) seconds * 1000L);
         return new Date(nextMillis);
+    }
+
+    /** @return a date string without time. */
+    public static String toDateString(Date date) {
+        final DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        return format.format(date);
+    }
+
+    /** @return a time string without date and without seconds. */
+    public static String toTimeString(Date date) {
+        final DateFormat format = new SimpleDateFormat("HH:mm");
+        return format.format(date);
     }
 
     /** @return a date string according to DATE_FORMAT_MINUTES. */

@@ -4,8 +4,8 @@ import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -338,11 +338,9 @@ public class MailConfigurationPage extends AbstractWizardPage
     }
 
     private void layoutFields(JComponent mailPassword, JLabel maximumConnectionTestSecondsLabel, JLabel seconds) {
-        final JPanel mailUserPanel = new JPanel();
-        mailUserPanel.setLayout(new BoxLayout(mailUserPanel, BoxLayout.Y_AXIS));
-        mailUserPanel.add(mailUserField);
-        mailUserPanel.add(mailPassword);
-        mailUserPanel.add(Box.createRigidArea(new Dimension(1, 16)));
+        final JPanel mailUserPanel = new JPanel(new BorderLayout());
+        mailUserPanel.add(mailUserField, BorderLayout.CENTER);
+        mailUserPanel.add(mailPassword, BorderLayout.SOUTH);
         
         final JPanel receivePanel = new JPanel();
         receivePanel.setLayout(new BoxLayout(receivePanel, BoxLayout.Y_AXIS));
@@ -380,7 +378,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         all.add(sendAndReceive, BorderLayout.CENTER);
         all.add(southPanel, BorderLayout.SOUTH);
         
-        getContentPanel().setLayout(new GridBagLayout());
+        getContentPanel().setLayout(new FlowLayout(FlowLayout.CENTER));
         getContentPanel().add(all);
     }
     

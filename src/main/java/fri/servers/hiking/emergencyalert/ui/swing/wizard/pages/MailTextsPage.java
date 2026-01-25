@@ -5,6 +5,7 @@ import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
@@ -61,23 +62,19 @@ public class MailTextsPage extends AbstractWizardPage
                 i18n("Alert Mail Subject"),
                 i18n("The text that will be in mail subject"),
                 i18n("Hiking emergency - I need help!"));
-        mailSubjectField.setColumns(30);
+        mailSubjectField.setColumns(40);
         
         mailIntroductionTextField = SwingUtil.buildTextArea(
-                i18n("Alert Mail Introduction Text"),
                 i18n("The message's content text"),
                 i18n("I had an accident while hiking and need help. This is serious!"));
         mailIntroductionTextField.setRows(3);
-        mailIntroductionTextField.setLineWrap(true);
         
         final JComponent todoList = buildProcedureTodosList();
         
         passingToNextTextField = SwingUtil.buildTextArea(
-                i18n("Passing-to-next Mail Text"),
                 i18n("Text that will be sent to every contact that did not respond in time"),
                 i18n("As you did not respond in time, an alert mail has been sent to the next contact person. You can ignore the preceding mail."));
         passingToNextTextField.setRows(3);
-        passingToNextTextField.setLineWrap(true);
         
         final JButton variablesHelpButton = new JButton(i18n("Variables"));
         variablesHelpButton.setToolTipText(i18n("Text substitution variables you can use here"));
@@ -88,25 +85,30 @@ public class MailTextsPage extends AbstractWizardPage
             }
         });
         
-        final JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        
         final JPanel subjectTextPanel = new JPanel();
         subjectTextPanel.setLayout(new BoxLayout(subjectTextPanel, BoxLayout.X_AXIS));
-        final JPanel textFieldPanel = new JPanel(); // avoid field height stretched
+        final JPanel textFieldPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // avoid field height stretched
         textFieldPanel.add(mailSubjectField);
         subjectTextPanel.add(textFieldPanel);
         subjectTextPanel.add(Box.createRigidArea(new Dimension(6, 1)));
         subjectTextPanel.add(variablesHelpButton);
         subjectTextPanel.add(Box.createRigidArea(new Dimension(4, 1)));
+        
+        final JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.add(subjectTextPanel);
         
-        panel.add(new JScrollPane(mailIntroductionTextField)); // full width
+        panel.add(SwingUtil.buildScrollPane(
+                i18n("Alert Mail Text"), 
+                mailIntroductionTextField)); // full width
         
         panel.add(todoList, BorderLayout.CENTER);
         
         panel.add(Box.createRigidArea(new Dimension(1, 20)));
-        panel.add(new JScrollPane(passingToNextTextField));
+        
+        panel.add(SwingUtil.buildScrollPane(
+                i18n("Continue-to-next Mail Text"),
+                passingToNextTextField));
         
         final JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(panel, BorderLayout.CENTER);
@@ -202,7 +204,7 @@ public class MailTextsPage extends AbstractWizardPage
     
     private JComponent buildProcedureTodosList() {
         final DefaultListModel<String> listModel = new DefaultListModel<>();
-        listModel.addElement(i18n("First try to reach me by phone: 123456789."));
+        listModel.addElement(i18n("First try to reach me by phone: $phone."));
         listModel.addElement(i18n("If I do not respond, please call the local emergency service."));
         listModel.addElement(i18n("Forward this mail to them, or tell them my trail from description below."));
         listModel.addElement(i18n("IMPORTANT: when you could organize help, please send a response-mail. The MAIL-ID above must be contained in it. That prevents further contacts to be distressed."));
@@ -222,9 +224,7 @@ public class MailTextsPage extends AbstractWizardPage
             }
         });
         
-        final JTextArea cellEditor = new JTextArea();
-        cellEditor.setToolTipText(i18n("Edit text of this todo step"));
-        cellEditor.setLineWrap(true);
+        final JTextArea cellEditor = SwingUtil.buildTextArea(i18n("Edit text of this todo step"), null);
         cellEditor.setRows(2);
         
         final JButton add = getAddOrRemoveButton(
@@ -313,11 +313,11 @@ public class MailTextsPage extends AbstractWizardPage
         listSplitPane.setTopComponent(tablePanel);
         listSplitPane.setBottomComponent(new JScrollPane(cellEditor));
 
-        final JPanel fullSizePanel = new JPanel(new BorderLayout());
-        fullSizePanel.setBorder(BorderFactory.createTitledBorder(i18n("Steps to be taken by Contact")));
-        fullSizePanel.add(listSplitPane, BorderLayout.CENTER);
+        final JPanel all = new JPanel(new BorderLayout());
+        all.setBorder(BorderFactory.createTitledBorder(i18n("Steps to be taken by Contact in Case of Emergency")));
+        all.add(listSplitPane, BorderLayout.CENTER);
         
-        return fullSizePanel;
+        return all;
     }
 
     private void showMacroListDialog() {

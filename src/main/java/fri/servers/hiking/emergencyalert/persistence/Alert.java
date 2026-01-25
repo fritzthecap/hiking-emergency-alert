@@ -10,7 +10,7 @@ public class Alert
     private List<String> procedureTodos = new ArrayList<>();
     private String passingToNextText;
     
-    private String nameOfHiker;
+    private String nameOfHiker = System.getProperty("user.name");
     private String addressOfHiker;
     private String phoneNumberOfHiker;
     

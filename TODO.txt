@@ -1,12 +1,19 @@
 
-Passingto-next should be optional, not mandatory.
+When canceling the hike and going back, then 
+    going forward again to start again, this error happens:
+    "Timer can be started just once!"
+    StateMachine must be put back into HikeRegisteredState!
+
+Required input fields must be marked somehow.
+
+Passing-to-next mail text should be optional, not mandatory.
     Add a checkbox on UI.
 
 It should be possible to press "Home Again" even
     in state "Activated" when planned begin time has not yet arrived.
     Currently this would give an error.
     Follower state must be HomeAgain then.
-    
+
 Implement JSON Hike file loading and saving.
 
 Left side descriptions of current wizard page, in HTML

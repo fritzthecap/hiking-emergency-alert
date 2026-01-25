@@ -1,5 +1,6 @@
 package fri.servers.hiking.emergencyalert.mail;
 
+import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ public class MailBuilder
         final String subject = "FWD: "+subject();
         
         final StringBuilder textBuilder = new StringBuilder();
-        textBuilder.append(getContactTitle(contact)+" !\n");
+        textBuilder.append(getContactTitle(contact)+" !\n\n");
         textBuilder.append(substitute(hike.getAlert().getPassingToNextText())+"\n");
         footer(hike, textBuilder);
 
@@ -70,7 +71,7 @@ public class MailBuilder
     private String buildAlertMailText(Hike hike, Contact contact) {
         final StringBuilder textBuilder = new StringBuilder();
                 
-        textBuilder.append(getContactTitle(contact)+" !\n");
+        textBuilder.append(getContactTitle(contact)+" !\n\n");
         textBuilder.append(substitute(hike.getAlert().getHelpRequestText()));
         textBuilder.append("\n\n");
         textBuilder.append("MAIL-ID: "+hike.uniqueMailId);
@@ -114,25 +115,26 @@ public class MailBuilder
 
     private void footer(Hike hike, final StringBuilder sb) {
         sb.append("\n----------------------------------------\n");
-        sb.append(hike.getAlert().getNameOfHiker()+"\n");
+        sb.append(hike.getAlert().getNameOfHiker()+"\n"); // never null
         if (StringUtil.isNotEmpty(hike.getAlert().getAddressOfHiker()))
             sb.append(hike.getAlert().getAddressOfHiker()+"\n");
         if (StringUtil.isNotEmpty(hike.getAlert().getMailConfiguration().getMailFromAddress()))
             sb.append(hike.getAlert().getMailConfiguration().getMailFromAddress());
         sb.append("\n----------------------------------------\n");
-        sb.append("Sent by Hiking-Emergency-Alert automaton version "+Version.get());
+        sb.append(i18n("Sent by Hiking-Emergency-Alert automation version ")+Version.get());
     }
     
     
     private String substitute(String text) {
-        text.replace(MACRO_CONTACT, getContactName(this.contact));
-        text.replace(MACRO_NEXT_CONTACT, getNextContactName());
-        text.replace(MACRO_ALL_CONTACTS, getAllContactNames());
-        text.replace(MACRO_ME, hike.getAlert().getNameOfHiker());
-        text.replace(MACRO_MY_PHONE, hike.getAlert().getPhoneNumberOfHiker());
-        text.replace(MACRO_BEGIN_TIME, DateUtil.toString(hike.getPlannedBegin()));
-        text.replace(MACRO_END_TIME, DateUtil.toString(hike.getPlannedHome()));
-        return text;
+        final String phoneNumber = hike.getAlert().getPhoneNumberOfHiker();
+        return text
+                .replace(MACRO_CONTACT, getContactName(this.contact))
+                .replace(MACRO_NEXT_CONTACT, getNextContactName())
+                .replace(MACRO_ALL_CONTACTS, getAllContactNames())
+                .replace(MACRO_ME, hike.getAlert().getNameOfHiker()) // never null
+                .replace(MACRO_MY_PHONE, StringUtil.isNotEmpty(phoneNumber) ? phoneNumber : "-")
+                .replace(MACRO_BEGIN_TIME, DateUtil.toString(hike.getPlannedBegin())) // never null
+                .replace(MACRO_END_TIME, DateUtil.toString(hike.getPlannedHome())); // never null
     }
 
     private String getContactName(Contact contact) {

@@ -16,4 +16,10 @@ public class HikeActivated extends AbstractState
     public AbstractState settingOff(Context context) {
         return new OnTheWay();
     }
+    
+    /** User canceled the hike before OnTheWay. */
+    @Override
+    public AbstractState comingHome(Context context) {
+        return new HomeAgain();
+    }
 }

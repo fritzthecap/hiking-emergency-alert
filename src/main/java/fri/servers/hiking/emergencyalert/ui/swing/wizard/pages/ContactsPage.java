@@ -222,7 +222,7 @@ public class ContactsPage extends AbstractWizardPage
                             i18n("The first name of the contact person"),
                             i18n("The last name of the contact person"),
                             i18n("How many minutes the person would need to detect an arrived mail"),
-                            i18n("Absent contacts would not be part of the alert mail chain"),
+                            i18n("Absent contacts would be ignored when sending alert mails"),
                     };
                     
                     @Override
@@ -324,9 +324,10 @@ public class ContactsPage extends AbstractWizardPage
     
     @SuppressWarnings("rawtypes")
     private boolean isEmptyRow(Vector<Vector> dataVector, int rowIndex) {
-        final String mailAddress = (String) dataVector.get(rowIndex).get(0);
-        final String firstName = (String) dataVector.get(rowIndex).get(1);
-        final String lastName = (String) dataVector.get(rowIndex).get(2);
+        final Vector row = dataVector.get(rowIndex);
+        final String mailAddress = (String) row.get(0);
+        final String firstName = (String) row.get(1);
+        final String lastName = (String) row.get(2);
         return (StringUtil.isEmpty(mailAddress) &&
                 StringUtil.isEmpty(firstName) &&
                 StringUtil.isEmpty(lastName));

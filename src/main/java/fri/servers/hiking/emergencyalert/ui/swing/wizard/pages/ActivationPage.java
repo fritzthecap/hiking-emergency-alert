@@ -1,12 +1,30 @@
 package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.io.File;
+import java.util.Date;
+import java.util.List;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
+import fri.servers.hiking.emergencyalert.mail.Mail;
+import fri.servers.hiking.emergencyalert.mail.MailBuilder;
+import fri.servers.hiking.emergencyalert.persistence.Alert;
+import fri.servers.hiking.emergencyalert.persistence.Contact;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.time.IntervalModel;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
+import fri.servers.hiking.emergencyalert.util.DateUtil;
+import fri.servers.hiking.emergencyalert.util.StringUtil;
 
 /**
  * Shows all data to user and asks for activation.
@@ -14,49 +32,118 @@ import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
  */
 public class ActivationPage extends AbstractWizardPage
 {
+    private JTextField hikeTimes;
     private JTextArea hikerData;
     private JTextArea contactsAndSendTimes;
     private JTextField alertMailSubject;
     private JTextArea alertMailText;
-    private JTextArea attachmentFileNames;
+    private JList<String> attachmentFileNames;
+    private JTextField passingToNextMailSubject;
     private JTextArea passingToNextMailText;
     
     @Override
     protected String getTitle() {
-        return i18n("Activation");
+        return i18n("Activation Check");
     }
     
     @Override
     protected void buildUi() {
-        hikerData = SwingUtil.buildTextArea(i18n("You"), null, null);
-        contactsAndSendTimes= SwingUtil.buildTextArea(i18n("Contacts and planned Alert Times"), null, null);
-        alertMailSubject = SwingUtil.buildTextField(i18n("Mail Subject"), null, null);
-        alertMailText = SwingUtil.buildTextArea(i18n("Mail Text"), null, null);
-        attachmentFileNames = SwingUtil.buildTextArea(i18n("Mail Attachments"), null, null);
-        passingToNextMailText = SwingUtil.buildTextArea(i18n("Passing-to-next Mail"), null, null);
+        hikeTimes = SwingUtil.buildTextField(
+                i18n("Hike Times"), 
+                i18n("Please check your inputs, go back and correct them if wrong"), 
+                null);
+        increaseFontSize(Font.BOLD, 14, hikeTimes);
+        hikeTimes.setEditable(false);
+        hikeTimes.setBackground(Color.WHITE);
+        hikeTimes.setHorizontalAlignment(JTextField.CENTER);
+        ((TitledBorder) hikeTimes.getBorder()).setTitleJustification(TitledBorder.CENTER);
+        
+        hikerData = SwingUtil.buildTextArea(i18n("You"));
+        
+        contactsAndSendTimes = SwingUtil.buildTextArea(i18n("Planned Alert Times for Contacts"));
+        
+        alertMailSubject = SwingUtil.buildTextField(i18n("Alert Mail Subject"), null, null);
+        alertMailSubject.setEditable(false);
+        alertMailSubject.setBackground(Color.WHITE);
+        
+        alertMailText = SwingUtil.buildTextArea(null);
+        
+        attachmentFileNames = new JList<>();
+        
+        passingToNextMailSubject = SwingUtil.buildTextField(i18n("Continue-to-next Mail Subject"), null, null);
+        passingToNextMailSubject.setBackground(Color.WHITE);
+        passingToNextMailSubject.setEditable(false);
+        
+        passingToNextMailText = SwingUtil.buildTextArea(null);
+        
+        // layout
+        
+        final JPanel timesAndHikerPanel = new JPanel(new BorderLayout());
+        timesAndHikerPanel.add(hikeTimes, BorderLayout.NORTH);
+        
+        final JPanel hikerAndContactsPanel = new JPanel(new GridLayout(1, 2));
+        hikerAndContactsPanel.add(hikerData);
+        hikerAndContactsPanel.add(contactsAndSendTimes);
+        timesAndHikerPanel.add(hikerAndContactsPanel, BorderLayout.CENTER);
+       
+        final JSplitPane alertMailSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        alertMailSplitPane.setResizeWeight(0.8);
+        alertMailSplitPane.setOneTouchExpandable(true);
+        alertMailSplitPane.setLeftComponent(
+                SwingUtil.buildScrollPane(i18n("Alert Mail Text"), alertMailText));
+        alertMailSplitPane.setRightComponent(
+                SwingUtil.buildScrollPane(i18n("Attachments"), attachmentFileNames));
+        
+        final JPanel alertMailPanel = new JPanel(new BorderLayout());
+        alertMailPanel.add(
+                alertMailSplitPane, 
+                BorderLayout.CENTER);
+        alertMailPanel.add(
+                alertMailSubject, 
+                BorderLayout.NORTH);
+        
+        final JPanel passingToNextMailPanel = new JPanel(new BorderLayout());
+        passingToNextMailPanel.add(
+                passingToNextMailSubject,
+                BorderLayout.NORTH);
+        passingToNextMailPanel.add(
+                SwingUtil.buildScrollPane(i18n("Continue-to-next Mail Text"), passingToNextMailText),
+                BorderLayout.CENTER);
+        
+        final JSplitPane mailsSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        mailsSplit.setResizeWeight(0.5);
+        mailsSplit.setOneTouchExpandable(true);
+        mailsSplit.setTopComponent(alertMailPanel);
+        mailsSplit.setBottomComponent(passingToNextMailPanel);
+        
+        final JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.add(timesAndHikerPanel, BorderLayout.NORTH);
+        contentPanel.add(mailsSplit, BorderLayout.CENTER);
+
+        getContentPanel().add(contentPanel, BorderLayout.CENTER);
     }
     
     @Override
     protected void populateUi(Hike hike) {
-
-        // You: (Name, Address, Phone, MailFromAddress
-        // Contacts (non-absent) and planned alert receive time: 
-        //     Fritz Ritzberger 2026-01-24 20:30
-        //     Heiliger Geist   2026-01-24 21:30
-        //     Bergrettung      2026-01-24 21:30
-        // Alert Mail: 
-        //     Subject
-        //     Text (holds Route Description)
-        //     Optional attachments
-        // Optional Passing-to-next Mail: 
+        hikeTimes.setText(DateUtil.toString(hike.getPlannedBegin())+"  \u2192  "+DateUtil.toString(hike.getPlannedHome()));
         
-//        final Contact contact = hike.getAlert().getNonAbsentContacts().get(0);
-//        
-//        final MailBuilder mailBuilder = new MailBuilder(contact, hike);
-//        final Mail alertMail = mailBuilder.buildAlertMail();
-//        final Mail passingToNextMail = mailBuilder.buildPassingToNextMail();
-//        
-//        final String text = "";
+        final Alert alert = hike.getAlert();
+        
+        hikerData.setText(buildHikerInfos(alert));
+        
+        contactsAndSendTimes.setText(buildContactsAndTimesInfos(hike));
+        
+        final Contact firstContact = alert.getAlertContacts().get(0);
+        final MailBuilder mailBuilder = new MailBuilder(firstContact, hike);
+        final Mail alertMail = mailBuilder.buildAlertMail();
+        
+        alertMailSubject.setText(alertMail.subject());
+        alertMailText.setText(alertMail.text());
+        attachmentFileNames.setListData(buildAttachmentsList(alertMail));
+        
+        final Mail passingToNextMail = mailBuilder.buildPassingToNextMail();
+        passingToNextMailSubject.setText(passingToNextMail.subject());
+        passingToNextMailText.setText(passingToNextMail.text());
     }
     
     @Override
@@ -67,7 +154,7 @@ public class ActivationPage extends AbstractWizardPage
             final int response = JOptionPane.showConfirmDialog(
                     getContentPanel(),
                     message,
-                    "Confirm Hike Begin",
+                    i18n("Confirm Hike Begin"),
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE);
             
@@ -75,5 +162,55 @@ public class ActivationPage extends AbstractWizardPage
                 return false;
         }
         return true; // nothing else to commit here
+    }
+
+    
+    private String buildHikerInfos(Alert alert) {
+        final StringBuilder hikerText = new StringBuilder();
+        
+        if (StringUtil.isNotEmpty(alert.getNameOfHiker()))
+            hikerText.append(i18n("Name")+":\t"+alert.getNameOfHiker()+"\n");
+        if (StringUtil.isNotEmpty(alert.getAddressOfHiker()))
+            hikerText.append(i18n("Address")+":\t"+alert.getAddressOfHiker()+"\n");
+        if (StringUtil.isNotEmpty(alert.getPhoneNumberOfHiker()))
+            hikerText.append(i18n("Phone")+":\t"+alert.getPhoneNumberOfHiker()+"\n");
+        hikerText.append(i18n("Mail")+":\t"+alert.getMailConfiguration().getMailFromAddress());
+        
+        return hikerText.toString();
+    }
+    
+    private String buildContactsAndTimesInfos(Hike hike) {
+        final List<Contact> contacts = hike.getAlert().getNonAbsentContacts();
+        Date alertDate = hike.getPlannedHome();
+        String currentDay = DateUtil.toDateString(alertDate);
+        final StringBuilder contactsText = new StringBuilder(currentDay+"\n"); // first day header
+        final IntervalModel intervalModel = new IntervalModel(hike);
+        
+        for (Contact contact : contacts) {
+            final String alertDay = DateUtil.toDateString(alertDate);
+            if (currentDay.equals(alertDay) == false) { // write subsequent day header
+                currentDay = alertDay;
+                contactsText.append(alertDay+"\n");
+            }
+            
+            final String time = DateUtil.toTimeString(alertDate);
+            contactsText.append("    "+time+"    "+contact.getMailAddress()+"\n");
+            
+            alertDate = DateUtil.addMinutes(alertDate, intervalModel.nextIntervalMinutes());
+        }
+        return contactsText.toString();
+    }
+    
+    private String[] buildAttachmentsList(Mail alertMail) {
+        final List<File> attachments = alertMail.attachments();
+        final int size = attachments.size();
+        if (size <= 0) // JList layout workaround
+            return new String[] { " " }; // JList would be VERY wide when empty, despite split resizeWeight
+        
+        final String[] attachmentNames = new String[size];
+        for (int i = 0; i < size; i++)
+            attachmentNames[i] = attachments.get(i).getName()+"\n";
+        
+        return attachmentNames;
     }
 }
