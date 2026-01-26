@@ -74,7 +74,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
                 null);
         plannedBeginTimeField = SwingUtil.buildTimeField(
                 i18n("Time"),
-                i18n("Time when your hike will start, and the time observation will begin"),
+                i18n("24-hour time when your hike will start, and the time observation will begin"),
                 null);
         
         plannedHomeDateField = SwingUtil.buildDateField(
@@ -83,7 +83,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
                 null);
         plannedHomeTimeField = SwingUtil.buildTimeField(
                 i18n("Time"),
-                i18n("Time when you will be home again, and the first alert mail should be sent"),
+                i18n("24-hour time when you will be home again, the first alert mail would be sent then"),
                 null);
         
         // layout

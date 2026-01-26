@@ -19,6 +19,7 @@ import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
+import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.*;
 
 /**
@@ -35,10 +36,9 @@ public class HikeWizard extends JPanel
     private JButton nextButton;
     
     private AbstractWizardPage[] pages = new AbstractWizardPage[] {
-//        new LanguagePage(),
+        new LanguagePage(),
         new ContactsPage(),
         new MailTextsPage(),
-//        new IntervalsPage(),
         new RouteAndTimesPage(),
         new MailConfigurationPage(),
         new ActivationPage(),
@@ -53,6 +53,7 @@ public class HikeWizard extends JPanel
         this.stateMachine = stateMachine;
         
         this.contentPanel = new JPanel(new BorderLayout());
+        SwingUtil.makeComponentFocusable(contentPanel); // lets focus shift away from input fields
         
         final JSplitPane leftSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         leftSplitPane.setResizeWeight(0.4);
@@ -104,9 +105,12 @@ public class HikeWizard extends JPanel
     }
     
     private JPanel buildButtonBar() {
-        this.previousButton = new JButton("< "+i18n("Previous"));
+        this.previousButton = new JButton("< "+i18n("Previous")); // is disabled only 
+        
         this.nextButton = new JButton(i18n("Next")+" >");
-        final ActionListener skipListener = new ActionListener() {
+        SwingUtil.makeComponentFocusable(nextButton); // click on even disabled button will trigger validation
+
+        final ActionListener browsePagesListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final boolean next = (e.getSource() == nextButton);
@@ -115,8 +119,8 @@ public class HikeWizard extends JPanel
 
             }
         };
-        previousButton.addActionListener(skipListener);
-        nextButton.addActionListener(skipListener);
+        previousButton.addActionListener(browsePagesListener);
+        nextButton.addActionListener(browsePagesListener);
         
         final JPanel grid = new JPanel(new GridLayout(1, 2, 12, 0)); // gives buttons same size
         grid.add(previousButton);

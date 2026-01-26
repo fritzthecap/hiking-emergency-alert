@@ -1,27 +1,22 @@
 
-When canceling the hike and going back, then 
-    going forward again to start again, this error happens:
-    "Timer can be started just once!"
-    StateMachine must be put back into HikeRegisteredState!
-
 Required input fields must be marked somehow.
 
 Passing-to-next mail text should be optional, not mandatory.
     Add a checkbox on UI.
 
-It should be possible to press "Home Again" even
-    in state "Activated" when planned begin time has not yet arrived.
-    Currently this would give an error.
-    Follower state must be HomeAgain then.
-
 Implement JSON Hike file loading and saving.
+    It should support a default file,
+    and arbitrary user-chosen files for
+    different purposes (dead message, hike observation, ...) 
+
+The wizard should have an outline of its pages
+    on bottom that can be clicked to jump over
+    pages that hold good defaults.
 
 Left side descriptions of current wizard page, in HTML
-
-Right side output and error consoles for System out/err streams.
 
 The whole application needs bigger fonts!
 
 Multi-language support for at least German.
 
-Write more unit tests with greenmail like StateMachineTest2.
+Write more unit tests like StateMachineGreenmailTest.

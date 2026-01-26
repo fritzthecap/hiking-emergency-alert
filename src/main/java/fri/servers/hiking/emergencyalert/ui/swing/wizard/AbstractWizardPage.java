@@ -21,7 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
-import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 
 /**
  * Shared logic for all wizard pages.
@@ -58,7 +57,6 @@ public abstract class AbstractWizardPage
         titleAndError.add(titleField, BorderLayout.CENTER);
         titleAndError.add(errorPanel, BorderLayout.SOUTH);
         addablePanel.add(titleAndError, BorderLayout.NORTH);
-        SwingUtil.makeComponentFocusable(addablePanel);
         
         this.contentPanel = new JPanel(new BorderLayout());
         addablePanel.add(contentPanel, BorderLayout.CENTER);

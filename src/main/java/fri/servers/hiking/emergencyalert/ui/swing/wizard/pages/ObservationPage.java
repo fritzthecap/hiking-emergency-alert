@@ -206,11 +206,11 @@ public class ObservationPage extends AbstractWizardPage
     
     private void endState(Color homeAgainColor) {
         if (homeAgainColor != null)
-            homeAgain.setForeground(homeAgainColor);
+            homeAgain.setForeground(homeAgainColor); // BLUE (accident) or GREEN (home in time)
         else
-            homeAgain.setEnabled(false);
+            homeAgain.setEnabled(false); // error happened on starting StateMachine
         
-        homeAgain.removeActionListener(homeAgainListener);
+        homeAgain.removeActionListener(homeAgainListener); // will be added again on populateUi()
         
         canClose = true; // allows window close
         

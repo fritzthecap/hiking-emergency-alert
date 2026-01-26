@@ -73,7 +73,7 @@ public class MailTextsPage extends AbstractWizardPage
         
         passingToNextTextField = SwingUtil.buildTextArea(
                 i18n("Text that will be sent to every contact that did not respond in time"),
-                i18n("As you did not respond in time, an alert mail has been sent to the next contact person. You can ignore the preceding mail."));
+                i18n("As you did not respond in time, an alert mail has been sent to next contact $nextContact. You can ignore the preceding mail."));
         passingToNextTextField.setRows(3);
         
         final JButton variablesHelpButton = new JButton(i18n("Variables"));

@@ -3,7 +3,10 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -14,7 +17,9 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -43,6 +48,11 @@ public class ContactsPage extends AbstractWizardPage
     private JTextField phoneNumberOfHikerField;
     private JTable alertContactsField;
     
+    private JFormattedTextField alertIntervalMinutesField;
+    private JFormattedTextField alertIntervalShrinkingField;
+    private JCheckBox useContactDetectionMinutesField;
+    private JFormattedTextField confirmationPollingMinutesField;
+    
     @Override
     protected String getTitle() {
         return i18n("Contacts");
@@ -50,42 +60,68 @@ public class ContactsPage extends AbstractWizardPage
     
     @Override
     protected void buildUi() {
+        getContentPanel().add(buildContactsUi(), BorderLayout.CENTER);
+        getContentPanel().add(buildIntervalsUi(), BorderLayout.SOUTH);
+    }
+
+    @Override
+    protected void populateUi(Hike hike) {
+        populateContactsUi(hike);
+        populateIntervalsUi(hike);
+    }
+
+    @Override
+    protected String validateFields() {
+        final String error = validateContactsFields();
+        if (error != null)
+            return error;
+        
+        return validateIntervalsFields();
+    }
+
+    @Override
+    protected boolean commit(boolean goingForward) {
+        return commitContacts() && commitIntervals();
+    }
+
+    
+    private JComponent buildContactsUi() {
         nameOfHikerField = SwingUtil.buildTextField(
                 i18n("Your Name"),
-                i18n("Required, will appear in mail signature"),
+                i18n("Will appear in mail signature"),
                 null);
-        nameOfHikerField.setColumns(20);
         
         addressOfHikerField = SwingUtil.buildTextField(
                 i18n("Your Address"),
-                i18n("Would also appear in mail signature"),
+                i18n("Would appear in mail signature"),
                 null);
-        addressOfHikerField.setColumns(20);
         
         phoneNumberOfHikerField = SwingUtil.buildTextField(
                 i18n("Your Phone Number"),
-                i18n("Will be available as '$phone' macro in mail texts"),
+                i18n("Available as '$phone' variable in mail texts"),
                 null);
-        phoneNumberOfHikerField.setColumns(20);
         
         final JComponent contactsTable = buildContactsTable();
         contactsTable.setBorder(BorderFactory.createTitledBorder(i18n("Emergency Alert Contacts")));
         
+        final JPanel hikerPanel = new JPanel();
+        hikerPanel.setLayout(new BoxLayout(hikerPanel, BoxLayout.X_AXIS));
+        hikerPanel.add(nameOfHikerField);
+        hikerPanel.add(phoneNumberOfHikerField);
+        hikerPanel.add(addressOfHikerField);
+        
         final JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.add(nameOfHikerField);
-        panel.add(addressOfHikerField);
-        panel.add(phoneNumberOfHikerField);
-        panel.add(Box.createRigidArea(new Dimension(1, 20)));
+        panel.add(hikerPanel);
+        panel.add(Box.createRigidArea(new Dimension(1, 16)));
         panel.add(contactsTable);
         
-        getContentPanel().add(panel);
+        installContactsFocusListeners();
         
-        installFocusListeners();
+        return panel;
     }
     
-    @Override
-    protected void populateUi(Hike hike) {
+    private void populateContactsUi(Hike hike) {
         final Alert alert = hike.getAlert();
 
         if (StringUtil.isNotEmpty(alert.getNameOfHiker()))
@@ -119,13 +155,12 @@ public class ContactsPage extends AbstractWizardPage
             addEmptyRowWhenNeeded();
     }
     
-    @Override
-    @SuppressWarnings({ "rawtypes" })
-    protected String validateFields() {
+    private String validateContactsFields() {
         if (StringUtil.isEmpty(nameOfHikerField.getText()))
             return i18n("Your name must not be empty!");
 
-        final Vector<Vector> dataVector = commitAndGetContacts();
+        @SuppressWarnings("rawtypes")
+        final Vector<Vector> dataVector = contactsDataVector();
         int count = 0;
         for (int row = 0; row < dataVector.size(); row++) {
             if (isEmptyRow(dataVector, row) == false) {
@@ -150,9 +185,7 @@ public class ContactsPage extends AbstractWizardPage
         return null;
     }
 
-    @Override
-    @SuppressWarnings({ "rawtypes" })
-    protected boolean commit(boolean goingForward) {
+    private boolean commitContacts() {
         final Alert alert = getHike().getAlert();
 
         if (StringUtil.isNotEmpty(nameOfHikerField.getText()))
@@ -164,7 +197,8 @@ public class ContactsPage extends AbstractWizardPage
         if (StringUtil.isNotEmpty(phoneNumberOfHikerField.getText()))
             alert.setPhoneNumberOfHiker(phoneNumberOfHikerField.getText());
         
-        final Vector<Vector> dataVector = commitAndGetContacts();
+        @SuppressWarnings("rawtypes")
+        final Vector<Vector> dataVector = contactsDataVector();
         if (alert.getAlertContacts() == null)
             alert.setAlertContacts(new ArrayList<Contact>());
         else 
@@ -193,10 +227,10 @@ public class ContactsPage extends AbstractWizardPage
         
         return true;
     }
-
     
+
     @SuppressWarnings("rawtypes")
-    private Vector<Vector> commitAndGetContacts() {
+    private Vector<Vector> contactsDataVector() {
         final DefaultTableModel model = (DefaultTableModel) alertContactsField.getModel();
         return model.getDataVector();
     }
@@ -333,7 +367,7 @@ public class ContactsPage extends AbstractWizardPage
                 StringUtil.isEmpty(lastName));
     }
     
-    private void installFocusListeners() {
+    private void installContactsFocusListeners() {
         final FocusListener focusListener = new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
@@ -343,5 +377,114 @@ public class ContactsPage extends AbstractWizardPage
         nameOfHikerField.addFocusListener(focusListener);
         addressOfHikerField.addFocusListener(focusListener);
         phoneNumberOfHikerField.addFocusListener(focusListener);
+    }
+    
+    
+    private JComponent buildIntervalsUi() {
+        alertIntervalMinutesField = SwingUtil.buildNumberField(
+                i18n("Alert Send Interval Minutes"), 
+                i18n("Minutes to wait for response before sending an alert mail to the next contact"), 
+                60);
+        
+        alertIntervalShrinkingField = SwingUtil.buildNumberField(
+                i18n("Alert Interval Shrinking Percent"), 
+                i18n("75% on a 60 minutes interval would mean the 2nd interval be just 45 minutes, the 3rd just 34, etc."), 
+                100);
+        
+        useContactDetectionMinutesField = new JCheckBox(i18n("Use Mail Detection Minutes of Contacts"));
+        useContactDetectionMinutesField.setToolTipText(
+                i18n("For alert intervals, use the estimated mail detection minutes of listed contacts"));
+        
+        confirmationPollingMinutesField = SwingUtil.buildNumberField(
+                i18n("Confirmation Receive Interval Minutes"), 
+                i18n("Minutes to wait between attempts to receive a response mail from an alerted contact"), 
+                2);
+        
+        final JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(alertIntervalMinutesField);
+        panel.add(alertIntervalShrinkingField);
+        panel.add(useContactDetectionMinutesField);
+        panel.add(Box.createRigidArea(new Dimension(1, 16)));
+        panel.add(confirmationPollingMinutesField);
+        
+        useContactDetectionMinutesField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final boolean on = useContactDetectionMinutesField.isSelected();
+                alertIntervalMinutesField.setEnabled(on == false);
+                alertIntervalShrinkingField.setEnabled(on == false);
+            }
+        });
+        
+        final JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        centerPanel.add(panel);
+        
+        installIntervalsFocusListeners();
+        
+        return centerPanel;
+    }
+    
+    private void populateIntervalsUi(Hike hike) {
+        alertIntervalMinutesField.setValue(hike.getAlertIntervalMinutes());
+        alertIntervalShrinkingField.setValue(floatToPercent(hike.getAlertIntervalShrinking()));
+        useContactDetectionMinutesField.setSelected(hike.isUseContactDetectionMinutes());
+        confirmationPollingMinutesField.setValue(hike.getConfirmationPollingMinutes());
+    }
+    
+    private String validateIntervalsFields() {
+        if (SwingUtil.getNumberValue(confirmationPollingMinutesField) <= 0)
+            return i18n("Confirmation Polling Minute must not be empty!");
+        
+        if (useContactDetectionMinutesField.isSelected() == false) {
+            if (SwingUtil.getNumberValue(alertIntervalMinutesField) <= 0)
+                return i18n("Alert Interval Minutes must not be empty!");
+            
+            if (SwingUtil.getNumberValue(alertIntervalShrinkingField) <= 0)
+                return i18n("Alert Interval Shrinking Percent must not be empty!");
+        }
+        
+        return null;
+    }
+
+    private boolean commitIntervals() {
+        final Hike hike = getHike();
+        
+        final int alertIntervalMinutes = SwingUtil.getNumberValue(alertIntervalMinutesField);
+        if (alertIntervalMinutes > 0)
+            hike.setAlertIntervalMinutes(alertIntervalMinutes);
+        
+        final int alertIntervalShrinking = SwingUtil.getNumberValue(alertIntervalShrinkingField);
+        if (alertIntervalShrinking > 0)
+            hike.setAlertIntervalShrinking(percentToFloat(alertIntervalShrinking));
+        
+        hike.setUseContactDetectionMinutes(useContactDetectionMinutesField.isSelected());
+        
+        final int confirmationPollingMinutes = SwingUtil.getNumberValue(confirmationPollingMinutesField);
+        hike.setConfirmationPollingMinutes(confirmationPollingMinutes);
+        
+        return true;
+    }
+
+
+    private int floatToPercent(float alertIntervalShrinking) {
+        return Math.round(alertIntervalShrinking * 100f);
+    }
+
+    private float percentToFloat(int alertIntervalShrinking) {
+        return (float) alertIntervalShrinking / 100f;
+    }
+    
+    private void installIntervalsFocusListeners() {
+        final FocusListener focusListener = new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                validate();
+            }
+        };
+        confirmationPollingMinutesField.addFocusListener(focusListener);
+        useContactDetectionMinutesField.addFocusListener(focusListener);
+        alertIntervalMinutesField.addFocusListener(focusListener);
+        alertIntervalShrinkingField.addFocusListener(focusListener);
     }
 }
