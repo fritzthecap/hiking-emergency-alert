@@ -1,5 +1,6 @@
 package fri.servers.hiking.emergencyalert.ui.swing.wizard;
 
+import java.io.File;
 import java.util.Objects;
 import javax.swing.JButton;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
@@ -15,6 +16,7 @@ public class Trolley
     public final StateMachine stateMachine;
     private final JButton nextButton, previousButton;
     private final String hikeCopy;
+    private File hikeFile;
     
     private Authenticator authenticator;
     
@@ -39,6 +41,13 @@ public class Trolley
     /** When not null, this is a valid authenticator. */
     public Authenticator getAuthenticator() {
         return authenticator;
+    }
+    
+    public File getHikeFile() {
+        return hikeFile;
+    }
+    public void setHikeFile(File hikeFile) {
+        this.hikeFile = hikeFile;
     }
     
     public void setNextEnabled(boolean enabled) {

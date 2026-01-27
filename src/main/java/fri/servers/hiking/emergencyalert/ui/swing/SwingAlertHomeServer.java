@@ -2,6 +2,7 @@ package fri.servers.hiking.emergencyalert.ui.swing;
 
 import java.awt.Dimension;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.mail.Mail;
 import fri.servers.hiking.emergencyalert.mail.impl.MailerImpl;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
@@ -45,8 +46,10 @@ public class SwingAlertHomeServer extends SwingUserInterface
     /** Overridden to notify the wizard's ObservationPage. */
     @Override
     public void showConfirmMail(Mail alertConfirmationMail) {
-        final HikeWizard wizard = (HikeWizard) frame.getContentPane().getComponent(0);
-        wizard.alertConfirmed();
+        SwingUtilities.invokeLater(() -> {
+            final HikeWizard wizard = (HikeWizard) frame.getContentPane().getComponent(0);
+            wizard.alertConfirmed();
+        });
         
         super.showConfirmMail(alertConfirmationMail);
     }

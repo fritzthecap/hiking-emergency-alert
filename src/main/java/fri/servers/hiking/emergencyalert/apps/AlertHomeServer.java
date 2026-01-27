@@ -1,6 +1,7 @@
 package fri.servers.hiking.emergencyalert.apps;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Scanner;
 import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.Version;
@@ -14,6 +15,7 @@ import fri.servers.hiking.emergencyalert.time.HikeTimer;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
 import fri.servers.hiking.emergencyalert.ui.swing.SwingAlertHomeServer;
 import fri.servers.hiking.emergencyalert.ui.swing.SwingUserInterface;
+import fri.servers.hiking.emergencyalert.util.Language;
 
 /**
  * Application that should be started before you go on a hike.
@@ -61,6 +63,8 @@ public class AlertHomeServer
             }
         }
         else {
+            Language.load(); // user.language
+            
             SwingUtilities.invokeLater(() -> {
                 try {
                     new AlertHomeServer(null);

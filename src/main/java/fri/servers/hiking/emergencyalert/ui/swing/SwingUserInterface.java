@@ -4,6 +4,7 @@ import java.awt.Font;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.mail.Mail;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
@@ -34,21 +35,23 @@ public class SwingUserInterface extends UserInterface
         return null;
     }
 
-    /** Shows confirmation mail data in a dialog. */
+    /** Called by StateMachine, shows a possible contact confirmation mail in a dialog. */
     @Override
-    public void showConfirmMail(Mail alertConfirmationMail) {
-        final String mailInfoText = 
-                alertConfirmationMail.from()+"\n"+
-                DateUtil.toString(alertConfirmationMail.sent(), true);
-        
-        final JTextArea mailInfoComponent = new JTextArea(mailInfoText);
-        mailInfoComponent.setEditable(false);
-        mailInfoComponent.setFont(new Font(Font.MONOSPACED, Font.BOLD, 15));
-        
-        JOptionPane.showMessageDialog(
-                frame, 
-                mailInfoComponent, 
-                "Alert Confirmation Arrived", 
-                JOptionPane.INFORMATION_MESSAGE);
-    }
+    public void showConfirmMail(final Mail alertConfirmationMail) {
+        SwingUtilities.invokeLater(() -> {
+            final String mailInfoText = 
+                    alertConfirmationMail.from()+"\n"+
+                    DateUtil.toString(alertConfirmationMail.sent(), true);
+            
+            final JTextArea mailInfoComponent = new JTextArea(mailInfoText);
+            mailInfoComponent.setEditable(false);
+            mailInfoComponent.setFont(new Font(Font.MONOSPACED, Font.BOLD, 15));
+            
+            JOptionPane.showMessageDialog(
+                    frame, 
+                    mailInfoComponent, 
+                    "Alert Confirmation Arrived", 
+                    JOptionPane.INFORMATION_MESSAGE);
+             });
+   }
 }
