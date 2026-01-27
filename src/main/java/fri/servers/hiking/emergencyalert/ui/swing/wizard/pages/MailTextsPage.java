@@ -204,7 +204,7 @@ public class MailTextsPage extends AbstractWizardPage
     
     private JComponent buildProcedureTodosList() {
         final DefaultListModel<String> listModel = new DefaultListModel<>();
-        listModel.addElement(i18n("First try to reach me by phone: $phone."));
+        listModel.addElement(i18n("First try to reach me by phone $phone."));
         listModel.addElement(i18n("If I do not respond, please call the local emergency service."));
         listModel.addElement(i18n("Forward this mail to them, or tell them my trail from description below."));
         listModel.addElement(i18n("IMPORTANT: when you could organize help, please send a response-mail. The MAIL-ID above must be contained in it. That prevents further contacts to be distressed."));

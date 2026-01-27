@@ -436,13 +436,9 @@ public class ContactsPage extends AbstractWizardPage
         if (SwingUtil.getNumberValue(confirmationPollingMinutesField) <= 0)
             return i18n("Confirmation Polling Minute must not be empty!");
         
-        if (useContactDetectionMinutesField.isSelected() == false) {
+        if (useContactDetectionMinutesField.isSelected() == false)
             if (SwingUtil.getNumberValue(alertIntervalMinutesField) <= 0)
                 return i18n("Alert Interval Minutes must not be empty!");
-            
-            if (SwingUtil.getNumberValue(alertIntervalShrinkingField) <= 0)
-                return i18n("Alert Interval Shrinking Percent must not be empty!");
-        }
         
         return null;
     }

@@ -310,7 +310,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
         };
     }
     private void chooseImageFile() {
-        final File[] files = fileChooser.open();
+        final File[] files = fileChooser.open(false, null);
         if (files != null)
             for (File file : files)
                 addRouteImageToTable(file.getAbsolutePath());

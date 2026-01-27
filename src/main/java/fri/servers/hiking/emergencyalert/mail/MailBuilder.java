@@ -132,7 +132,7 @@ public class MailBuilder
                 .replace(MACRO_NEXT_CONTACT, getNextContactName())
                 .replace(MACRO_ALL_CONTACTS, getAllContactNames())
                 .replace(MACRO_ME, hike.getAlert().getNameOfHiker()) // never null
-                .replace(MACRO_MY_PHONE, StringUtil.isNotEmpty(phoneNumber) ? phoneNumber : "-")
+                .replace(MACRO_MY_PHONE, StringUtil.isNotEmpty(phoneNumber) ? phoneNumber : "")
                 .replace(MACRO_BEGIN_TIME, DateUtil.toString(hike.getPlannedBegin())) // never null
                 .replace(MACRO_END_TIME, DateUtil.toString(hike.getPlannedHome())); // never null
     }
@@ -154,7 +154,7 @@ public class MailBuilder
             else if (found)
                 return getContactName(c);
         }
-        return "-"; // last
+        return ""; // last
     }
     
     private String getAllContactNames() {

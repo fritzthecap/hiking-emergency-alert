@@ -189,9 +189,9 @@ public class ObservationPage extends AbstractWizardPage
         if (message != null) {
             message += "\n\n"+
                     i18n("Press 'Yes' if that is you, ")+getHike().getAlert().getNameOfHiker()+",\n"+
-                    i18n("or 'No' to continue the running observation.\n");
+                    i18n("or 'No' to continue the running observation."+"\n");
             final int response = JOptionPane.showConfirmDialog(
-                    homeAgain,
+                    getFrame(),
                     message,
                     i18n("Confirm Termination"),
                     JOptionPane.YES_NO_OPTION,
