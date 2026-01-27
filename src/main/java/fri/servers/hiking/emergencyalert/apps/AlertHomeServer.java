@@ -1,7 +1,6 @@
 package fri.servers.hiking.emergencyalert.apps;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.util.Scanner;
 import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.Version;
