@@ -4,16 +4,19 @@ import java.io.File;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
 
 public class FileChooser
 {
     private final JComponent parent;
-    private String currentDirectory;
+    private String currentDirectory = new HikeFileManager().getSavePath();
     
     public FileChooser(JComponent parent, String currentDirectory) {
         this.parent = parent;
-        this.currentDirectory = currentDirectory;
+        
+        if (StringUtil.isNotEmpty(currentDirectory))
+            this.currentDirectory = currentDirectory;
     }
     
     /**
@@ -22,6 +25,9 @@ public class FileChooser
      * @return chosen file(s) or null for canceled.
      */
     public File[] open(boolean singleSelection, String extension) {
+        if (StringUtil.isNotEmpty(currentDirectory))
+            currentDirectory = new HikeFileManager().ensureSavePathExists(currentDirectory);
+        
         final JFileChooser fileChooser = new JFileChooser(currentDirectory);
         fileChooser.setMultiSelectionEnabled(singleSelection);
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);

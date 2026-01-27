@@ -8,7 +8,9 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -18,9 +20,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
+import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
+import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 
 /**
  * Shared logic for all wizard pages.
@@ -62,12 +68,15 @@ public abstract class AbstractWizardPage
         addablePanel.add(contentPanel, BorderLayout.CENTER);
     }
     
-    /** Package-visible for HikeWizard only, not for subclasses! */
+    /** Package-visible for HikeWizard only, not for sub-classes in different package! */
     JComponent getAddablePanel() {
         return addablePanel;
     }
     
     
+    /** @return the title of this wizard page, appearing on top. */
+    protected abstract String getTitle();
+
     /** Called just once for each wizard-page. Sub-classes must fill their UI with fields. */
     protected abstract void buildUi();
     
@@ -100,29 +109,6 @@ public abstract class AbstractWizardPage
         }
     }
 
-    /** @return the title of this wizard page, appearing on top. */
-    protected abstract String getTitle();
-
-    /**
-     * Called when going forward or backward to another page. 
-     * @param goingForward true when going to next page, false when to previous.
-     * @return null when <code>commit()</code> returned null, else the trolley.
-     */
-    public final Trolley leave(boolean goingForward) {
-        setWaitCursor();
-        try {
-            if (goingForward) {
-                final boolean valid = validate();
-                if (valid == false)
-                    return null;
-            }
-            return commit(goingForward) ? trolley : null;
-        }
-        finally {
-            setDefaultCursor();
-        }
-    }
-
     /**
      * Calls <code>validateFields()</code> and sets the resulting error to error-field.
      * Enables the "Next" button when valid.
@@ -146,6 +132,26 @@ public abstract class AbstractWizardPage
     }
 
     /**
+     * Called when going forward or backward to another page. 
+     * @param goingForward true when going to next page, false when to previous.
+     * @return null when <code>commit()</code> returned null, else the trolley.
+     */
+    public final Trolley leave(boolean goingForward) {
+        setWaitCursor();
+        try {
+            if (goingForward) {
+                final boolean valid = validate();
+                if (valid == false)
+                    return null;
+            }
+            return commit(goingForward) ? trolley : null;
+        }
+        finally {
+            setDefaultCursor();
+        }
+    }
+
+    /**
      * Called when going forward or backward to another page, or user closes window. 
      * Commit UI fields into Hike data. 
      * @param goingForward true when "Next" was clicked, false when "Previous" or user closes window.
@@ -162,44 +168,89 @@ public abstract class AbstractWizardPage
     public boolean windowClosing() {
         setWaitCursor();
         try {
-            commit(false);
-            
-            if (trolley.isHikeChanged()) {
-                final int saveChanges = JOptionPane.showConfirmDialog(
-                        getFrame(), 
-                        i18n("Save hike inputs?"), 
-                        i18n("Confirm Termination"), 
-                        JOptionPane.YES_NO_CANCEL_OPTION, 
-                        JOptionPane.QUESTION_MESSAGE);
-                if (saveChanges == JOptionPane.YES_OPTION) {
-                    try {
-                        saveHikeToFile();
-                        return true;
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                        JOptionPane.showMessageDialog(
-                                getFrame(),
-                                e.toString(),
-                                i18n("Error"),
-                                JOptionPane.ERROR_MESSAGE);
-                        return false;
-                    }
-                }
-                else if (saveChanges == JOptionPane.CANCEL_OPTION) {
-                    return false;
-                }
-            }
+            commit(false); // false: do not validate mail connection now
+            return askSaveWhenChanged(i18n("Confirm Termination"), trolley.getHikeFile() != null);
         }
         finally {
             setDefaultCursor();
         }
-        
-        return true;
     }
 
-    private void saveHikeToFile() throws IOException {
-        throw new RuntimeException("Implement me");
+    /**
+     * Opens a Save-dialog when hike was changed.
+     * @return true when no error happened or user answered "No", else false ("Cancel").
+     */
+    protected boolean askSaveWhenChanged(String title, boolean alsoOpenFileChooserDialog) {
+        if (trolley.isHikeChanged()) {
+            final int saveChanges = JOptionPane.showConfirmDialog(
+                    getFrame(), 
+                    i18n("Save hike inputs?"), 
+                    title, 
+                    JOptionPane.YES_NO_CANCEL_OPTION, 
+                    JOptionPane.QUESTION_MESSAGE);
+            
+            if (saveChanges == JOptionPane.YES_OPTION)
+                return saveHikeToFile(alsoOpenFileChooserDialog);
+            else if (saveChanges == JOptionPane.CANCEL_OPTION)
+                return false;
+        }
+        return true; // no change detected, or answer was "No"
+    }
+
+    /** Writes current hike data silently to the default file "hike.json". */
+    protected void writeDefaultHikeJson() {
+        final String json = new JsonGsonSerializer<Hike>().toJson(getHike());
+        final HikeFileManager hikeFileManager = new HikeFileManager();
+        try {
+            hikeFileManager.save(json);
+        }
+        catch (IOException e) {
+            System.err.println("Could not save to base file "+hikeFileManager.getSaveFile()+", error was "+e);
+        }
+    }
+    
+    
+    /**
+     * Called by windowClose() on any page, and from ActivationPage.commit().
+     * @param alsoOpenFileChooserDialog true when coming from ActivationPage.commit(),
+     *      or from windowClose() when trolley.getHikeFile() != null;
+     *      false when coming from windowClose() and trolley.getHikeFile() == null.
+     */
+    private boolean saveHikeToFile(boolean alsoOpenFileChooserDialog) {
+        // TODO: implement alsoOpenFileChooserDialog
+        //      Target is to save hike_2026-01-28.json,
+        //      this suggested file name should contain hike.getPlannedBegin()
+        try {
+            final HikeFileManager hikeFileManager = new HikeFileManager();
+            final String json = new JsonGsonSerializer<Hike>().toJson(getHike());
+            
+            final File hikeFile = trolley.getHikeFile();
+            if (hikeFile != null) // user explicitly loaded a file
+                hikeFileManager.save(hikeFile.getAbsolutePath(), json);
+            else
+                hikeFileManager.save(json);
+            
+            final String pathAndName[] = hikeFileManager.getSavePathAndFilename();
+            final JTextField fileName = SwingUtil.buildTextField(i18n("File Name"), null, pathAndName[1]);
+            final JTextField path = SwingUtil.buildTextField(i18n("Path"), null, pathAndName[0]);
+            final JPanel panel = new JPanel(new GridLayout(2, 1));
+            panel.add(fileName);
+            panel.add(path);
+            JOptionPane.showMessageDialog(
+                    getFrame(),
+                    panel,
+                    i18n("Success"),
+                    JOptionPane.ERROR_MESSAGE);
+            return true;
+        }
+        catch (Exception e) {
+            JOptionPane.showMessageDialog(
+                    getFrame(),
+                    e.toString(),
+                    i18n("Error"),
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
     }
 
     /** @return parent for any dialog. */

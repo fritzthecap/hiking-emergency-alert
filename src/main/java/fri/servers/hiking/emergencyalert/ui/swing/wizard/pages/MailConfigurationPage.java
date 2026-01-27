@@ -238,6 +238,8 @@ public class MailConfigurationPage extends AbstractWizardPage
 
         commitToMailConfiguration(getHike().getAlert().getMailConfiguration());
         
+        writeDefaultHikeJson(); // silently save base data before going to route and times
+        
         return true;
     }
     

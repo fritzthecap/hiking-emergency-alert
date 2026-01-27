@@ -1,7 +1,4 @@
 
-Language choice must be done before wizard starts,
-    else refresh of UI will be difficult!
-
 Required input fields must be marked somehow.
 
 Passing-to-next mail text should be optional, not mandatory.

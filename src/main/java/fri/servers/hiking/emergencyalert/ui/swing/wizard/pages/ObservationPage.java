@@ -84,12 +84,10 @@ public class ObservationPage extends AbstractWizardPage
         consoleOut = new JTextArea();
         consoleOut.setEditable(false);
         consoleOut.setBackground(new Color(0, 255, 0, 42)); // LIGHT_GREEN
-        Log.redirectOut(consoleOut);
         
         consoleErr = new JTextArea();
         consoleErr.setEditable(false);
         consoleErr.setBackground(new Color(255, 0, 0, 42)); // LIGHT_RED
-        Log.redirectErr(consoleErr);
         
         // bottom
         homeAgainListener = new ActionListener() {
@@ -105,8 +103,8 @@ public class ObservationPage extends AbstractWizardPage
         instructionsPanel.add(instructionsArea, BorderLayout.CENTER);
         
         final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setTopComponent(scrollPaneForColoredConsole(splitPane, consoleOut, "Progress"));
-        splitPane.setBottomComponent(scrollPaneForColoredConsole(splitPane, consoleErr, "Errors"));
+        splitPane.setTopComponent(scrollPaneForColoredConsole(splitPane, consoleOut, i18n("Progress")));
+        splitPane.setBottomComponent(scrollPaneForColoredConsole(splitPane, consoleErr, i18n("Errors")));
         splitPane.setResizeWeight(0.5);
         
         final JPanel buttonPanel = new JPanel(new FlowLayout()); // centers button
@@ -149,6 +147,10 @@ public class ObservationPage extends AbstractWizardPage
                 if (authenticator != null)
                     getStateMachine().getMailer().setCheckedAuthentication(authenticator);
                 
+                // no more UI-exceptions possible here, redirect System outputs to UI now
+                Log.redirectOut(consoleOut);
+                Log.redirectErr(consoleErr);
+                
                 // change to state HikeActivated
                 getStateMachine().getUserInterface().activateHike(hike);
             }
@@ -162,7 +164,7 @@ public class ObservationPage extends AbstractWizardPage
 
     private JScrollPane scrollPaneForColoredConsole(final JSplitPane splitPane, JTextArea console, String title) {
         final JScrollPane scrollPane = new JScrollPane(console);
-        scrollPane.setBorder(BorderFactory.createTitledBorder(i18n(title)));
+        scrollPane.setBorder(BorderFactory.createTitledBorder(title));
         
         // workaround for the Swing repaint bug when textArea is opaque and has a background color
         final AdjustmentListener scrollBarListener = new AdjustmentListener() {
@@ -189,7 +191,7 @@ public class ObservationPage extends AbstractWizardPage
         if (message != null) {
             message += "\n\n"+
                     i18n("Press 'Yes' if that is you, ")+getHike().getAlert().getNameOfHiker()+",\n"+
-                    i18n("or 'No' to continue the running observation."+"\n");
+                    i18n("or 'No' to continue the running observation.")+"\n";
             final int response = JOptionPane.showConfirmDialog(
                     getFrame(),
                     message,

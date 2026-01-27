@@ -2,6 +2,7 @@ package fri.servers.hiking.emergencyalert.persistence;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Objects;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -23,7 +24,7 @@ public class JsonGsonSerializer<T>
     
     private Gson gson;
 
-    /** Serialize given Java-object to a JSON string. */
+    /** Serializes given Java-object to a JSON string. */
     public String toJson(T object) {
         // serialize to JSON
         final Gson gson = gson();
@@ -47,11 +48,21 @@ public class JsonGsonSerializer<T>
 
     }
     
-    /** De-serialize a Java-object from given JSON string. */
+    /**
+     * De-serialize a Java-object from given JSON string.
+     * An exception is thrown if the JSON string has multiple top-level JSON elements, 
+     * or if there is trailing data. 
+     * @param json the JSON text to parse.
+     * @param clazz the target type of the resulting Java object.
+     * @returns an object of type T from the string. 
+     * @throws JsonSyntaxException if json is not a valid representation 
+     *      for an object of type T.
+     * @throws NullPointerException if returned object is null.
+     */
     public T fromJson(String json, Class<? extends T> clazz) throws IOException {
         try {
             final Gson gson = gson();
-            return gson.fromJson(json, clazz);
+            return Objects.requireNonNull(gson.fromJson(json, clazz));
         }
         catch (JsonSyntaxException e) {
             throw new IOException(e);

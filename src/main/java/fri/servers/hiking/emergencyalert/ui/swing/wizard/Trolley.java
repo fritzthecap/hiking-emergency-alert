@@ -1,5 +1,6 @@
 package fri.servers.hiking.emergencyalert.ui.swing.wizard;
 
+import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.io.File;
 import java.util.Objects;
 import javax.swing.JButton;
@@ -13,19 +14,27 @@ import jakarta.mail.Authenticator;
  */
 public class Trolley
 {
+    static String buildNextButtonText() {
+        return i18n("Next")+" >";
+    }
+    static String buildPreviousButtonText() {
+        return "< "+i18n("Previous");
+    }
+    
     public final StateMachine stateMachine;
     private final JButton nextButton, previousButton;
-    private final String hikeCopy;
+    private String hikeCopy;
     private File hikeFile;
     
     private Authenticator authenticator;
     
     public Trolley(StateMachine stateMachine, JButton nextButton, JButton previousButton) {
         this.stateMachine = Objects.requireNonNull(stateMachine);
+        
         this.nextButton = nextButton;
         this.previousButton = previousButton;
-        
-        this.hikeCopy = hikeToJsonString(stateMachine.getHike());
+
+        refreshHikeCopy();
     }
     
     /** @return true when the hike was changed by the UI, done by comparison with a deep clone. */
@@ -55,6 +64,17 @@ public class Trolley
     }
     public void setPreviousEnabled(boolean enabled) {
         previousButton.setEnabled(enabled);
+    }
+    
+    /** Called on language change. */
+    public void refreshLanguage() {
+        nextButton.setText(buildNextButtonText());
+        previousButton.setText(buildPreviousButtonText());
+    }
+    
+    /** Called when loading a hike-file. */
+    public void refreshHikeCopy() {
+        this.hikeCopy = hikeToJsonString(stateMachine.getHike());
     }
     
     private String hikeToJsonString(Hike hike) {

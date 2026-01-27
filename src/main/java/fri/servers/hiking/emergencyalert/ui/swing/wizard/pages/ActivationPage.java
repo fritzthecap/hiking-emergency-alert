@@ -160,6 +160,8 @@ public class ActivationPage extends AbstractWizardPage
             
             if (response != JOptionPane.YES_OPTION)
                 return false;
+            
+            return askSaveWhenChanged(i18n("Data were changed"), true);
         }
         return true; // nothing else to commit here
     }

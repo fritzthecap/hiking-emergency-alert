@@ -15,7 +15,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -28,62 +27,67 @@ import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 import fri.servers.hiking.emergencyalert.util.Language;
 
 /**
- * Choose your UI language.
+ * Choose your UI language and/or load a hike file.
  */
-public class LanguagePage extends AbstractWizardPage
+public class LanguageAndFileLoadPage extends AbstractWizardPage
 {
+    private final Item[] languageItems = new Item[] {
+            new Item("English", Locale.ENGLISH),
+            new Item("Deutsch", Locale.GERMAN),
+            new Item("Français", Locale.FRENCH),
+            new Item("Italiano", Locale.ITALIAN),
+            new Item("Español", Language.toLocale("es")),
+    };
+    
     private JComboBox<Item> languageChoiceField;
-    private JCheckBox autoLoadSameFile;
+    private JButton loadFile;
+    //private JCheckBox autoLoadSameFile;
     private FileChooser fileChooser;
     
     private final ItemListener languageSelectionListener = new ItemListener() {
         @Override
         public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED)
-                loadStringResources(getSelectedLocale());
+                rebuildWithNewLanguage(getSelectedLocale(), true);
+        }
+    };
+    
+    private final ActionListener loadFileListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            loadHike();
         }
     };
 
+    /** Language for title would not get updated, so return no title! */
     @Override
     protected String getTitle() {
-        return ""; //i18n("File and Language");
+        return "";
     }
     
     @Override
     protected void buildUi() {
-        fileChooser = new FileChooser(getContentPanel(), null);    
+        fileChooser = new FileChooser(getContentPanel(), null);
         
-        languageChoiceField = new JComboBox<Item>();
-        
-        languageChoiceField.addItem(new Item("English", Locale.ENGLISH));
-        languageChoiceField.addItem(new Item("Deutsch", Locale.GERMAN));
-        languageChoiceField.addItem(new Item("Français", Locale.FRENCH));
-        languageChoiceField.addItem(new Item("Italiano", Locale.ITALIAN));
-        languageChoiceField.addItem(new Item("Español", Language.toLocale("es")));
+        languageChoiceField = new JComboBox<Item>(); // does NOT yet consider hike language!
+        for (Item item : languageItems)
+            languageChoiceField.addItem(item);
         
         languageChoiceField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createTitledBorder(i18n("Choose Your Language")),
                 BorderFactory.createEmptyBorder(6, 8, 8, 8)));
-        
         languageChoiceField.setPreferredSize(new Dimension(180, 70));
         
         languageChoiceField.addItemListener(languageSelectionListener);
         
-        final JButton loadFile = new JButton(i18n("Choose Hike File"));
+        loadFile = new JButton(i18n("Choose Hike File"));
         loadFile.setToolTipText(i18n("If you don't load a file, the default file will be used for optionally saving your inputs"));
-        loadFile.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final File[] hikeFile = fileChooser.open(true, "hike"); // extension
-                if (hikeFile != null)
-                    loadHike(hikeFile[0]);
-            }
-        });
+        loadFile.addActionListener(loadFileListener);
         loadFile.setAlignmentX(JComponent.CENTER_ALIGNMENT);
         
-        final JCheckBox autoLoadSameFile = new JCheckBox(i18n("Next Time Load It Automatically"));
-        autoLoadSameFile.setToolTipText(i18n("When activated, the inputs from the chosen file will be used next time"));
-        autoLoadSameFile.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        //autoLoadSameFile = new JCheckBox(i18n("Next Time Load It Automatically"), true);
+        //autoLoadSameFile.setToolTipText(i18n("When activated, the inputs from the chosen file will be used next time"));
+        //autoLoadSameFile.setAlignmentX(JComponent.CENTER_ALIGNMENT);
         
         // layout
         
@@ -91,7 +95,7 @@ public class LanguagePage extends AbstractWizardPage
         loadFilePanel.setLayout(new BoxLayout(loadFilePanel, BoxLayout.Y_AXIS));
         loadFilePanel.add(Box.createVerticalGlue());
         loadFilePanel.add(loadFile);
-        loadFilePanel.add(autoLoadSameFile);
+        //loadFilePanel.add(autoLoadSameFile);
         loadFilePanel.add(Box.createVerticalGlue());
         
         final JPanel languageCenterPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -106,19 +110,19 @@ public class LanguagePage extends AbstractWizardPage
         getContentPanel().add(centerPanel);
     }
     
+    /** Adjusts <code>languageChoiceField</code> to the hike's language. */
     @Override
     protected void populateUi(Hike hike) {
-        final Locale selectedLocale = getSelectedLocale();
-        final Locale hikeLocale = getHikeLocale(hike);
-        if (hikeLocale != null && selectedLocale.equals(hikeLocale) == false) {
+        final Locale newLocale = isUiLanguageChanged(hike);
+        if (newLocale != null) {
             for (int i = 0; i < languageChoiceField.getItemCount(); i++) {
                 final Item item = languageChoiceField.getItemAt(i);
-                if (item.locale.equals(hikeLocale)) {
-                    // to avoid recursion and stackoverflow we must remove the listener
+                
+                if (item.locale.equals(newLocale)) {
+                    // avoid endless recursion through loadStringResources(),
+                    // because selected item always will be ENGLISH after buildUi()
                     languageChoiceField.removeItemListener(languageSelectionListener);
-                    
                     languageChoiceField.setSelectedItem(item);
-                    
                     languageChoiceField.addItemListener(languageSelectionListener);
                 }
             }
@@ -132,19 +136,39 @@ public class LanguagePage extends AbstractWizardPage
     }
     
 
-    private void loadStringResources(Locale locale) {
-        commit(true);
+    /** Called with true when another language gets selected by user. Rebuilds the whole UI. */
+    private void rebuildWithNewLanguage(Locale locale, boolean commitLanguageToHike) {
+        if (commitLanguageToHike)
+            commit(true);
         
+        // for correctness, remove listeners before rebuilding UI
+        languageChoiceField.removeItemListener(languageSelectionListener);
+        loadFile.removeActionListener(loadFileListener);
+        
+        // load text resources of selected language
         Language.load(locale);
         
+        // rebuild the complete UI
         getContentPanel().removeAll();
+        
         buildUi();
         populateUi(getHike());
         
         getContentPanel().revalidate();
         getContentPanel().repaint();
+        
+        getTrolley().refreshLanguage(); // changes texts on wizard buttons
     }
+    
 
+    private Locale isUiLanguageChanged(Hike hike) {
+        final Locale selectedLocale = getSelectedLocale();
+        final Locale hikeLocale = getHikeLocale(hike);
+        return (hikeLocale != null && selectedLocale.equals(hikeLocale) == false) 
+                ? hikeLocale
+                : null;
+    }
+    
     private Locale getSelectedLocale() {
         return ((Item) languageChoiceField.getSelectedItem()).locale;
     }
@@ -160,16 +184,26 @@ public class LanguagePage extends AbstractWizardPage
         }
     }
     
+    private void loadHike() {
+        final File[] hikeFile = fileChooser.open(true, "json"); // extension
+        if (hikeFile != null)
+            loadHike(hikeFile[0]);
+    }
+    
     private void loadHike(File hikeFile) {
         try {
             final String hikeJson = new HikeFileManager().load(hikeFile.getAbsolutePath());
             final Hike hike = new JsonGsonSerializer<Hike>().fromJson(hikeJson, Hike.class);
-            getStateMachine().getUserInterface().registerHike(hike);
+            getStateMachine().getUserInterface().registerHike(hike); // getHike() will return new hike now
             
-            populateUi(hike);
+            final Locale newLocale = isUiLanguageChanged(hike);
+            if (newLocale != null) // the language of the loaded hike is different from current one
+                rebuildWithNewLanguage(newLocale, false);
             
             // when no error occurred until now, we can use this as save-file
             getTrolley().setHikeFile(hikeFile);
+            // refresh the hike copy used to detect changes
+            getTrolley().refreshHikeCopy();
         }
         catch (Exception e) {
             showError(e);
@@ -185,7 +219,6 @@ public class LanguagePage extends AbstractWizardPage
         System.err.println(e.toString());
     }
 
-    
     
     private static class Item // Language JComboBox Item
     {

@@ -1,6 +1,5 @@
 package fri.servers.hiking.emergencyalert.ui.swing.wizard;
 
-import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -21,6 +20,8 @@ import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.*;
+import fri.servers.hiking.emergencyalert.util.Language;
+import fri.servers.hiking.emergencyalert.util.StringUtil;
 
 /**
  * Lets edit <code>Hike</code> data, on a number of pages,
@@ -36,11 +37,11 @@ public class HikeWizard extends JPanel
     private JButton nextButton;
     
     private AbstractWizardPage[] pages = new AbstractWizardPage[] {
-        new LanguagePage(),
+        new LanguageAndFileLoadPage(),
         new ContactsPage(),
         new MailTextsPage(),
-        new RouteAndTimesPage(),
         new MailConfigurationPage(),
+        new RouteAndTimesPage(),
         new ActivationPage(),
         new ObservationPage(),
     };
@@ -64,7 +65,14 @@ public class HikeWizard extends JPanel
         
         add(leftSplitPane, BorderLayout.CENTER);
         
+        // START keep order of statements!
+        final boolean fileLoaded = readDefaultHikeAndLoadLanguage();
         buildUi();
+        if (fileLoaded)
+            pageIndex = 1; // skip language/file page
+        
+        changePage(pageIndex, true);
+        // END keep order of statements!
         
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
@@ -88,26 +96,50 @@ public class HikeWizard extends JPanel
             ((ObservationPage) page()).alertConfirmed();
     }
 
-    private void buildUi() {
+    
+    private boolean readDefaultHikeAndLoadLanguage() {
         final String defaultHikeJson = readDefaultHikeJson();
+        boolean fileLoaded = false;
         if (defaultHikeJson != null) {
             try {
-                final Hike hike = new JsonGsonSerializer<Hike>().fromJson(defaultHikeJson, Hike.class);
-                stateMachine.getUserInterface().registerHike(hike);
-                pageIndex = mailConfigurationPageIndex(); // for entering password
+                final Hike recentHike = new JsonGsonSerializer<Hike>().fromJson(defaultHikeJson, Hike.class);
+                final Hike newHike = new Hike(); // do not use recent route and times
+                newHike.setAlert(recentHike.getAlert()); // but reuse contacts and mail configuration
+                
+                stateMachine.getUserInterface().registerHike(newHike);
+                fileLoaded = true;
             }
-            catch (IOException e) {
+            catch (Exception e) {
                 JOptionPane.showMessageDialog(frame, e.toString());
             }
         }
-        contentPanel.add(buildButtonBar(), BorderLayout.SOUTH);
-        changePage(0, true);
+        
+        // before building UI, load a language resource-bundle
+        final String hikeLanguage = stateMachine.getHike().getAlert().getIso639Language();
+        if (StringUtil.isNotEmpty(hikeLanguage))
+            Language.load(hikeLanguage);
+        else
+            Language.load(); // default language
+        
+        return fileLoaded;
     }
     
-    private JPanel buildButtonBar() {
-        this.previousButton = new JButton("< "+i18n("Previous")); // is disabled only 
+    private String readDefaultHikeJson() {
+        try {
+            final HikeFileManager hikeFileManager = new HikeFileManager();
+            final String json = hikeFileManager.load();
+            return json;
+        }
+        catch (IOException e) { // ignore missing default file
+            System.err.println(e.toString());
+            return null;
+        }
+    }
+    
+    private void buildUi() {
+        this.previousButton = new JButton(Trolley.buildPreviousButtonText()); // is disabled only 
         
-        this.nextButton = new JButton(i18n("Next")+" >");
+        this.nextButton = new JButton(Trolley.buildNextButtonText());
         SwingUtil.makeComponentFocusable(nextButton); // click on even disabled button will trigger validation
 
         final ActionListener browsePagesListener = new ActionListener() {
@@ -130,27 +162,11 @@ public class HikeWizard extends JPanel
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         panel.add(grid);
         
-        return panel;
-    }
-
-    private String readDefaultHikeJson() {
-        try {
-            return new HikeFileManager().load();
-        }
-        catch (IOException e) { // ignore missing default file
-            return null;
-        }
-    }
-    
-    private int mailConfigurationPageIndex() {
-        for (int i = 0; i < pages.length; i++)
-            if (pages[i] instanceof MailConfigurationPage)
-                return i;
-        throw new IllegalStateException("MailConfigurationPage not in pages!");
+        contentPanel.add(panel, BorderLayout.SOUTH);
     }
 
     private void changePage(int newIndex, boolean isFirstCall) {
-        final boolean goingForward = isFirstCall || (pageIndex < newIndex);
+        final boolean goingForward = (isFirstCall || pageIndex < newIndex);
         final AbstractWizardPage oldPage = page();
         
         final Trolley trolley;
