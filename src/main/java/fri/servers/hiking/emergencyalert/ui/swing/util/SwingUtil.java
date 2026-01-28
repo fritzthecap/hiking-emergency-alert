@@ -1,7 +1,9 @@
 package fri.servers.hiking.emergencyalert.ui.swing.util;
 
-import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.NumberFormat;
@@ -9,6 +11,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
@@ -22,6 +25,32 @@ import javax.swing.text.NumberFormatter;
 
 public final class SwingUtil
 {
+    public static JButton getSmallButton(String label, String tooltip, ActionListener action) {
+        final JButton button = new JButton(label);
+        increaseFontSize(Font.BOLD, 14f, button);
+        button.setToolTipText(tooltip);
+        button.addActionListener(action);
+        forceSize(button, new Dimension(52, 24));
+        return button;
+    }
+
+    public static JComponent increaseFontSize(int fontStyle, float size, JComponent component) {
+        component.setFont(component.getFont().deriveFont(fontStyle, size));
+        return component;
+    }
+
+    public static JButton getAddOrRemoveButton(boolean isAdd, String tooltip, ActionListener action) {
+        return getSmallButton(isAdd ? "+" : "-", tooltip, action);
+    }
+    
+    public static JComponent forceSize(final JComponent component, Dimension size) {
+        component.setPreferredSize(size);
+        component.setMaximumSize(size);
+        component.setMinimumSize(size);
+        return component;
+    }
+    
+    
     public static JTextField buildTextField(String title, String tooltip, String initialValue) {
         final JTextField field = new JTextField();
         setTitleAndTooltip(title, tooltip, field);

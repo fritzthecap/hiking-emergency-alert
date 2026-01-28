@@ -9,12 +9,10 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
+import java.util.Date;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -24,7 +22,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
-import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.ui.swing.util.FileChooser;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
@@ -94,23 +91,17 @@ public abstract class AbstractWizardPage
      * @param trolley contains StateMachine, Hike and other data passed between pages.
      */
     public final void enter(Trolley trolley, boolean goingForward) {
-        setWaitCursor();
-        try {
-            this.trolley = trolley;
-            if (uiWasBuilt == false) {
-                titleField.setText(getTitle());
-                buildUi();
-                uiWasBuilt = true;
-            }
-            
-            populateUi(trolley.stateMachine.getHike());
-            
-            if (goingForward)
-                validate();
+        this.trolley = trolley;
+        if (uiWasBuilt == false) {
+            titleField.setText(getTitle());
+            buildUi();
+            uiWasBuilt = true;
         }
-        finally {
-            setDefaultCursor();
-        }
+        
+        populateUi(trolley.stateMachine.getHike());
+        
+        if (goingForward)
+            validate();
     }
 
     /**
@@ -141,18 +132,12 @@ public abstract class AbstractWizardPage
      * @return null when <code>commit()</code> returned null, else the trolley.
      */
     public final Trolley leave(boolean goingForward) {
-        setWaitCursor();
-        try {
-            if (goingForward) {
-                final boolean valid = validate();
-                if (valid == false)
-                    return null;
-            }
-            return commit(goingForward) ? trolley : null;
+        if (goingForward) {
+            final boolean valid = validate();
+            if (valid == false)
+                return null;
         }
-        finally {
-            setDefaultCursor();
-        }
+        return commit(goingForward) ? trolley : null;
     }
 
     /**
@@ -170,21 +155,15 @@ public abstract class AbstractWizardPage
      * @return true when user clicked NO or save succeeded, else false.
      */
     public boolean windowClosing() {
-        setWaitCursor();
-        try {
-            commit(false); // false: do not validate mail connection now
-            return askSaveWhenChanged(i18n("Confirm Termination"), (trolley.getHikeFile() != null));
-        }
-        finally {
-            setDefaultCursor();
-        }
+        commit(false); // false: do not validate mail connection now
+        return askForSaveWhenChanged(i18n("Confirm Termination"), (trolley.getHikeFile() != null));
     }
 
     /**
      * Opens a Save-dialog when hike was changed.
      * @return true when no error happened or user answered "No", else false ("Cancel").
      */
-    protected boolean askSaveWhenChanged(String title, boolean letChooseTargetFile) {
+    protected boolean askForSaveWhenChanged(String title, boolean letChooseTargetFile) {
         if (trolley.isHikeChanged()) {
             final int saveChanges = JOptionPane.showConfirmDialog(
                     getFrame(), 
@@ -201,7 +180,22 @@ public abstract class AbstractWizardPage
         return true; // no change detected, or answer was "No"
     }
 
-
+    /** Reused logic to verify hike times. */
+    protected String validateHikeTimes(Date beginDateTime, Date homeDateTime) {
+        final Date now = DateUtil.now();
+        
+        final long millisInFuture = homeDateTime.getTime() - now.getTime();
+        if (millisInFuture / 60000 < 1) // home must be at least one minute after now
+            return i18n("The planned end time must be in future!");
+        
+        final long durationMillis = homeDateTime.getTime() - beginDateTime.getTime();
+        if (durationMillis / 60000 < 1) // duration must be at least one minute 
+            return i18n("The planned end time must be after begin!");
+        
+        return null;
+    }
+    
+    
     /** @return parent for any dialog. */
     protected final JFrame getFrame() {
         return (JFrame) SwingUtilities.windowForComponent(addablePanel);
@@ -227,36 +221,12 @@ public abstract class AbstractWizardPage
         return getStateMachine().getHike();
     }
     
-    protected final JButton getSmallButton(String label, String tooltip, ActionListener action) {
-        final JButton button = new JButton(label);
-        increaseFontSize(Font.BOLD, 14f, button);
-        button.setToolTipText(tooltip);
-        button.addActionListener(action);
-        forceSize(button, new Dimension(52, 24));
-        return button;
-    }
-
-    protected final JComponent increaseFontSize(int fontStyle, float size, JComponent component) {
-        component.setFont(component.getFont().deriveFont(fontStyle, size));
-        return component;
-    }
-
-    protected final JButton getAddOrRemoveButton(boolean isAdd, String tooltip, ActionListener action) {
-        return getSmallButton(isAdd ? "+" : "-", tooltip, action);
-    }
-    
-    protected final JComponent forceSize(final JComponent component, Dimension size) {
-        component.setPreferredSize(size);
-        component.setMaximumSize(size);
-        component.setMinimumSize(size);
-        return component;
-    }
-    
     protected final void setWaitCursor() {
         final Container contentPane = (getFrame() != null) ? getFrame().getContentPane() : null;
         if (contentPane != null)
             getFrame().getContentPane().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     }
+    
     protected final void setDefaultCursor() {
         final Container contentPane = (getFrame() != null) ? getFrame().getContentPane() : null;
         if (contentPane != null)
@@ -275,8 +245,7 @@ public abstract class AbstractWizardPage
         final HikeFileManager hikeFileManager = new HikeFileManager();
         final File targetFile;
         
-        if (letChooseTargetFile) {
-            // target is to save e.g. to hike_2026-01-28.json where 2026-01-28 is the hike begin date
+        if (letChooseTargetFile) { // target is to save e.g. to hike_2026-01-28.json 
             targetFile = chooseSaveFile(hikeFile, hikeFileManager);
             if (targetFile == null) // save dialog was canceled
                 return false;
@@ -286,35 +255,14 @@ public abstract class AbstractWizardPage
         }
         
         try {
-            final String json = new JsonGsonSerializer<Hike>().toJson(getHike());
-            
-            if (targetFile != null) // user explicitly chose a file
-                hikeFileManager.save(targetFile.getAbsolutePath(), json);
-            else
-                hikeFileManager.save(json);
-            
-            final JTextField fileName = SwingUtil.buildTextField(i18n("File Name"), null, hikeFileManager.getSaveFilename());
-            final JTextField path = SwingUtil.buildTextField(i18n("Path"), null, hikeFileManager.getSavePath());
-            final JPanel panel = new JPanel(new GridLayout(2, 1));
-            panel.add(fileName);
-            panel.add(path);
-            JOptionPane.showMessageDialog(
-                    getFrame(),
-                    panel,
-                    i18n("Success"),
-                    JOptionPane.ERROR_MESSAGE);
-            return true;
+            trolley.save(hikeFileManager, targetFile, getHike());
+            return showSaveSuccessDialog(hikeFileManager);
         }
         catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                    getFrame(),
-                    e.toString(),
-                    i18n("Error"),
-                    JOptionPane.ERROR_MESSAGE);
-            return false;
+            return showSaveErrorDialog(e);
         }
     }
-    
+
     private File chooseSaveFile(File hikeFile, HikeFileManager hikeFileManager) {
         // target is to save e.g. to hike_2026-01-28.json where 2026-01-28 is the hike begin date
         final String directory = (hikeFile != null) ? hikeFile.getParent() : hikeFileManager.getSavePath();
@@ -322,18 +270,42 @@ public abstract class AbstractWizardPage
         if (saveFileChooser == null)
             saveFileChooser = new FileChooser(getContentPanel(), directory);
         
-        final File suggestedFile = (hikeFile != null) ? hikeFile : createFilenameFromHike(directory);
-        final File targetFile = saveFileChooser.save(suggestedFile);
-        
-        if (targetFile != null && targetFile.getName().equals(hikeFileManager.getSaveFilename()) == false)
-            trolley.setHikeFile(targetFile); // file was chosen by dialog, and it was not the default file
-        
-        return targetFile;
+        final String saveFilename = hikeFileManager.getSaveFilename();
+        final File suggestedFile = (hikeFile != null) ? hikeFile : createFilenameFromHike(directory, saveFilename);
+        return saveFileChooser.save(suggestedFile);
     }
 
-    private File createFilenameFromHike(String directory) {
+    private File createFilenameFromHike(String directory, String saveFilename) {
+        final String baseName = saveFilename.substring(0, saveFilename.lastIndexOf("."));
         final String beginDay = DateUtil.toDateString(getHike().getPlannedBegin());
-        final String fileName = "hike_"+beginDay+".json";
-        return new File(directory, fileName);
+        final String customName = baseName+"_"+beginDay+".json";
+        return new File(directory, customName);
+    }
+
+    private boolean showSaveSuccessDialog(final HikeFileManager hikeFileManager) {
+        final JTextField fileNameField = SwingUtil.buildTextField(i18n("File Name"), null, hikeFileManager.getSaveFilename());
+        fileNameField.setEditable(false);
+        final JTextField pathField = SwingUtil.buildTextField(i18n("Path"), null, hikeFileManager.getSavePath());
+        pathField.setEditable(false);
+        
+        final JPanel panel = new JPanel(new GridLayout(2, 1));
+        panel.add(fileNameField);
+        panel.add(pathField);
+        
+        JOptionPane.showMessageDialog(
+                getFrame(),
+                panel,
+                i18n("Success"),
+                JOptionPane.INFORMATION_MESSAGE);
+        return true;
+    }
+    
+    private boolean showSaveErrorDialog(Exception e) {
+        JOptionPane.showMessageDialog(
+                getFrame(),
+                e.toString(),
+                i18n("Error"),
+                JOptionPane.ERROR_MESSAGE);
+        return false;
     }
 }

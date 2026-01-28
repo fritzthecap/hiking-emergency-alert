@@ -42,8 +42,10 @@ public class IntervalModel
             minutes = alertIntervalMinutes;
         }
         
-        // in any case shrink alertIntervalMinutes for the case that index runs out of bounds
-        alertIntervalMinutes = Math.round((float) alertIntervalMinutes * alertIntervalShrinking);
+        // in any case shrink alertIntervalMinutes for the case that contact-index runs out of bounds
+        final int minusMinutes = Math.round((float) alertIntervalMinutes * alertIntervalShrinking);
+        alertIntervalMinutes = Math.max(1, Math.round((float) alertIntervalMinutes - minusMinutes));
+        // never get smaller than one minute
         
         return minutes;
     }

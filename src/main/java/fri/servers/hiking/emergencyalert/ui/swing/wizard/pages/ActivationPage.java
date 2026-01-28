@@ -52,7 +52,7 @@ public class ActivationPage extends AbstractWizardPage
                 i18n("Hike Times"), 
                 i18n("Please check your inputs, go back and correct them if wrong"), 
                 null);
-        increaseFontSize(Font.BOLD, 14, hikeTimes);
+        SwingUtil.increaseFontSize(Font.BOLD, 14, hikeTimes);
         hikeTimes.setEditable(false);
         hikeTimes.setBackground(Color.WHITE);
         hikeTimes.setHorizontalAlignment(JTextField.CENTER);
@@ -146,6 +146,17 @@ public class ActivationPage extends AbstractWizardPage
         passingToNextMailText.setText(passingToNextMail.text());
     }
     
+    /**
+     * Check if times are still valid.
+     * When coming back from observation, or this page was open for a while,
+     * times could have slipped into past.
+     */
+    @Override
+    protected String validateFields() {
+        final Hike hike = getHike();
+        return validateHikeTimes(hike.getPlannedBegin(), hike.getPlannedHome());
+    }
+    
     @Override
     protected boolean commit(boolean goingForward) {
         if (goingForward) {
@@ -161,7 +172,7 @@ public class ActivationPage extends AbstractWizardPage
             if (response != JOptionPane.YES_OPTION)
                 return false;
             
-            return askSaveWhenChanged(i18n("Data were changed"), true);
+            return askForSaveWhenChanged(i18n("Data were changed"), true);
         }
         return true; // nothing else to commit here
     }

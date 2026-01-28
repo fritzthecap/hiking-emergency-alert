@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.stream.Stream;
 import fri.servers.hiking.emergencyalert.util.Platform;
+import fri.servers.hiking.emergencyalert.util.StringUtil;
 
 /**
  * Files and directories to save and load hikes.
@@ -20,7 +21,7 @@ public class HikeFileManager
     private static final String DEFAULT_JSON_FILEPATH;
     
     static {
-        final String fileName = System.getProperty("hike.file", "hike.json");
+        final String fileName = System.getProperty("hike.file", "hike.json"); // property name, default value
         final boolean invalidFileProperty = (true == fileName.contains(File.separator));
         if (invalidFileProperty) {
             System.err.println("ERROR: System property 'hike.file' must NOT contain a file-separator character!");
@@ -32,7 +33,7 @@ public class HikeFileManager
         }
         
         final String directory = System.getProperty("hike.home");
-        final boolean propertyEmpty = (directory == null);
+        final boolean propertyEmpty = StringUtil.isEmpty(directory);
         final boolean invalidDirectoryProperty = (false == propertyEmpty && false == directory.contains(File.separator));
         if (propertyEmpty || invalidDirectoryProperty) {
             if (invalidDirectoryProperty)
@@ -45,8 +46,8 @@ public class HikeFileManager
         
         DEFAULT_JSON_FILEPATH = DEFAULT_JSON_PATH + File.separatorChar + DEFAULT_JSON_FILE;
         
-        System.err.println("Default JSON file name is '"+DEFAULT_JSON_FILE+"'");
-        System.err.println("Default JSON directory is '"+DEFAULT_JSON_PATH+"'");
+        System.out.println("Default JSON directory (property 'hike.home') is '"+DEFAULT_JSON_PATH+"'");
+        System.out.println("Default JSON filename (property 'hike.file') is '"+DEFAULT_JSON_FILE+"'");
     }
     
     public String load() throws IOException {
@@ -57,6 +58,8 @@ public class HikeFileManager
         final Path jsonFile = Path.of(jsonFilePath);
         if (Files.isRegularFile(jsonFile)) {
             final String hikeJson = Files.readString(jsonFile, Platform.CHARSET);
+            System.out.println("Loaded hike from file "+jsonFile);
+            
             if (JAVA_NEWLINE.equals(Platform.NEWLINE) == false)
                 return hikeJson.replace(Platform.NEWLINE, JAVA_NEWLINE);
             return hikeJson;
@@ -87,6 +90,8 @@ public class HikeFileManager
                 StandardOpenOption.WRITE, 
                 StandardOpenOption.TRUNCATE_EXISTING, 
                 StandardOpenOption.CREATE);
+        
+        System.out.println("Saved hike to file "+saveFile);
     }
 
     /** Delivers the default save directory, excluding file-name. */

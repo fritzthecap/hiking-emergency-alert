@@ -27,7 +27,7 @@ public class Hike
     private Date plannedHome = suggestedEnd; // timer begins alerting here
     
     private int alertIntervalMinutes = 60; // alerting interval
-    private float alertIntervalShrinking = 1.0f; // how the interval gets smaller over time
+    private float alertIntervalShrinking = 0.0f; // how the interval gets smaller with every alert, by default no shrinking
     private boolean useContactDetectionMinutes;
     
     private int confirmationPollingMinutes = 2; // confirmation polling interval

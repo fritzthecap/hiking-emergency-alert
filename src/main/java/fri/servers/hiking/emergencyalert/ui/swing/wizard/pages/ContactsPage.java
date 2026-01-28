@@ -43,6 +43,9 @@ import fri.servers.hiking.emergencyalert.util.StringUtil;
  */
 public class ContactsPage extends AbstractWizardPage
 {
+    private static final int MAXIMUM_INTERVAL_SHRINKING_PERCENT = 75;
+    private static final int MINIMUM_INTERVAL_SHRINKING_PERCENT = 0;
+    
     private JTextField nameOfHikerField;
     private JTextField addressOfHikerField;
     private JTextField phoneNumberOfHikerField;
@@ -128,7 +131,10 @@ public class ContactsPage extends AbstractWizardPage
             nameOfHikerField.setText(alert.getNameOfHiker());
 
         if (StringUtil.isNotEmpty(alert.getAddressOfHiker()))
-            nameOfHikerField.setText(alert.getAddressOfHiker());
+            addressOfHikerField.setText(alert.getAddressOfHiker());
+        
+        if (StringUtil.isNotEmpty(alert.getPhoneNumberOfHiker()))
+            phoneNumberOfHikerField.setText(alert.getPhoneNumberOfHiker());
         
         final boolean havingContacts = (alert.getAlertContacts() != null && alert.getAlertContacts().size() > 0);
         if (havingContacts) {
@@ -388,7 +394,7 @@ public class ContactsPage extends AbstractWizardPage
         
         alertIntervalShrinkingField = SwingUtil.buildNumberField(
                 i18n("Alert Interval Shrinking Percent"), 
-                i18n("75% on a 60 minutes interval would mean the 2nd interval be just 45 minutes, the 3rd just 34, etc."), 
+                i18n("25% on a 60 minutes interval would mean the 2nd interval be just 45 minutes, the 3rd just 34, etc."), 
                 100);
         
         useContactDetectionMinutesField = new JCheckBox(i18n("Use Mail Detection Minutes of Contacts"));
@@ -434,11 +440,18 @@ public class ContactsPage extends AbstractWizardPage
     
     private String validateIntervalsFields() {
         if (SwingUtil.getNumberValue(confirmationPollingMinutesField) <= 0)
-            return i18n("Confirmation Polling Minute must not be empty!");
+            return i18n("Confirmation Polling Minutes must be greater zero!");
         
-        if (useContactDetectionMinutesField.isSelected() == false)
+        if (useContactDetectionMinutesField.isSelected() == false) {
             if (SwingUtil.getNumberValue(alertIntervalMinutesField) <= 0)
                 return i18n("Alert Interval Minutes must not be empty!");
+            
+            final int alertIntervalShrinking = SwingUtil.getNumberValue(alertIntervalShrinkingField);
+            if (alertIntervalShrinking < MINIMUM_INTERVAL_SHRINKING_PERCENT)
+                return i18n("Alert Interval Shrinking Percent must be greater equal")+" "+MINIMUM_INTERVAL_SHRINKING_PERCENT;
+            else if (alertIntervalShrinking > MAXIMUM_INTERVAL_SHRINKING_PERCENT)
+                return i18n("Alert Interval Shrinking Percent must be smaller equal")+" "+MAXIMUM_INTERVAL_SHRINKING_PERCENT;
+        }
         
         return null;
     }
@@ -451,7 +464,7 @@ public class ContactsPage extends AbstractWizardPage
             hike.setAlertIntervalMinutes(alertIntervalMinutes);
         
         final int alertIntervalShrinking = SwingUtil.getNumberValue(alertIntervalShrinkingField);
-        if (alertIntervalShrinking > 0)
+        if (alertIntervalShrinking >= MINIMUM_INTERVAL_SHRINKING_PERCENT && alertIntervalShrinking <= MAXIMUM_INTERVAL_SHRINKING_PERCENT)
             hike.setAlertIntervalShrinking(percentToFloat(alertIntervalShrinking));
         
         hike.setUseContactDetectionMinutes(useContactDetectionMinutesField.isSelected());

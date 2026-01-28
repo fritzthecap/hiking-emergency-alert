@@ -19,9 +19,6 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
-import fri.servers.hiking.emergencyalert.statemachine.states.HikeActivated;
-import fri.servers.hiking.emergencyalert.statemachine.states.OnTheWay;
-import fri.servers.hiking.emergencyalert.statemachine.states.OverdueAlert;
 import fri.servers.hiking.emergencyalert.ui.swing.Log;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
@@ -52,12 +49,6 @@ public class ObservationPage extends AbstractWizardPage
         return true;
     }
     
-    /** Prevent going back to previous page while stateMachine is running. */
-    @Override
-    protected boolean commit(boolean goingForward) {
-        return canClose;
-    }
-    
     /** @return false when hike is still running, else true. */
     @Override
     public boolean windowClosing() {
@@ -66,7 +57,7 @@ public class ObservationPage extends AbstractWizardPage
 
     /** Called when an alert confirmation mail was received. */
     public void alertConfirmed() {
-        endState(Color.BLUE); // hiker had an accident
+        endState(false); // hiker had an accident
     }
     
     @Override
@@ -93,7 +84,7 @@ public class ObservationPage extends AbstractWizardPage
         homeAgainListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                homeAgain(getStateMachine(), homeAgain);
+                homeAgain();
             }
         };
         homeAgain = new JButton(i18n("Home Again"));
@@ -155,12 +146,18 @@ public class ObservationPage extends AbstractWizardPage
                 getStateMachine().getUserInterface().activateHike(hike);
             }
             catch (Exception e) { // validation assertions could strike
-                endState(null);
+                endState(true);
                 throw e; // will be visible in consoleErr
             }
         });
     }
 
+    /** Prevent going back to previous page while stateMachine is running. */
+    @Override
+    protected boolean commit(boolean goingForward) {
+        return canClose;
+    }
+    
 
     private JScrollPane scrollPaneForColoredConsole(final JSplitPane splitPane, JTextArea console, String title) {
         final JScrollPane scrollPane = new JScrollPane(console);
@@ -179,19 +176,21 @@ public class ObservationPage extends AbstractWizardPage
         return scrollPane;
     }
 
-    private void homeAgain(StateMachine stateMachine, JButton homeAgain) {
+    private void homeAgain() {
+        final StateMachine stateMachine = getStateMachine();
         String message = null;
-        if (stateMachine.getState().getClass().equals(HikeActivated.class)) // hike has not even started
+        
+        if (stateMachine.notYetOnTheWay()) // hike has not even started
             message = i18n("You want to cancel the hike?");
-        else if (stateMachine.getState().getClass().equals(OnTheWay.class)) // home before planned end
+        else if (stateMachine.inTime()) // home before planned end
             message = i18n("Welcome back, you are in time!");
-        else if (stateMachine.getState().getClass().equals(OverdueAlert.class)) // home after first alert mail
+        else if (stateMachine.tooLate()) // home after first alert mail
             message = i18n("Welcome back, you are late!");
         
         if (message != null) {
             message += "\n\n"+
-                    i18n("Press 'Yes' if that is you, ")+getHike().getAlert().getNameOfHiker()+",\n"+
-                    i18n("or 'No' to continue the running observation.")+"\n";
+                i18n("Press 'Yes' if that is you, ")+getHike().getAlert().getNameOfHiker()+",\n"+
+                i18n("or 'No' to continue the running observation.")+"\n";
             final int response = JOptionPane.showConfirmDialog(
                     getFrame(),
                     message,
@@ -200,22 +199,19 @@ public class ObservationPage extends AbstractWizardPage
                     JOptionPane.QUESTION_MESSAGE);
             
             if (response == JOptionPane.YES_OPTION) {
-                endState(Color.GREEN.darker().darker());
+                endState(stateMachine.notYetOnTheWay()); // maybe want to correct something
                 getStateMachine().getUserInterface().comingHome();
             }
         }
     }
     
-    private void endState(Color homeAgainColor) {
-        if (homeAgainColor != null)
-            homeAgain.setForeground(homeAgainColor); // BLUE (accident) or GREEN (home in time)
-        else
-            homeAgain.setEnabled(false); // error happened on starting StateMachine
-        
+    private void endState(boolean stayOnSameHike) {
+        homeAgain.setEnabled(false); // can not press button another time
         homeAgain.removeActionListener(homeAgainListener); // will be added again on populateUi()
         
-        canClose = true; // allows window close
+        canClose = true; // allow to close the window
         
         getTrolley().setPreviousEnabled(true);
+        // TODO: ask for new hike and initialize it when Yes
     }
 }

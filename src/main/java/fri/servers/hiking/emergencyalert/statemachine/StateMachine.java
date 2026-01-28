@@ -4,8 +4,11 @@ import java.util.Objects;
 import fri.servers.hiking.emergencyalert.mail.Mailer;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.states.AlertConfirmed;
+import fri.servers.hiking.emergencyalert.statemachine.states.HikeActivated;
 import fri.servers.hiking.emergencyalert.statemachine.states.HikerRegistered;
 import fri.servers.hiking.emergencyalert.statemachine.states.HomeAgain;
+import fri.servers.hiking.emergencyalert.statemachine.states.OnTheWay;
+import fri.servers.hiking.emergencyalert.statemachine.states.OverdueAlert;
 import fri.servers.hiking.emergencyalert.time.HikeTimer;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
@@ -99,5 +102,15 @@ public class StateMachine implements
     /** @return true when timer is already running, i.e. ACTIVATION took place. */
     public final boolean isRunning() {
         return context.isRunning();
+    }
+    
+    public boolean notYetOnTheWay() {
+        return getState().getClass().equals(HikeActivated.class);
+    }
+    public boolean inTime() {
+        return getState().getClass().equals(OnTheWay.class);
+    }
+    public boolean tooLate() {
+        return getState().getClass().equals(OverdueAlert.class);
     }
 }

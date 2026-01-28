@@ -95,13 +95,13 @@ public class RouteAndTimesPage extends AbstractWizardPage
         
         final JPanel beginPanel = new JPanel();
         final JLabel beginLabel = new JLabel(i18n("Hike Begin"));
-        beginPanel.add(increaseFontSize(Font.BOLD, 16, forceSize(beginLabel, labelSize)));
+        beginPanel.add(SwingUtil.increaseFontSize(Font.BOLD, 16, SwingUtil.forceSize(beginLabel, labelSize)));
         beginPanel.add(plannedBeginDateField);
         beginPanel.add(plannedBeginTimeField);
         
         final JPanel homePanel = new JPanel();
         final JLabel endLabel = new JLabel(i18n("Hike End"));
-        homePanel.add(increaseFontSize(Font.BOLD, 16, forceSize(endLabel, labelSize)));
+        homePanel.add(SwingUtil.increaseFontSize(Font.BOLD, 16, SwingUtil.forceSize(endLabel, labelSize)));
         homePanel.add(plannedHomeDateField);
         homePanel.add(plannedHomeTimeField);
         
@@ -159,19 +159,27 @@ public class RouteAndTimesPage extends AbstractWizardPage
         if (StringUtil.isEmpty(routeField.getText()))
             return i18n("The Route description must not be empty!");
         
-        if (plannedBeginDateField.getDateValue() == null)
+        final Date beginDate = plannedBeginDateField.getDateValue();
+        final Date beginTime = plannedBeginTimeField.getDateValue();
+        final Date homeDate = plannedHomeDateField.getDateValue();
+        final Date homeTime = plannedHomeTimeField.getDateValue();
+        
+        if (beginDate == null)
             return i18n("The planned begin date must be given!");
-        if (plannedBeginTimeField.getDateValue() == null)
+        if (beginTime == null)
             return i18n("The planned begin time must be given!");
         
-        if (plannedHomeDateField.getDateValue() == null)
+        if (homeDate == null)
             return i18n("The planned end date must be given!");
-        if (plannedHomeTimeField.getDateValue() == null)
+        if (homeTime == null)
             return i18n("The planned end time must be given!");
         
-        return null;
+        final Date homeDateTime = DateUtil.mergeDateAndTime(homeDate, homeTime);
+        final Date beginDateTime = DateUtil.mergeDateAndTime(beginDate, beginTime);
+        
+        return validateHikeTimes(beginDateTime, homeDateTime);
     }
-    
+
     @Override
     @SuppressWarnings("rawtypes")
     protected boolean commit(boolean goingForward) {
@@ -231,7 +239,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
         
         final JScrollPane scrollTable = new JScrollPane(routeImagesField);
         
-        final JButton add = getAddOrRemoveButton(
+        final JButton add = SwingUtil.getAddOrRemoveButton(
                 true, // "+"
                 i18n("Add an image file"),
                 new ActionListener() {
@@ -241,7 +249,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
                     }
                 });
         
-        final JButton remove = getAddOrRemoveButton(
+        final JButton remove = SwingUtil.getAddOrRemoveButton(
                 false, // "-"
                 i18n("Remove an image file"),
                 new ActionListener() {
@@ -252,7 +260,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
                 });
         remove.setEnabled(false);
         
-        final JButton view = getSmallButton(
+        final JButton view = SwingUtil.getSmallButton(
                 "\u2315", // magnifying glass
                 i18n("View image file"),
                 new ActionListener() {

@@ -14,7 +14,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +35,6 @@ import fri.servers.hiking.emergencyalert.mail.MailUtil;
 import fri.servers.hiking.emergencyalert.mail.impl.ConnectionCheck;
 import fri.servers.hiking.emergencyalert.mail.impl.MailProperties;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
-import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
-import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
 import fri.servers.hiking.emergencyalert.ui.swing.util.PropertiesEditDialog;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
@@ -153,7 +150,13 @@ public class MailConfigurationPage extends AbstractWizardPage
         mailTestButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                connectionTest(true);
+                setWaitCursor();
+                try {
+                    connectionTest(true);
+                }
+                finally {
+                    setDefaultCursor();
+                }
             }
         });
         mailTestButton.setToolTipText(i18n("Sends a mail to your mailbox, then receives and deletes it"));
@@ -228,7 +231,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         return null; // all fields are valid!
     }
     
-    /** When goingForward is true, denies next page when mail connection is not working. */
+    /** If goingForward is true, denies next page when mail connection is not working. */
     @Override
     protected boolean commit(boolean goingForward) {
         if (goingForward) {
@@ -241,14 +244,10 @@ public class MailConfigurationPage extends AbstractWizardPage
 
         commitToMailConfiguration(getHike().getAlert().getMailConfiguration()); // commit to Hike data
         
-        try { // silently save before going to route and times
-            final String json = new JsonGsonSerializer<Hike>().toJson(getHike());
-            if (getTrolley().getHikeFile() == null)
-                new HikeFileManager().save(json);
-            else
-                new HikeFileManager().save(getTrolley().getHikeFile().getAbsolutePath(), json);
+        try { // silently save before going to route/times page
+            getTrolley().save(getHike());
         }
-        catch (IOException e) {
+        catch (Exception e) {
             System.err.println("ERROR: Could not save base data, error was "+e);
         }
 
@@ -325,7 +324,6 @@ public class MailConfigurationPage extends AbstractWizardPage
         commitToMailConfiguration(mailConfiguration);
         
         String error = null;
-        setWaitCursor();
         try {
             final ConnectionCheck connectionCheck = new ConnectionCheck(mailConfiguration, validAuthenticator);
             final boolean success = connectionCheck.trySendAndReceive();
@@ -336,9 +334,6 @@ public class MailConfigurationPage extends AbstractWizardPage
         catch (MailException e) {
             System.err.println(e.toString());
             error = e.getMessage();
-        }
-        finally {
-            setDefaultCursor();
         }
         
         if (error != null)

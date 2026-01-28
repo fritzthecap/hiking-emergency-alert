@@ -1,6 +1,7 @@
 package fri.servers.hiking.emergencyalert.ui.swing.wizard;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -14,6 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.event.MouseInputAdapter;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
@@ -29,9 +31,11 @@ import fri.servers.hiking.emergencyalert.util.StringUtil;
  */
 public class HikeWizard extends JPanel
 {
-    private final JFrame frame;
     private final StateMachine stateMachine;
+    
+    private final JFrame frame;
     private final JPanel contentPanel;
+    private final JPanel glassPane;
     
     private JButton previousButton;
     private JButton nextButton;
@@ -56,6 +60,14 @@ public class HikeWizard extends JPanel
         this.contentPanel = new JPanel(new BorderLayout());
         SwingUtil.makeComponentFocusable(contentPanel); // lets focus shift away from input fields
         
+        glassPane = new JPanel();
+        glassPane.setOpaque(false); // else windowClosing() shows gray window
+        final MouseInputAdapter adapter = new MouseInputAdapter() { };
+        glassPane.addMouseListener(adapter);
+        glassPane.addMouseMotionListener(adapter);
+        glassPane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        frame.setGlassPane(glassPane);
+        
         final JSplitPane leftSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         leftSplitPane.setResizeWeight(0.4);
         leftSplitPane.setOneTouchExpandable(true);
@@ -78,9 +90,15 @@ public class HikeWizard extends JPanel
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                if (page().windowClosing()) {
-                    frame.dispose(); // exits only when no thread is running!
-                    System.exit(0);
+                glassPane.setVisible(true);
+                try {
+                    if (page().windowClosing()) {
+                        frame.dispose(); // exits only when no thread is running!
+                        System.exit(0);
+                    }
+                }
+                finally {
+                    glassPane.setVisible(false);
                 }
             }
         });
@@ -145,10 +163,15 @@ public class HikeWizard extends JPanel
         final ActionListener browsePagesListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final boolean next = (e.getSource() == nextButton);
-                final int newIndex = (next ? pageIndex + 1 : pageIndex - 1);
-                changePage(newIndex, false);
-
+                glassPane.setVisible(true);
+                try {
+                    final boolean next = (e.getSource() == nextButton);
+                    final int newIndex = (next ? pageIndex + 1 : pageIndex - 1);
+                    changePage(newIndex, false);
+                }
+                finally {
+                    glassPane.setVisible(false);
+                }
             }
         };
         previousButton.addActionListener(browsePagesListener);

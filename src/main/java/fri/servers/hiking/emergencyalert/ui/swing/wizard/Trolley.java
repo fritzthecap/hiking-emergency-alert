@@ -5,6 +5,7 @@ import java.io.File;
 import java.util.Objects;
 import javax.swing.JButton;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import jakarta.mail.Authenticator;
@@ -57,6 +58,7 @@ public class Trolley
     }
     public void setHikeFile(File hikeFile) {
         this.hikeFile = hikeFile;
+        refreshHikeCopy();
     }
     
     public void setNextEnabled(boolean enabled) {
@@ -72,9 +74,26 @@ public class Trolley
         previousButton.setText(buildPreviousButtonText());
     }
     
-    /** Called when loading a hike-file. */
-    public void refreshHikeCopy() {
+    /** Called when loading a hike-file from disk, or saving one to disk. */
+    private void refreshHikeCopy() {
         this.hikeCopy = hikeToJsonString(stateMachine.getHike());
+    }
+    
+    public void save(Hike hike) throws Exception {
+        save(new HikeFileManager(), getHikeFile(), hike);
+    }
+    
+    public void save(HikeFileManager hikeFileManager, File targetFile, Hike hike) throws Exception {
+        final String json = hikeToJsonString(hike);
+        
+        if (targetFile != null) { // user explicitly chose a file
+            hikeFileManager.save(targetFile.getAbsolutePath(), json);
+            setHikeFile(targetFile); // make the explicitly chosen file the file for future saves
+        }
+        else {
+            hikeFileManager.save(json);
+        }
+        refreshHikeCopy(); // refresh change-detection with new data
     }
     
     private String hikeToJsonString(Hike hike) {

@@ -227,7 +227,7 @@ public class MailTextsPage extends AbstractWizardPage
         final JTextArea cellEditor = SwingUtil.buildTextArea(i18n("Edit text of this todo step"), null);
         cellEditor.setRows(2);
         
-        final JButton add = getAddOrRemoveButton(
+        final JButton add = SwingUtil.getAddOrRemoveButton(
                 true, 
                 i18n("Adds a new item below selected step, or at end"),
                 new ActionListener() {
@@ -240,7 +240,7 @@ public class MailTextsPage extends AbstractWizardPage
                     }
                 });
         
-        final JButton remove = getAddOrRemoveButton(
+        final JButton remove = SwingUtil.getAddOrRemoveButton(
                 false, 
                 i18n("Removes the selected step"),
                 new ActionListener() {

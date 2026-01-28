@@ -213,8 +213,6 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
             
             // when no error occurred until now, we can use this as save-file
             getTrolley().setHikeFile(hikeFile);
-            // refresh the hike copy used to detect changes
-            getTrolley().refreshHikeCopy();
         }
         catch (Exception e) {
             showError(e);
