@@ -26,7 +26,7 @@ public class FileChooser
      */
     public File[] open(boolean singleSelection, String extension) {
         if (StringUtil.isNotEmpty(currentDirectory))
-            currentDirectory = new HikeFileManager().ensureSavePathExists(currentDirectory);
+            currentDirectory = new HikeFileManager().ensurePathExists(currentDirectory);
         
         final JFileChooser fileChooser = new JFileChooser(currentDirectory);
         fileChooser.setMultiSelectionEnabled(singleSelection);
@@ -41,18 +41,24 @@ public class FileChooser
             currentDirectory = files[0].getParent();
             return files;
         }
-        
         return null;
     }
     
-//    public File save() {
-//        final JFileChooser fileChooser = new JFileChooser(currentDirectory);
-//        fileChooser.setMultiSelectionEnabled(false);
-//        
-//        final int response = fileChooser.showSaveDialog(parent);
-//        if (response == JFileChooser.APPROVE_OPTION)
-//            return fileChooser.getSelectedFile();
-//        
-//        return null;
-//    }
+    public File save(File suggestedFile) {
+        final String directory = suggestedFile.getParent();
+        
+        final JFileChooser fileChooser = new JFileChooser((directory != null) ? directory : currentDirectory);
+        fileChooser.setMultiSelectionEnabled(false);
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        fileChooser.setSelectedFile(suggestedFile);
+        
+        if (fileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION) {
+            final File file = fileChooser.getSelectedFile();
+            if (file.isDirectory())
+                return new File(file, suggestedFile.getName());
+
+            return fileChooser.getSelectedFile();
+        }
+        return null;
+    }
 }

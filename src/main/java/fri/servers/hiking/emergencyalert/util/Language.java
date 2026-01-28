@@ -28,7 +28,7 @@ public final class Language
             load(locale);
         }
         catch (Exception e) {
-            System.err.println("Loading language "+iso639Language+" failed, error was: "+e);
+            System.err.println("ERROR: Loading language "+iso639Language+" failed, error was: "+e);
         }
     }
     
@@ -49,7 +49,7 @@ public final class Language
             // See https://hwellmann.blogspot.com/2010/02/misconceptions-about-java.html
         }
         catch (MissingResourceException e)  {
-            System.err.println("Could not load resource bundle for language "+locale.getLanguage()+", error was: "+e);
+            System.err.println("ERROR: Could not load resource bundle for language "+locale.getLanguage()+", error was: "+e);
         }
         
         if (languageBundle == null)
@@ -62,7 +62,7 @@ public final class Language
             return languageBundle.getString(key);
         }
         catch (MissingResourceException e) {
-            System.err.println("Missing language-resource: >"+text+"<");
+            System.err.println("ERROR: Missing language-resource: >"+text+"<");
             return text;
         }
     }

@@ -107,7 +107,7 @@ public class MailBuilder
                 if (file.isFile())
                     attachments.add(file);
                 else
-                    System.err.println("Could not find attachment file "+routeImage);
+                    System.err.println("ERROR: Could not find attachment file "+routeImage);
             }
         }
         return attachments;

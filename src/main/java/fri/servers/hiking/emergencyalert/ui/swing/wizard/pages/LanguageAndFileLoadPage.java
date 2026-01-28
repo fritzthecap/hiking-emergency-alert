@@ -1,9 +1,7 @@
 package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,7 +39,6 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
     
     private JComboBox<Item> languageChoiceField;
     private JButton loadFile;
-    //private JCheckBox autoLoadSameFile;
     private FileChooser fileChooser;
     
     private final ItemListener languageSelectionListener = new ItemListener() {
@@ -69,25 +66,37 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
     protected void buildUi() {
         fileChooser = new FileChooser(getContentPanel(), null);
         
-        languageChoiceField = new JComboBox<Item>(); // does NOT yet consider hike language!
+        final Dimension FIELD_SIZE = new Dimension(220, 56);
+        
+        languageChoiceField = new JComboBox<Item>() {
+            /** Overridden to not let combo stretch by BoxLayout. */
+            @Override
+            public Dimension getMaximumSize() {
+                return getPreferredSize();
+            }
+        };
         for (Item item : languageItems)
             languageChoiceField.addItem(item);
         
-        languageChoiceField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder(i18n("Choose Your Language")),
-                BorderFactory.createEmptyBorder(6, 8, 8, 8)));
-        languageChoiceField.setPreferredSize(new Dimension(180, 70));
-        
+        languageChoiceField.setBorder(BorderFactory.createTitledBorder(i18n("Choose Your Language")));
         languageChoiceField.addItemListener(languageSelectionListener);
         
-        loadFile = new JButton(i18n("Choose Hike File"));
+        languageChoiceField.setPreferredSize(FIELD_SIZE);
+        languageChoiceField.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        
+        loadFile = new JButton(i18n("Choose Hike File")) {
+            /** Overridden to not let combo shrink by BoxLayout. */
+            @Override
+            public Dimension getMaximumSize() {
+                return getPreferredSize();
+            }
+        };
+        loadFile.setBorder(BorderFactory.createTitledBorder(i18n("Choose a Saved File")));
         loadFile.setToolTipText(i18n("If you don't load a file, the default file will be used for optionally saving your inputs"));
         loadFile.addActionListener(loadFileListener);
-        loadFile.setAlignmentX(JComponent.CENTER_ALIGNMENT);
         
-        //autoLoadSameFile = new JCheckBox(i18n("Next Time Load It Automatically"), true);
-        //autoLoadSameFile.setToolTipText(i18n("When activated, the inputs from the chosen file will be used next time"));
-        //autoLoadSameFile.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        loadFile.setPreferredSize(FIELD_SIZE);
+        loadFile.setAlignmentX(JComponent.CENTER_ALIGNMENT);
         
         // layout
         
@@ -95,17 +104,17 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
         loadFilePanel.setLayout(new BoxLayout(loadFilePanel, BoxLayout.Y_AXIS));
         loadFilePanel.add(Box.createVerticalGlue());
         loadFilePanel.add(loadFile);
-        //loadFilePanel.add(autoLoadSameFile);
         loadFilePanel.add(Box.createVerticalGlue());
         
-        final JPanel languageCenterPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        languageCenterPanel.add(languageChoiceField);
-        final JPanel languageToMiddlePanel = new JPanel(new BorderLayout());
-        languageToMiddlePanel.add(languageCenterPanel, BorderLayout.CENTER);
+        final JPanel languagePanel = new JPanel();
+        languagePanel.setLayout(new BoxLayout(languagePanel, BoxLayout.Y_AXIS));
+        languagePanel.add(Box.createVerticalGlue());
+        languagePanel.add(languageChoiceField);
+        languagePanel.add(Box.createVerticalGlue());
         
         final JPanel centerPanel = new JPanel(new GridLayout(2, 1));
+        centerPanel.add(languagePanel);
         centerPanel.add(loadFilePanel);
-        centerPanel.add(languageToMiddlePanel);
         
         getContentPanel().add(centerPanel);
     }
@@ -120,13 +129,16 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
                 
                 if (item.locale.equals(newLocale)) {
                     // avoid endless recursion through loadStringResources(),
-                    // because selected item always will be ENGLISH after buildUi()
+                    // because selected item *always* will be ENGLISH after buildUi() !
                     languageChoiceField.removeItemListener(languageSelectionListener);
                     languageChoiceField.setSelectedItem(item);
                     languageChoiceField.addItemListener(languageSelectionListener);
                 }
             }
         }
+        
+        // let load files only when saved files exist
+        loadFile.setEnabled(false == new HikeFileManager().isSavePathEmpty());
     }
 
     @Override
@@ -159,7 +171,6 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
         
         getTrolley().refreshLanguage(); // changes texts on wizard buttons
     }
-    
 
     private Locale isUiLanguageChanged(Hike hike) {
         final Locale selectedLocale = getSelectedLocale();

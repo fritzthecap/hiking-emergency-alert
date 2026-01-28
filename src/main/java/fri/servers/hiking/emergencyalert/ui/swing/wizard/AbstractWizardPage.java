@@ -26,7 +26,9 @@ import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
+import fri.servers.hiking.emergencyalert.ui.swing.util.FileChooser;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
+import fri.servers.hiking.emergencyalert.util.DateUtil;
 
 /**
  * Shared logic for all wizard pages.
@@ -40,6 +42,8 @@ public abstract class AbstractWizardPage
 
     private Trolley trolley;
     private boolean uiWasBuilt;
+    
+    private FileChooser saveFileChooser;
     
     /** Constructor visible to sub-classes only. */
     protected AbstractWizardPage() {
@@ -99,10 +103,10 @@ public abstract class AbstractWizardPage
                 uiWasBuilt = true;
             }
             
-            if (goingForward) {
-                populateUi(trolley.stateMachine.getHike());
+            populateUi(trolley.stateMachine.getHike());
+            
+            if (goingForward)
                 validate();
-            }
         }
         finally {
             setDefaultCursor();
@@ -169,7 +173,7 @@ public abstract class AbstractWizardPage
         setWaitCursor();
         try {
             commit(false); // false: do not validate mail connection now
-            return askSaveWhenChanged(i18n("Confirm Termination"), trolley.getHikeFile() != null);
+            return askSaveWhenChanged(i18n("Confirm Termination"), (trolley.getHikeFile() != null));
         }
         finally {
             setDefaultCursor();
@@ -180,7 +184,7 @@ public abstract class AbstractWizardPage
      * Opens a Save-dialog when hike was changed.
      * @return true when no error happened or user answered "No", else false ("Cancel").
      */
-    protected boolean askSaveWhenChanged(String title, boolean alsoOpenFileChooserDialog) {
+    protected boolean askSaveWhenChanged(String title, boolean letChooseTargetFile) {
         if (trolley.isHikeChanged()) {
             final int saveChanges = JOptionPane.showConfirmDialog(
                     getFrame(), 
@@ -190,68 +194,13 @@ public abstract class AbstractWizardPage
                     JOptionPane.QUESTION_MESSAGE);
             
             if (saveChanges == JOptionPane.YES_OPTION)
-                return saveHikeToFile(alsoOpenFileChooserDialog);
+                return saveHikeToFile(letChooseTargetFile);
             else if (saveChanges == JOptionPane.CANCEL_OPTION)
                 return false;
         }
         return true; // no change detected, or answer was "No"
     }
 
-    /** Writes current hike data silently to the default file "hike.json". */
-    protected void writeDefaultHikeJson() {
-        final String json = new JsonGsonSerializer<Hike>().toJson(getHike());
-        final HikeFileManager hikeFileManager = new HikeFileManager();
-        try {
-            hikeFileManager.save(json);
-        }
-        catch (IOException e) {
-            System.err.println("Could not save to base file "+hikeFileManager.getSaveFile()+", error was "+e);
-        }
-    }
-    
-    
-    /**
-     * Called by windowClose() on any page, and from ActivationPage.commit().
-     * @param alsoOpenFileChooserDialog true when coming from ActivationPage.commit(),
-     *      or from windowClose() when trolley.getHikeFile() != null;
-     *      false when coming from windowClose() and trolley.getHikeFile() == null.
-     */
-    private boolean saveHikeToFile(boolean alsoOpenFileChooserDialog) {
-        // TODO: implement alsoOpenFileChooserDialog
-        //      Target is to save hike_2026-01-28.json,
-        //      this suggested file name should contain hike.getPlannedBegin()
-        try {
-            final HikeFileManager hikeFileManager = new HikeFileManager();
-            final String json = new JsonGsonSerializer<Hike>().toJson(getHike());
-            
-            final File hikeFile = trolley.getHikeFile();
-            if (hikeFile != null) // user explicitly loaded a file
-                hikeFileManager.save(hikeFile.getAbsolutePath(), json);
-            else
-                hikeFileManager.save(json);
-            
-            final String pathAndName[] = hikeFileManager.getSavePathAndFilename();
-            final JTextField fileName = SwingUtil.buildTextField(i18n("File Name"), null, pathAndName[1]);
-            final JTextField path = SwingUtil.buildTextField(i18n("Path"), null, pathAndName[0]);
-            final JPanel panel = new JPanel(new GridLayout(2, 1));
-            panel.add(fileName);
-            panel.add(path);
-            JOptionPane.showMessageDialog(
-                    getFrame(),
-                    panel,
-                    i18n("Success"),
-                    JOptionPane.ERROR_MESSAGE);
-            return true;
-        }
-        catch (Exception e) {
-            JOptionPane.showMessageDialog(
-                    getFrame(),
-                    e.toString(),
-                    i18n("Error"),
-                    JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-    }
 
     /** @return parent for any dialog. */
     protected final JFrame getFrame() {
@@ -278,7 +227,7 @@ public abstract class AbstractWizardPage
         return getStateMachine().getHike();
     }
     
-    protected JButton getSmallButton(String label, String tooltip, ActionListener action) {
+    protected final JButton getSmallButton(String label, String tooltip, ActionListener action) {
         final JButton button = new JButton(label);
         increaseFontSize(Font.BOLD, 14f, button);
         button.setToolTipText(tooltip);
@@ -287,16 +236,16 @@ public abstract class AbstractWizardPage
         return button;
     }
 
-    protected JComponent increaseFontSize(int fontStyle, float size, JComponent component) {
+    protected final JComponent increaseFontSize(int fontStyle, float size, JComponent component) {
         component.setFont(component.getFont().deriveFont(fontStyle, size));
         return component;
     }
 
-    protected JButton getAddOrRemoveButton(boolean isAdd, String tooltip, ActionListener action) {
+    protected final JButton getAddOrRemoveButton(boolean isAdd, String tooltip, ActionListener action) {
         return getSmallButton(isAdd ? "+" : "-", tooltip, action);
     }
     
-    protected JComponent forceSize(final JComponent component, Dimension size) {
+    protected final JComponent forceSize(final JComponent component, Dimension size) {
         component.setPreferredSize(size);
         component.setMaximumSize(size);
         component.setMinimumSize(size);
@@ -312,5 +261,79 @@ public abstract class AbstractWizardPage
         final Container contentPane = (getFrame() != null) ? getFrame().getContentPane() : null;
         if (contentPane != null)
             getFrame().getContentPane().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    }
+    
+    
+    /**
+     * Called by windowClose() on any page, and from ActivationPage.commit().
+     * @param letChooseTargetFile true when coming from ActivationPage.commit(),
+     *      or from <code>windowClose()</code> when <code>trolley.getHikeFile() != null</code>;
+     *      false when coming from <code>windowClose()</code> and <code>trolley.getHikeFile() == null</code>.
+     */
+    private boolean saveHikeToFile(boolean letChooseTargetFile) {
+        final File hikeFile = trolley.getHikeFile();
+        final HikeFileManager hikeFileManager = new HikeFileManager();
+        final File targetFile;
+        
+        if (letChooseTargetFile) {
+            // target is to save e.g. to hike_2026-01-28.json where 2026-01-28 is the hike begin date
+            targetFile = chooseSaveFile(hikeFile, hikeFileManager);
+            if (targetFile == null) // save dialog was canceled
+                return false;
+        }
+        else {
+            targetFile = (hikeFile != null) ? hikeFile : null;
+        }
+        
+        try {
+            final String json = new JsonGsonSerializer<Hike>().toJson(getHike());
+            
+            if (targetFile != null) // user explicitly chose a file
+                hikeFileManager.save(targetFile.getAbsolutePath(), json);
+            else
+                hikeFileManager.save(json);
+            
+            final JTextField fileName = SwingUtil.buildTextField(i18n("File Name"), null, hikeFileManager.getSaveFilename());
+            final JTextField path = SwingUtil.buildTextField(i18n("Path"), null, hikeFileManager.getSavePath());
+            final JPanel panel = new JPanel(new GridLayout(2, 1));
+            panel.add(fileName);
+            panel.add(path);
+            JOptionPane.showMessageDialog(
+                    getFrame(),
+                    panel,
+                    i18n("Success"),
+                    JOptionPane.ERROR_MESSAGE);
+            return true;
+        }
+        catch (Exception e) {
+            JOptionPane.showMessageDialog(
+                    getFrame(),
+                    e.toString(),
+                    i18n("Error"),
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+    }
+    
+    private File chooseSaveFile(File hikeFile, HikeFileManager hikeFileManager) {
+        // target is to save e.g. to hike_2026-01-28.json where 2026-01-28 is the hike begin date
+        final String directory = (hikeFile != null) ? hikeFile.getParent() : hikeFileManager.getSavePath();
+        
+        if (saveFileChooser == null)
+            saveFileChooser = new FileChooser(getContentPanel(), directory);
+        
+        final File suggestedFile = (hikeFile != null) ? hikeFile : createFilenameFromHike(directory);
+        final File targetFile = saveFileChooser.save(suggestedFile);
+        
+        if (targetFile != null && targetFile.getName().equals(hikeFileManager.getSaveFilename()) == false)
+            trolley.setHikeFile(targetFile); // file was chosen by dialog, and it was not the default file
+        
+        return targetFile;
+    }
+
+    private File createFilenameFromHike(String directory) {
+        final String beginDay = DateUtil.toDateString(getHike().getPlannedBegin());
+        final String fileName = "hike_"+beginDay+".json";
+        return new File(directory, fileName);
     }
 }

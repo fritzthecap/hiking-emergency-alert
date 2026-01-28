@@ -14,6 +14,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,8 @@ import fri.servers.hiking.emergencyalert.mail.MailUtil;
 import fri.servers.hiking.emergencyalert.mail.impl.ConnectionCheck;
 import fri.servers.hiking.emergencyalert.mail.impl.MailProperties;
 import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
+import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
 import fri.servers.hiking.emergencyalert.ui.swing.util.PropertiesEditDialog;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
@@ -229,17 +232,26 @@ public class MailConfigurationPage extends AbstractWizardPage
     @Override
     protected boolean commit(boolean goingForward) {
         if (goingForward) {
-            final boolean connectionOk = connectionTest(false); // not showing success dialog
+            final boolean connectionOk = connectionTest(false); // false: not showing success dialog
             if (connectionOk == false) 
-                return false;
+                return false; // connection is not working!
         }
         
-        getTrolley().setAuthenticator(validAuthenticator);
+        getTrolley().setAuthenticator(validAuthenticator); // for reusing in the StateMachine's Mailer
 
-        commitToMailConfiguration(getHike().getAlert().getMailConfiguration());
+        commitToMailConfiguration(getHike().getAlert().getMailConfiguration()); // commit to Hike data
         
-        writeDefaultHikeJson(); // silently save base data before going to route and times
-        
+        try { // silently save before going to route and times
+            final String json = new JsonGsonSerializer<Hike>().toJson(getHike());
+            if (getTrolley().getHikeFile() == null)
+                new HikeFileManager().save(json);
+            else
+                new HikeFileManager().save(getTrolley().getHikeFile().getAbsolutePath(), json);
+        }
+        catch (IOException e) {
+            System.err.println("ERROR: Could not save base data, error was "+e);
+        }
+
         return true;
     }
     
