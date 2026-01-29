@@ -146,7 +146,7 @@ public class ObservationPage extends AbstractWizardPage
                 getStateMachine().getUserInterface().activateHike(hike);
             }
             catch (Exception e) { // validation assertions could strike
-                endState(true);
+                endState(false); // stay on this hike
                 throw e; // will be visible in consoleErr
             }
         });
@@ -191,27 +191,42 @@ public class ObservationPage extends AbstractWizardPage
             message += "\n\n"+
                 i18n("Press 'Yes' if that is you, ")+getHike().getAlert().getNameOfHiker()+",\n"+
                 i18n("or 'No' to continue the running observation.")+"\n";
-            final int response = JOptionPane.showConfirmDialog(
+            
+            if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
                     getFrame(),
                     message,
                     i18n("Confirm Termination"),
                     JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE);
-            
-            if (response == JOptionPane.YES_OPTION) {
-                endState(stateMachine.notYetOnTheWay()); // maybe want to correct something
+                    JOptionPane.QUESTION_MESSAGE))
+            {
+                endState(stateMachine.inTime());
                 getStateMachine().getUserInterface().comingHome();
             }
         }
     }
     
-    private void endState(boolean stayOnSameHike) {
+    private void endState(boolean startNewHike) {
         homeAgain.setEnabled(false); // can not press button another time
         homeAgain.removeActionListener(homeAgainListener); // will be added again on populateUi()
         
         canClose = true; // allow to close the window
         
         getTrolley().setPreviousEnabled(true);
-        // TODO: ask for new hike and initialize it when Yes
+        
+        // ask for new hike and initialize it when Yes
+        if (startNewHike && 
+                JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+                        getFrame(),
+                        i18n("Do you want to create a new hike?"),
+                        i18n("Continue with New Hike?"),
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE))
+        {
+            final Hike oldHike = getHike();
+            final Hike newHike = new Hike();
+            newHike.setAlert(oldHike.getAlert());
+            
+            getStateMachine().getUserInterface().registerHike(newHike);
+        }
     }
 }

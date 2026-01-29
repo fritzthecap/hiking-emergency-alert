@@ -91,7 +91,9 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
                 return getPreferredSize();
             }
         };
-        loadFile.setBorder(BorderFactory.createTitledBorder(i18n("Choose a Saved File")));
+        loadFile.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder(i18n("Choose a Saved File")),
+                loadFile.getBorder()));
         loadFile.setToolTipText(i18n("If you don't load a file, the default file will be used for optionally saving your inputs"));
         loadFile.addActionListener(loadFileListener);
         

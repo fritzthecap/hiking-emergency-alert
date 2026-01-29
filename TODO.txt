@@ -1,14 +1,14 @@
 
 Required input fields must be marked somehow.
 
-Left side descriptions of current wizard page, in HTML
+Left side descriptions of current wizard page, in HTML.
+
+Multi-language support for at least German.
+
+The whole application needs bigger fonts!
 
 The wizard should have an outline of its pages
     on bottom that can be clicked to jump over
     pages that hold good defaults.
-
-The whole application needs bigger fonts!
-
-Multi-language support for at least German.
 
 Write more unit tests like StateMachineGreenmailTest.
