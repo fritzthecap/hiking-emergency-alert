@@ -14,25 +14,30 @@ public final class Language
     
     private static ResourceBundle languageBundle;
 
+    public static String getLanguage() {
+        return (languageBundle != null) ? languageBundle.getLocale().getLanguage() : null;
+    }
+
     public static Locale toLocale(String iso639Language) throws IllformedLocaleException {
         return new Locale.Builder().setLanguage(iso639Language).build();
     }
 
-    public static void load()  {
-        load(Locale.getDefault());
+    public static String load()  {
+        return load(Locale.getDefault());
     }
     
-    public static void load(String iso639Language)  {
+    public static String load(String iso639Language)  {
         try {
             final Locale locale = toLocale(iso639Language);
-            load(locale);
+            return load(locale);
         }
         catch (Exception e) {
             System.err.println("ERROR: Loading language "+iso639Language+" failed, error was: "+e);
+            return load();
         }
     }
     
-    public static void load(Locale locale)  {
+    public static String load(Locale locale)  {
         if (locale == null)
             locale = Locale.ENGLISH;
         
@@ -44,7 +49,7 @@ public final class Language
             // if "user.language" is "de", this .... loads 
             // strings_de.properties instead of strings.properties for Locale.ENGLISH
             // when no strings_en.properties exists!
-            // Thus you are forced to copy strings.properties to strings_en.properties
+            // Thus you are forced to copy strings.properties to strings_en.properties ...
             // Found workaround: empty strings_en.properties solves the issue.
             // See https://hwellmann.blogspot.com/2010/02/misconceptions-about-java.html
         }
@@ -53,7 +58,9 @@ public final class Language
         }
         
         if (languageBundle == null)
-            languageBundle = ResourceBundle.getBundle(packageName+"."+RESOURCE_FILE_BASENAME, Locale.ENGLISH);
+            languageBundle = ResourceBundle.getBundle(packageName+"."+RESOURCE_FILE_BASENAME, locale = Locale.ENGLISH);
+        
+        return locale.getLanguage();
     }
 
     public static String i18n(String text) {

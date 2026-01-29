@@ -24,14 +24,16 @@ public class Trolley
     
     public final StateMachine stateMachine;
     private final JButton nextButton, previousButton;
+    private final DescriptionArea descriptionArea;
+    
     private String hikeCopy;
     private File hikeFile;
     
     private Authenticator authenticator;
     
-    public Trolley(StateMachine stateMachine, JButton nextButton, JButton previousButton) {
+    public Trolley(StateMachine stateMachine, DescriptionArea descriptionArea, JButton nextButton, JButton previousButton) {
         this.stateMachine = Objects.requireNonNull(stateMachine);
-        
+        this.descriptionArea = descriptionArea;
         this.nextButton = nextButton;
         this.previousButton = previousButton;
 
@@ -72,6 +74,7 @@ public class Trolley
     public void refreshLanguage() {
         nextButton.setText(buildNextButtonText());
         previousButton.setText(buildPreviousButtonText());
+        descriptionArea.refreshLanguage();
     }
     
     /** Called when loading a hike-file from disk, or saving one to disk. */

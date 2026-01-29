@@ -21,21 +21,27 @@ import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
-import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.*;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.ActivationPage;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.ContactsPage;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.LanguageAndFileLoadPage;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.MailConfigurationPage;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.MailTextsPage;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.ObservationPage;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.RouteAndTimesPage;
 import fri.servers.hiking.emergencyalert.util.Language;
-import fri.servers.hiking.emergencyalert.util.StringUtil;
 
 /**
  * Lets edit <code>Hike</code> data, on a number of pages,
  * finally lets start that hike.
  */
-public class HikeWizard extends JPanel
+public class HikeWizard extends JPanel // must be a JComponent to be found by SwingAlertHomeServer.showConfirmMail
 {
     private final StateMachine stateMachine;
     
     private final JFrame frame;
     private final JPanel contentPanel;
     private final JPanel glassPane;
+    private final DescriptionArea descriptionArea;
     
     private JButton previousButton;
     private JButton nextButton;
@@ -56,29 +62,18 @@ public class HikeWizard extends JPanel
         
         this.frame = frame;
         this.stateMachine = stateMachine;
-        
         this.contentPanel = new JPanel(new BorderLayout());
         SwingUtil.makeComponentFocusable(contentPanel); // lets focus shift away from input fields
-        
-        glassPane = new JPanel();
-        glassPane.setOpaque(false); // else windowClosing() shows gray window
-        final MouseInputAdapter adapter = new MouseInputAdapter() { };
-        glassPane.addMouseListener(adapter);
-        glassPane.addMouseMotionListener(adapter);
-        glassPane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        frame.setGlassPane(glassPane);
-        
-        final JSplitPane leftSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        leftSplitPane.setResizeWeight(0.4);
-        leftSplitPane.setOneTouchExpandable(true);
-        leftSplitPane.setLeftComponent(new JPanel()); // TODO: HTML description texts
-        
-        leftSplitPane.setRightComponent(contentPanel);
-        
-        add(leftSplitPane, BorderLayout.CENTER);
+        frame.setGlassPane(this.glassPane = buildGlassPane());
+        this.descriptionArea = new DescriptionArea();
         
         // START keep order of statements!
-        final boolean fileLoaded = readDefaultHikeAndLoadLanguage();
+        final boolean fileLoaded = loadDefaultHike();
+        
+        // before building UI, load a language resource-bundle
+        final String hikeLanguage = stateMachine.getHike().getAlert().getIso639Language();
+        Language.load(hikeLanguage);
+        // resource bundle is loaded, can use i18n() from now on
         
         buildUi();
         
@@ -116,7 +111,7 @@ public class HikeWizard extends JPanel
     }
 
     
-    private boolean readDefaultHikeAndLoadLanguage() {
+    private boolean loadDefaultHike() {
         final String defaultHikeJson = readDefaultHikeJson();
         boolean fileLoaded = false;
         if (defaultHikeJson != null) {
@@ -132,30 +127,27 @@ public class HikeWizard extends JPanel
                 JOptionPane.showMessageDialog(frame, e.toString());
             }
         }
-        
-        // before building UI, load a language resource-bundle
-        final String hikeLanguage = stateMachine.getHike().getAlert().getIso639Language();
-        if (StringUtil.isNotEmpty(hikeLanguage))
-            Language.load(hikeLanguage);
-        else
-            Language.load(); // default language
-        
         return fileLoaded;
     }
     
     private String readDefaultHikeJson() {
         try {
-            final HikeFileManager hikeFileManager = new HikeFileManager();
-            final String json = hikeFileManager.load();
-            return json;
+            return new HikeFileManager().load();
         }
         catch (IOException e) { // ignore missing default file
-            System.err.println(e.toString());
+            System.err.println(e.getMessage());
             return null;
         }
     }
     
     private void buildUi() {
+        final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        splitPane.setResizeWeight(0.4);
+        splitPane.setOneTouchExpandable(true);
+        add(splitPane, BorderLayout.CENTER);
+        splitPane.setLeftComponent(descriptionArea.getAddablePanel());
+        splitPane.setRightComponent(contentPanel);
+        
         this.previousButton = new JButton(Trolley.buildPreviousButtonText()); // is disabled only 
         
         this.nextButton = new JButton(Trolley.buildNextButtonText());
@@ -194,8 +186,8 @@ public class HikeWizard extends JPanel
         final AbstractWizardPage oldPage = page();
         
         final Trolley trolley;
-        if (isFirstCall)
-            trolley = new Trolley(stateMachine, nextButton, previousButton);
+        if (isFirstCall) // application startup
+            trolley = new Trolley(stateMachine, descriptionArea, nextButton, previousButton); // travels through all pages
         else
             if ((trolley = oldPage.leave(goingForward)) != null) // can leave
                 contentPanel.remove(oldPage.getAddablePanel());
@@ -206,6 +198,8 @@ public class HikeWizard extends JPanel
         contentPanel.add(newPage.getAddablePanel(), BorderLayout.CENTER);
         pageIndex = newIndex;
         
+        descriptionArea.loadTextFor(newPage.getClass());
+        
         setButtonsEnabled(); // do this before enter() to allow "Next" disabled by page
         
         newPage.enter(trolley, goingForward);
@@ -213,7 +207,7 @@ public class HikeWizard extends JPanel
         contentPanel.revalidate();
         contentPanel.repaint();
     }
-    
+
     private void setButtonsEnabled() {
         previousButton.setEnabled(pageIndex > 0);
         nextButton.setEnabled(pageIndex < pages.length - 1);
@@ -221,5 +215,16 @@ public class HikeWizard extends JPanel
     
     private AbstractWizardPage page() {
         return pages[pageIndex];
+    }
+    
+    private JPanel buildGlassPane() {
+        final JPanel glassPane = new JPanel();
+        glassPane.setOpaque(false); // else windowClosing() shows gray window
+        final MouseInputAdapter adapter = new MouseInputAdapter() { };
+        glassPane.addMouseListener(adapter);
+        glassPane.addMouseMotionListener(adapter);
+        glassPane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        frame.setGlassPane(glassPane);
+        return glassPane;
     }
 }
