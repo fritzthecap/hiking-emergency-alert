@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Reads two files and joins them line by line,
- * putting a " = " between left and right part.
+ * Reads a properties file and splits it line by line,
+ * outputting either key (-k) or value (-v).
  */
 public class I18nFileSplitter
 {

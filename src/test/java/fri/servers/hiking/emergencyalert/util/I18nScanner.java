@@ -15,10 +15,31 @@ import java.util.Properties;
 /**
  * Scans Java sources for i18n identifiers and outputs
  * them as properties file content.
+ * Option -v for outputting keys, -v for values, both possible too.
+ * <ol>
+ * <li>Use I18nScanner to create an ordered list of keys, put it into a file.</li>
+ * <li>Use I18nFileJoiner with that key file and strings.properties to create 
+ *      an ordered list of English text resource properties.
+ *      This reports missing values before outputting properties.</li>
+ * <li>Complete strings.properties until no missing values are reported any more.</li>
+ * <li>When no values are missing any more, replace strings.properties content
+ *      by the I18nFileJoiner output properties.</li>
+ * <li>You can do the same with other strings_xx.properties unless they are empty.</li>
+ * 
+ * <li>When empty, it is time for a bulk translation instead of doing it manually.</li>
+ * <li>Use I18nFileSplitter with key file and strings.properties to get an ordered 
+ *      line-list of (right-side) English text resources (values, not keys).</li>
+ * <li>Translate this line-list on DeepL to another language, keeping line order.</li>
+ * <li>Use I18nFileLinesJoiner to join the translated line-list with the key file,
+ *      they should be in same order and have same line-count.</li>
+ * <li>Put the result into strings_xx.properties, xx being the other language.</li>
+ * </ol>
  */
 public class I18nScanner
 {
     private static final String START_TOKEN = "i18n(\"";
+    private static final String END_TOKEN = "\")"; // must be on same line!
+    
     private static final String EXTENSION = ".java";
     
     public static void main(String[] args) throws Exception {
@@ -76,7 +97,7 @@ public class I18nScanner
             while ((line = reader.readLine()) != null) {
                 int startIndex = line.indexOf(START_TOKEN);
                 while (startIndex >= 0) {
-                    int endIndex = line.indexOf("\")", startIndex);
+                    int endIndex = line.indexOf(END_TOKEN, startIndex);
                     if (endIndex > startIndex) {
                         String value = line.substring(startIndex + START_TOKEN.length(), endIndex);
                         startIndex = line.indexOf(START_TOKEN, endIndex); // skip to next in line

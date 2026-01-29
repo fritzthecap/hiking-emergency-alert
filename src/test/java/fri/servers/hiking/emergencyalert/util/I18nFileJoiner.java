@@ -1,14 +1,25 @@
 package fri.servers.hiking.emergencyalert.util;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Properties;
 
 /**
- * Reads two files and joins them line by line,
- * putting a " = " between left and right part.
+ * Reads a key file line by line, which is the first argument and not a properties file.
+ * Then opens the second file, which must be a properties file, and assigns
+ * the property-values of it to the identical keys of the first file,
+ * whereby non-existing values are reported separately with line numbers.
+ * Outputs the keys in their order with assigned values with a " = " between, 
+ * non-existing values are left empty for manual correction
+ * according to separately reported messages.
+ * <p/>
+ * This is for finding language resource keys that are in Java source but not yet
+ * in language-properties. These language properties must be the second argument.
  */
 public class I18nFileJoiner
 {
@@ -22,25 +33,47 @@ public class I18nFileJoiner
 
     
     private PrintStream out = System.out;
+    private PrintStream err = System.err;
 
-    public void join(String keyFile, String valueFile) throws IOException {
+    public void join(String keyFile, String propertiesFile) throws IOException {
+        if (propertiesFile.endsWith(".properties") == false)
+            throw new IllegalArgumentException("The second argument MUST be a properties file: "+propertiesFile);
+            
         List<String> keyLines = Files.readAllLines(Path.of(keyFile));
-        List<String> valueLines = Files.readAllLines(Path.of(valueFile));
+        for (String line : keyLines)
+            if (line.contains("="))
+                throw new IllegalArgumentException("The first argument must NOT be a properties file: '"+line+"'");
         
-        if (keyLines.size() != valueLines.size()) {
-            throw new IllegalStateException(
-                    "Key file has "+keyLines.size()+
-                    " lines, value file has "+valueLines.size()+" lines!");
-        }
+        Properties properties = new Properties();
+        properties.load(new InputStreamReader(new FileInputStream(propertiesFile)));
         
-        for (int i = 0; i < keyLines.size(); i++) {
-            String key = keyLines.get(i);
+        StringBuilder missingValueKeys = new StringBuilder();
+        StringBuilder propertiesLines = new StringBuilder();
+        
+        loopKeys(keyLines, properties, propertiesLines, missingValueKeys);
+        
+        if (missingValueKeys.length() > 0)
+            err.println(missingValueKeys.toString());
+        else
+            out.println(propertiesLines.toString());
+    }
+
+    private void loopKeys(
+            List<String> keyLines, 
+            Properties properties, 
+            StringBuilder propertiesLines, 
+            StringBuilder missingValueKeys)
+    {
+        for (int lineNumber = 0; lineNumber < keyLines.size(); lineNumber++) {
+            String key = keyLines.get(lineNumber);
             if (key.contains(" "))
                 throw new IllegalArgumentException("A key must not contain spaces: >"+key+"<");
             
-            String value = valueLines.get(i);
-            
-            out.println(key + " = "+value);
+            String value = properties.getProperty(key);
+            if (value == null)
+                missingValueKeys.append(lineNumber+": "+key+"\n");
+            else
+                propertiesLines.append(key + " = "+value+"\n");
         }
     }
 }
