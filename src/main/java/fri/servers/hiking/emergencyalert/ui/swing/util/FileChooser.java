@@ -44,10 +44,11 @@ public class FileChooser
         return null;
     }
     
+    /** Never returns a directory, always a file. */
     public File save(File suggestedFile) {
         final String directory = suggestedFile.getParent();
         
-        final JFileChooser fileChooser = new JFileChooser((directory != null) ? directory : currentDirectory);
+        final JFileChooser fileChooser = new JFileChooser(directory != null ? directory : currentDirectory);
         fileChooser.setMultiSelectionEnabled(false);
         fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         fileChooser.setSelectedFile(suggestedFile);

@@ -270,9 +270,11 @@ public abstract class AbstractWizardPage
         if (saveFileChooser == null)
             saveFileChooser = new FileChooser(getContentPanel(), directory);
         
-        final String saveFilename = hikeFileManager.getSaveFilename();
-        final File suggestedFile = (hikeFile != null) ? hikeFile : createFilenameFromHike(directory, saveFilename);
-        return saveFileChooser.save(suggestedFile);
+        final File suggestedFile = (hikeFile != null) 
+                ? hikeFile
+                : createFilenameFromHike(directory, hikeFileManager.getSaveFilename());
+        
+        return saveFileChooser.save(suggestedFile); // opens dialog to browse file-system
     }
 
     private File createFilenameFromHike(String directory, String saveFilename) {
