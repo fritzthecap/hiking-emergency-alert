@@ -255,8 +255,8 @@ public abstract class AbstractWizardPage
         }
         
         try {
-            trolley.save(hikeFileManager, targetFile, getHike());
-            return showSaveSuccessDialog(hikeFileManager);
+            final File actualFile = trolley.save(hikeFileManager, targetFile, getHike());
+            return showSaveSuccessDialog(actualFile, hikeFileManager);
         }
         catch (Exception e) {
             return showSaveErrorDialog(e);
@@ -282,10 +282,10 @@ public abstract class AbstractWizardPage
         return new File(directory, customName);
     }
 
-    private boolean showSaveSuccessDialog(final HikeFileManager hikeFileManager) {
-        final JTextField fileNameField = SwingUtil.buildTextField(i18n("File Name"), null, hikeFileManager.getSaveFilename());
+    private boolean showSaveSuccessDialog(File saveFile, HikeFileManager hikeFileManager) {
+        final JTextField fileNameField = SwingUtil.buildTextField(i18n("File Name"), null, saveFile.getName());
         fileNameField.setEditable(false);
-        final JTextField pathField = SwingUtil.buildTextField(i18n("Path"), null, hikeFileManager.getSavePath());
+        final JTextField pathField = SwingUtil.buildTextField(i18n("Path"), null, saveFile.getParent());
         pathField.setEditable(false);
         
         final JPanel panel = new JPanel(new GridLayout(2, 1));

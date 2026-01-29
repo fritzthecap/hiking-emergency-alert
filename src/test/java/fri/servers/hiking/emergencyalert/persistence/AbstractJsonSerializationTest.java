@@ -12,7 +12,7 @@ class AbstractJsonSerializationTest extends TestData
         assertNotEquals(hike.uniqueMailId, hikeFromJson.uniqueMailId);
         // every Hike instance must have its own UUID!
         
-        assertEquals(hike.getAlertIntervalMinutes(), hikeFromJson.getAlertIntervalMinutes());
+        assertEquals(hike.getAlert().getAlertIntervalMinutes(), hikeFromJson.getAlert().getAlertIntervalMinutes());
         assertEquals(hike.getPlannedBegin(), hikeFromJson.getPlannedBegin());
         assertEquals(hike.getPlannedHome(), hikeFromJson.getPlannedHome());
         assertEquals(hike.getRoute(), hikeFromJson.getRoute());

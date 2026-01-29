@@ -18,6 +18,12 @@ public class Alert
     
     private String iso639Language = "en";
     
+    private int alertIntervalMinutes = 60; // wait-time until alerting next contact
+    private float alertIntervalShrinking = 0.0f; // how the wait-time gets smaller with every alert
+    private boolean useContactDetectionMinutes = false; // use minutes of contacts
+    
+    private int confirmationPollingMinutes = 2; // confirmation polling interval
+    
     private List<Contact> alertContacts = new ArrayList<>();
 
     private MailConfiguration mailConfiguration = new MailConfiguration();
@@ -78,6 +84,31 @@ public class Alert
     }
     public void setIso639Language(String iso639Language) {
         this.iso639Language = iso639Language;
+    }
+    
+    public int getAlertIntervalMinutes() {
+        return alertIntervalMinutes;
+    }
+    public void setAlertIntervalMinutes(int messageIntervalMinutes) {
+        this.alertIntervalMinutes = messageIntervalMinutes;
+    }
+    public float getAlertIntervalShrinking() {
+        return alertIntervalShrinking;
+    }
+    public void setAlertIntervalShrinking(float alertIntervalShrinking) {
+        this.alertIntervalShrinking = alertIntervalShrinking;
+    }
+    public boolean isUseContactDetectionMinutes() {
+        return useContactDetectionMinutes;
+    }
+    public void setUseContactDetectionMinutes(boolean useContactDetectionMinutes) {
+        this.useContactDetectionMinutes = useContactDetectionMinutes;
+    }
+    public int getConfirmationPollingMinutes() {
+        return confirmationPollingMinutes;
+    }
+    public void setConfirmationPollingMinutes(int confirmationPollingMinutes) {
+        this.confirmationPollingMinutes = confirmationPollingMinutes;
     }
     
     public MailConfiguration getMailConfiguration() {

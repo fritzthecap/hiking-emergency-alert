@@ -18,10 +18,10 @@ public class IntervalModel
     private int index = 0;
 
     public IntervalModel(Hike hike) {
-        this.alertIntervalMinutes = hike.getAlertIntervalMinutes();
-        this.alertIntervalShrinking = hike.getAlertIntervalShrinking();
+        this.alertIntervalMinutes = hike.getAlert().getAlertIntervalMinutes();
+        this.alertIntervalShrinking = hike.getAlert().getAlertIntervalShrinking();
         this.contactDetectionMinutes = new ArrayList<>();
-        this.useContactDetectionMinutes = hike.isUseContactDetectionMinutes();
+        this.useContactDetectionMinutes = hike.getAlert().isUseContactDetectionMinutes();
         
         if (useContactDetectionMinutes)
             for (Contact contact : hike.getAlert().getNonAbsentContacts())
@@ -43,8 +43,8 @@ public class IntervalModel
         }
         
         // in any case shrink alertIntervalMinutes for the case that contact-index runs out of bounds
-        final int minusMinutes = Math.round((float) alertIntervalMinutes * alertIntervalShrinking);
-        alertIntervalMinutes = Math.max(1, Math.round((float) alertIntervalMinutes - minusMinutes));
+        final int minutesToSubtract = Math.round((float) alertIntervalMinutes * alertIntervalShrinking);
+        alertIntervalMinutes = Math.max(1, Math.round((float) alertIntervalMinutes - minutesToSubtract));
         // never get smaller than one minute
         
         return minutes;

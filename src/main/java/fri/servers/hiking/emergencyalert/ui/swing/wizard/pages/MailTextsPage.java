@@ -61,7 +61,7 @@ public class MailTextsPage extends AbstractWizardPage
     @Override
     protected void buildUi() {
         mailSubjectField = SwingUtil.buildTextField(
-                i18n("Alert Mail Subject"),
+                "* "+i18n("Alert Mail Subject"),
                 i18n("The text that will be in mail subject"),
                 i18n("Hiking emergency - I need help!"));
         mailSubjectField.setColumns(40);
@@ -69,7 +69,7 @@ public class MailTextsPage extends AbstractWizardPage
         mailIntroductionTextField = SwingUtil.buildTextArea(
                 i18n("The message's content text"),
                 i18n("I had an accident while hiking and need help. This is serious!"));
-        mailIntroductionTextField.setRows(3);
+        mailIntroductionTextField.setRows(4);
         
         final JComponent todoList = buildProcedureTodosList();
         
@@ -110,7 +110,7 @@ public class MailTextsPage extends AbstractWizardPage
         panel.add(subjectTextPanel);
         
         panel.add(SwingUtil.buildScrollPane(
-                i18n("Alert Mail Text"), 
+                "* "+i18n("Alert Mail Text"), 
                 mailIntroductionTextField)); // full width
         
         panel.add(todoList);

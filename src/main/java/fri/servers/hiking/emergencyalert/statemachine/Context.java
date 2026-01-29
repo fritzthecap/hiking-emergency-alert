@@ -152,7 +152,7 @@ public class Context
                             stateMachine,
                             hike.uniqueMailId,
                             hike.getAlert().getMailConfiguration(),
-                            hike.getConfirmationPollingMinutes());
+                            hike.getAlert().getConfirmationPollingMinutes());
                 }
             }
         }

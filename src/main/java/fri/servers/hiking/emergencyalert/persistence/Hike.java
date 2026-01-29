@@ -26,12 +26,6 @@ public class Hike
     private Date plannedBegin = suggestedStart; // timer starts here
     private Date plannedHome = suggestedEnd; // timer begins alerting here
     
-    private int alertIntervalMinutes = 60; // alerting interval
-    private float alertIntervalShrinking = 0.0f; // how the interval gets smaller with every alert, by default no shrinking
-    private boolean useContactDetectionMinutes;
-    
-    private int confirmationPollingMinutes = 2; // confirmation polling interval
-    
     private Alert alert = new Alert();
     
     public String getRoute() {
@@ -57,31 +51,6 @@ public class Hike
     }
     public void setPlannedHome(Date plannedHome) {
         this.plannedHome = plannedHome;
-    }
-    
-    public int getAlertIntervalMinutes() {
-        return alertIntervalMinutes;
-    }
-    public void setAlertIntervalMinutes(int messageIntervalMinutes) {
-        this.alertIntervalMinutes = messageIntervalMinutes;
-    }
-    public float getAlertIntervalShrinking() {
-        return alertIntervalShrinking;
-    }
-    public void setAlertIntervalShrinking(float alertIntervalShrinking) {
-        this.alertIntervalShrinking = alertIntervalShrinking;
-    }
-    public boolean isUseContactDetectionMinutes() {
-        return useContactDetectionMinutes;
-    }
-    public void setUseContactDetectionMinutes(boolean useContactDetectionMinutes) {
-        this.useContactDetectionMinutes = useContactDetectionMinutes;
-    }
-    public int getConfirmationPollingMinutes() {
-        return confirmationPollingMinutes;
-    }
-    public void setConfirmationPollingMinutes(int confirmationPollingMinutes) {
-        this.confirmationPollingMinutes = confirmationPollingMinutes;
     }
     
     public Alert getAlert() {

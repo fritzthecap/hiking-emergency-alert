@@ -1,7 +1,6 @@
 package fri.servers.hiking.emergencyalert.persistence;
 
 import java.io.File;
-import java.util.Date;
 import java.util.Objects;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
@@ -15,12 +14,7 @@ public class Validation
             throw new IllegalArgumentException(
                     "Planned begin or end of hike is missing!");
             
-        final Date now = DateUtil.eraseHours(DateUtil.now()); // day precision only
-        if (hike.getPlannedBegin().before(now))
-            throw new IllegalArgumentException(
-                    "Can not start a hike with planned begin in past: "+hike.getPlannedBegin()+", now is "+now);
-            
-        if (hike.getPlannedHome().after(hike.getPlannedBegin()) == false)
+        if (false == hike.getPlannedHome().after(hike.getPlannedBegin()))
             throw new IllegalArgumentException(
                     "The hike's planned begin at "+DateUtil.toString(hike.getPlannedBegin())+
                     " is not before end at "+DateUtil.toString(hike.getPlannedHome()));
@@ -29,19 +23,19 @@ public class Validation
             throw new IllegalArgumentException(
                     "Having no contacts to notify about accident, either all are absent or list is empty!");
             
-        if (hike.getAlertIntervalMinutes() <= 0)
+        if (false == hike.getAlert().isUseContactDetectionMinutes() && hike.getAlert().getAlertIntervalMinutes() <= 0)
             throw new IllegalArgumentException(
-                    "The overdue alert interval must be greater zero!");
+                    "The overdue alert interval must be greater zero when not using contact detection minutes!");
             
-        if (hike.getConfirmationPollingMinutes() <= 0)
+        if (hike.getAlert().getConfirmationPollingMinutes() <= 0)
             throw new IllegalArgumentException(
                     "The confirmation polling interval must be greater zero!");
         
-        if (hike.getAlertIntervalMinutes() <= hike.getConfirmationPollingMinutes())
+        if (hike.getAlert().getAlertIntervalMinutes() <= hike.getAlert().getConfirmationPollingMinutes())
             throw new IllegalArgumentException(
                     "The overdue alert interval must be longer than the confirmation polling interval, but "+
-                    hike.getAlertIntervalMinutes()+" <= "+
-                    hike.getConfirmationPollingMinutes());
+                    hike.getAlert().getAlertIntervalMinutes()+" <= "+
+                    hike.getAlert().getConfirmationPollingMinutes());
         
         if (StringUtil.isEmpty(hike.getRoute()) && hike.getRouteImages() == null)
             throw new IllegalArgumentException(
@@ -51,7 +45,11 @@ public class Validation
             throw new IllegalArgumentException(
                     "The subject for the overdue alert must not be empty!");
                 
-        if (StringUtil.isEmpty(hike.getAlert().getPassingToNextText()))
+        if (StringUtil.isEmpty(hike.getAlert().getHelpRequestText()))
+            throw new IllegalArgumentException(
+                    "The text for the overdue alert must not be empty!");
+                
+        if (hike.getAlert().isUsePassingToNextMail() && StringUtil.isEmpty(hike.getAlert().getPassingToNextText()))
             throw new IllegalArgumentException(
                     "The passing-to-next text must not be empty!");
                 

@@ -90,7 +90,7 @@ public class ContactsPage extends AbstractWizardPage
     
     private JComponent buildContactsUi() {
         nameOfHikerField = SwingUtil.buildTextField(
-                i18n("Your Name"),
+                "* "+i18n("Your Name"),
                 i18n("Will appear in mail signature"),
                 null);
         
@@ -105,7 +105,7 @@ public class ContactsPage extends AbstractWizardPage
                 null);
         
         final JComponent contactsTable = buildContactsTable();
-        contactsTable.setBorder(BorderFactory.createTitledBorder(i18n("Emergency Alert Contacts")));
+        contactsTable.setBorder(BorderFactory.createTitledBorder("* "+i18n("Emergency Alert Contacts")));
         
         final JPanel hikerPanel = new JPanel();
         hikerPanel.setLayout(new BoxLayout(hikerPanel, BoxLayout.X_AXIS));
@@ -432,18 +432,24 @@ public class ContactsPage extends AbstractWizardPage
     }
     
     private void populateIntervalsUi(Hike hike) {
-        alertIntervalMinutesField.setValue(hike.getAlertIntervalMinutes());
-        alertIntervalShrinkingField.setValue(floatToPercent(hike.getAlertIntervalShrinking()));
-        useContactDetectionMinutesField.setSelected(hike.isUseContactDetectionMinutes());
-        confirmationPollingMinutesField.setValue(hike.getConfirmationPollingMinutes());
+        alertIntervalMinutesField.setValue(hike.getAlert().getAlertIntervalMinutes());
+        alertIntervalShrinkingField.setValue(floatToPercent(hike.getAlert().getAlertIntervalShrinking()));
+        useContactDetectionMinutesField.setSelected(hike.getAlert().isUseContactDetectionMinutes());
+        confirmationPollingMinutesField.setValue(hike.getAlert().getConfirmationPollingMinutes());
     }
     
     private String validateIntervalsFields() {
-        if (SwingUtil.getNumberValue(confirmationPollingMinutesField) <= 0)
+        final int alertInterval = SwingUtil.getNumberValue(alertIntervalMinutesField);
+        final int pollingInterval = SwingUtil.getNumberValue(confirmationPollingMinutesField);
+        
+        if (pollingInterval <= 0)
             return i18n("Confirmation Polling Minutes must be greater zero!");
         
+        if (alertInterval <= pollingInterval)
+            return i18n("Alert Interval must be greater than Confirmation Polling Interval!");
+        
         if (useContactDetectionMinutesField.isSelected() == false) {
-            if (SwingUtil.getNumberValue(alertIntervalMinutesField) <= 0)
+            if (alertInterval <= 0)
                 return i18n("Alert Interval Minutes must not be empty!");
             
             final int alertIntervalShrinking = SwingUtil.getNumberValue(alertIntervalShrinkingField);
@@ -461,16 +467,16 @@ public class ContactsPage extends AbstractWizardPage
         
         final int alertIntervalMinutes = SwingUtil.getNumberValue(alertIntervalMinutesField);
         if (alertIntervalMinutes > 0)
-            hike.setAlertIntervalMinutes(alertIntervalMinutes);
+            hike.getAlert().setAlertIntervalMinutes(alertIntervalMinutes);
         
         final int alertIntervalShrinking = SwingUtil.getNumberValue(alertIntervalShrinkingField);
         if (alertIntervalShrinking >= MINIMUM_INTERVAL_SHRINKING_PERCENT && alertIntervalShrinking <= MAXIMUM_INTERVAL_SHRINKING_PERCENT)
-            hike.setAlertIntervalShrinking(percentToFloat(alertIntervalShrinking));
+            hike.getAlert().setAlertIntervalShrinking(percentToFloat(alertIntervalShrinking));
         
-        hike.setUseContactDetectionMinutes(useContactDetectionMinutesField.isSelected());
+        hike.getAlert().setUseContactDetectionMinutes(useContactDetectionMinutesField.isSelected());
         
         final int confirmationPollingMinutes = SwingUtil.getNumberValue(confirmationPollingMinutesField);
-        hike.setConfirmationPollingMinutes(confirmationPollingMinutes);
+        hike.getAlert().setConfirmationPollingMinutes(confirmationPollingMinutes);
         
         return true;
     }

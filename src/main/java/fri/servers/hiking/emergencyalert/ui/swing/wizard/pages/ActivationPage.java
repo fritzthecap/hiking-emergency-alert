@@ -117,7 +117,7 @@ public class ActivationPage extends AbstractWizardPage
                 BorderLayout.CENTER);
         
         final JSplitPane mailsSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        mailsSplit.setResizeWeight(0.5);
+        mailsSplit.setResizeWeight(0.7);
         mailsSplit.setOneTouchExpandable(true);
         mailsSplit.setTopComponent(alertMailPanel);
         mailsSplit.setBottomComponent(passingToNextMailPanel);

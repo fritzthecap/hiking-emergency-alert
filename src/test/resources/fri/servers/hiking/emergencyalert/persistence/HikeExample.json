@@ -5,10 +5,6 @@
   ],
   "plannedBegin": "2026-01-13 08:00",
   "plannedHome": "2026-01-13 08:01",
-  "alertIntervalMinutes": 2,
-  "alertIntervalShrinking": 0.0,
-  "useContactDetectionMinutes": false,
-  "confirmationPollingMinutes": 1,
   "alert": {
     "helpRequestTitle": "Hiking emergency - I need help!",
     "helpRequestText": "I had an accident while hiking and need help. Below you find a description of my planned route.",
@@ -24,6 +20,10 @@
     "addressOfHiker": "Hikerstreet 1, A-1234 Hikertown, Antarctica",
     "phoneNumberOfHiker": "1234567889",
     "iso639Language": "en",
+    "alertIntervalMinutes": 2,
+    "alertIntervalShrinking": 0.0,
+    "useContactDetectionMinutes": false,
+    "confirmationPollingMinutes": 1,
     "alertContacts": [
       {
         "mailAddress": "example.user@provider.org",

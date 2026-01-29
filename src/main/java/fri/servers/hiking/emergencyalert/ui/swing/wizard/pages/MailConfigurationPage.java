@@ -100,36 +100,33 @@ public class MailConfigurationPage extends AbstractWizardPage
     @Override
     protected void buildUi() {
         mailUserField = SwingUtil.buildTextField(
-                i18n("Mail User"), 
+                "* "+i18n("Mail User"), 
                 i18n("Normally this is your mail address"), 
                 null);
         
-        final JComponent mailPassword = 
-                new JLabel(i18n("The mail password will be requested when activating the hike."));
-        
         receiveMailProtocolField = SwingUtil.buildComboBox(
-                i18n("Protocol"), 
+                "* "+i18n("Protocol"), 
                 i18n("Protocol to use for reading INBOX mails"), 
                 new String [] { "pop3", "imap" });
         receiveMailHostField = SwingUtil.buildTextField(
-                i18n("Host"), 
+                "* "+i18n("Host"), 
                 i18n("Something like 'pop.provider.domain' or 'imap.provider.domain'"), 
                 null);
         receiveMailPortField = SwingUtil.buildNumberField(
-                i18n("Port"), 
+                "* "+i18n("Port"), 
                 i18n("POP3 uses 110 or 995 (secure), IMAP uses 143 or 993 (secure)"),
                 110);
         
         sendMailProtocolField = SwingUtil.buildComboBox(
-                i18n("Protocol"), 
+                "* "+i18n("Protocol"), 
                 i18n("Protocol to use for sending mail"), 
                 new String [] { "smtp" });
         sendMailHostField = SwingUtil.buildTextField(
-                i18n("Host"), 
+                "* "+i18n("Host"), 
                 i18n("Maybe the same as receive host, or something like 'smtp.provider.domain'"), 
                 null);
         sendMailPortField = SwingUtil.buildNumberField(
-                i18n("Port"), 
+                "* "+i18n("Port"), 
                 i18n("SMTP uses 25 or 587 (secure)"),
                 25);
         sendMailFromAccountField = SwingUtil.buildTextField(
@@ -169,7 +166,7 @@ public class MailConfigurationPage extends AbstractWizardPage
                 6);
         maximumConnectionTestSecondsField.setColumns(3);
         
-        layoutFields(mailPassword, maximumConnectionTestSecondsLabel, seconds);
+        layoutFields(maximumConnectionTestSecondsLabel, seconds);
         
         bindProtocolToPort();
         
@@ -346,11 +343,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         return (error == null);
     }
 
-    private void layoutFields(JComponent mailPassword, JLabel maximumConnectionTestSecondsLabel, JLabel seconds) {
-        final JPanel mailUserPanel = new JPanel(new BorderLayout());
-        mailUserPanel.add(mailUserField, BorderLayout.CENTER);
-        mailUserPanel.add(mailPassword, BorderLayout.SOUTH);
-        
+    private void layoutFields(JLabel maximumConnectionTestSecondsLabel, JLabel seconds) {
         final JPanel receivePanel = new JPanel();
         receivePanel.setLayout(new BoxLayout(receivePanel, BoxLayout.Y_AXIS));
         receivePanel.setBorder(BorderFactory.createTitledBorder(i18n("Receive")));
@@ -383,7 +376,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         southPanel.add(maximumSecondsPanel);
         
         final JPanel all = new JPanel(new BorderLayout());
-        all.add(mailUserPanel, BorderLayout.NORTH);
+        all.add(mailUserField, BorderLayout.NORTH);
         all.add(sendAndReceive, BorderLayout.CENTER);
         all.add(southPanel, BorderLayout.SOUTH);
         

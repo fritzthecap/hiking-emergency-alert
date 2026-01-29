@@ -142,7 +142,7 @@ public class ObservationPage extends AbstractWizardPage
                 Log.redirectOut(consoleOut);
                 Log.redirectErr(consoleErr);
                 
-                // change to state HikeActivated
+                // change to state HikeActivated, this triggers another mail connection check
                 getStateMachine().getUserInterface().activateHike(hike);
             }
             catch (Exception e) { // validation assertions could strike
@@ -197,7 +197,7 @@ public class ObservationPage extends AbstractWizardPage
                     message,
                     i18n("Confirm Termination"),
                     JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE))
+                    stateMachine.notYetOnTheWay() ? JOptionPane.WARNING_MESSAGE : JOptionPane.QUESTION_MESSAGE))
             {
                 endState(stateMachine.inTime());
                 getStateMachine().getUserInterface().comingHome();

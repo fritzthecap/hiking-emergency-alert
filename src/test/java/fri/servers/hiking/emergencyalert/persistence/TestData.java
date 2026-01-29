@@ -22,8 +22,8 @@ public class TestData
         hike.setRoute("From Mount Everest to Kilimanjaro via Antarctica");
         hike.setRouteImages(List.of("C:\\hikes\\maps\\everest-to-kilimanjaro.png"));
         
-        hike.setAlertIntervalMinutes(60);
-        hike.setConfirmationPollingMinutes(2);
+        hike.getAlert().setAlertIntervalMinutes(60);
+        hike.getAlert().setConfirmationPollingMinutes(2);
         
         final Date plannedBegin = 
                 DateUtil.eraseSeconds( // no seconds for JSON round-trip test

@@ -50,9 +50,9 @@ class HikeTimerTest
         };
         
         final Hike hike = new Hike();
-        hike.setAlertIntervalMinutes(OVERDUE_ALERT_MINUTES);
-        hike.setAlertIntervalShrinking(1.0f);
-        hike.setUseContactDetectionMinutes(Boolean.FALSE);
+        hike.getAlert().setAlertIntervalMinutes(OVERDUE_ALERT_MINUTES);
+        hike.getAlert().setAlertIntervalShrinking(1.0f);
+        hike.getAlert().setUseContactDetectionMinutes(Boolean.FALSE);
         
         System.err.println("This is a test lasting "+TEST_MINUTES+" minutes! Starting timer at "+DateUtil.now());
         timer.start(plannedBegin, plannedHome, new IntervalModel(hike), dispatcher);

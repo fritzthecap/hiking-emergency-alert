@@ -79,10 +79,11 @@ public class HikeWizard extends JPanel
         
         // START keep order of statements!
         final boolean fileLoaded = readDefaultHikeAndLoadLanguage();
+        
         buildUi();
+        
         if (fileLoaded)
             pageIndex = 1; // skip language/file page
-        
         changePage(pageIndex, true);
         // END keep order of statements!
         
