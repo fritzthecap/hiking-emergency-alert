@@ -8,7 +8,9 @@ public class Alert
     private String helpRequestTitle;
     private String helpRequestText;
     private List<String> procedureTodos = new ArrayList<>();
+    
     private String passingToNextText;
+    private boolean usePassingToNextMail = true;
     
     private String nameOfHiker = System.getProperty("user.name");
     private String addressOfHiker;
@@ -38,12 +40,20 @@ public class Alert
     public void setProcedureTodos(List<String> procedureTodos) {
         this.procedureTodos = procedureTodos;
     }
+    
     public String getPassingToNextText() {
         return passingToNextText;
     }
     public void setPassingToNextText(String passingToNextText) {
         this.passingToNextText = passingToNextText;
     }
+    public boolean isUsePassingToNextMail() {
+        return usePassingToNextMail;
+    }
+    public void setUsePassingToNextMail(boolean usePassingToNextMail) {
+        this.usePassingToNextMail = usePassingToNextMail;
+    }
+    
     public String getNameOfHiker() {
         return nameOfHiker;
     }
@@ -62,18 +72,21 @@ public class Alert
     public void setPhoneNumberOfHiker(String phoneNumberOfHiker) {
         this.phoneNumberOfHiker = phoneNumberOfHiker;
     }
+    
     public String getIso639Language() {
         return iso639Language;
     }
     public void setIso639Language(String iso639Language) {
         this.iso639Language = iso639Language;
     }
+    
     public MailConfiguration getMailConfiguration() {
         return mailConfiguration;
     }
     public void setMailConfiguration(MailConfiguration mailConfiguration) {
         this.mailConfiguration = mailConfiguration;
     }
+    
     public List<Contact> getAlertContacts() {
         return alertContacts;
     }
@@ -81,6 +94,8 @@ public class Alert
         this.alertContacts = alertContacts;
     }
     
+    
+    /** Convenience method that delivers a list of contacts that are not marked as absent. */
     public List<Contact> getNonAbsentContacts() {
         final List<Contact> nonAbsent = new ArrayList<>();
         for (Contact contact : alertContacts)

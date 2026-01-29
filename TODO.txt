@@ -1,19 +1,11 @@
 
 Required input fields must be marked somehow.
 
-Passing-to-next mail text should be optional, not mandatory.
-    Add a checkbox on UI.
-
-Implement JSON Hike file loading and saving.
-    It should support a default file,
-    and arbitrary user-chosen files for
-    different purposes (dead message, hike observation, ...) 
+Left side descriptions of current wizard page, in HTML
 
 The wizard should have an outline of its pages
     on bottom that can be clicked to jump over
     pages that hold good defaults.
-
-Left side descriptions of current wizard page, in HTML
 
 The whole application needs bigger fonts!
 

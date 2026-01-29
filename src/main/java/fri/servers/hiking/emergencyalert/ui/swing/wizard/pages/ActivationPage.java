@@ -8,6 +8,7 @@ import java.awt.GridLayout;
 import java.io.File;
 import java.util.Date;
 import java.util.List;
+import javax.swing.BoxLayout;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -60,7 +61,8 @@ public class ActivationPage extends AbstractWizardPage
         
         hikerData = SwingUtil.buildTextArea(i18n("You"));
         
-        contactsAndSendTimes = SwingUtil.buildTextArea(i18n("Planned Alert Times for Contacts"));
+        contactsAndSendTimes = SwingUtil.buildTextArea(null);
+        contactsAndSendTimes.setRows(3);
         
         alertMailSubject = SwingUtil.buildTextField(i18n("Alert Mail Subject"), null, null);
         alertMailSubject.setEditable(false);
@@ -78,13 +80,17 @@ public class ActivationPage extends AbstractWizardPage
         
         // layout
         
-        final JPanel timesAndHikerPanel = new JPanel(new BorderLayout());
-        timesAndHikerPanel.add(hikeTimes, BorderLayout.NORTH);
+        final JPanel timesAndHikerPanel = new JPanel();
+        timesAndHikerPanel.setLayout(new BoxLayout(timesAndHikerPanel, BoxLayout.Y_AXIS));
+        
+        timesAndHikerPanel.add(hikeTimes);
         
         final JPanel hikerAndContactsPanel = new JPanel(new GridLayout(1, 2));
         hikerAndContactsPanel.add(hikerData);
-        hikerAndContactsPanel.add(contactsAndSendTimes);
-        timesAndHikerPanel.add(hikerAndContactsPanel, BorderLayout.CENTER);
+        hikerAndContactsPanel.add(SwingUtil.buildScrollPane(
+                i18n("Planned Alert Times for Contacts"), 
+                contactsAndSendTimes));
+        timesAndHikerPanel.add(hikerAndContactsPanel);
        
         final JSplitPane alertMailSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         alertMailSplitPane.setResizeWeight(0.8);
@@ -144,6 +150,10 @@ public class ActivationPage extends AbstractWizardPage
         final Mail passingToNextMail = mailBuilder.buildPassingToNextMail();
         passingToNextMailSubject.setText(passingToNextMail.subject());
         passingToNextMailText.setText(passingToNextMail.text());
+        
+        passingToNextMailSubject.setEnabled(alert.isUsePassingToNextMail());
+        passingToNextMailText.setEnabled(alert.isUsePassingToNextMail());
+        passingToNextMailText.getParent().getParent().setEnabled(alert.isUsePassingToNextMail());
     }
     
     /**

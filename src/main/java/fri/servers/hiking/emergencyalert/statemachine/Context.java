@@ -143,7 +143,8 @@ public class Context
             if (sendAlertMessage(currentContact)) { // mail sending worked
                 contactIndex++; // skip to next contact
                 
-                if (previousContact != null) // tell previous contact about skip, in 1 second
+                if (previousContact != null && hike.getAlert().isUsePassingToNextMail())
+                    // tell previous contact about skip, in 1 second
                     timer.runInSeconds(() -> sendPassingToNext(previousContact), 1);
                 
                 if (isFirstCall) {

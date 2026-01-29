@@ -20,6 +20,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JList;
@@ -50,6 +51,7 @@ public class MailTextsPage extends AbstractWizardPage
     private JTextArea mailIntroductionTextField;
     private JList<String> procedureTodosField;
     private JTextArea passingToNextTextField;
+    private JCheckBox usePassingToNextMail;
     
     @Override
     protected String getTitle() {
@@ -75,6 +77,15 @@ public class MailTextsPage extends AbstractWizardPage
                 i18n("Text that will be sent to every contact that did not respond in time"),
                 i18n("As you did not respond in time, an alert mail has been sent to next contact $nextContact. You can ignore the preceding mail."));
         passingToNextTextField.setRows(3);
+        
+        usePassingToNextMail = new JCheckBox(i18n("Use Passing-to-next Mail"), true);
+        usePassingToNextMail.setToolTipText(i18n("When off, no mail is sent to previous contact when next contact gets alerted"));
+        usePassingToNextMail.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                passingToNextTextField.setEnabled(usePassingToNextMail.isSelected());
+            }
+        });
         
         final JButton variablesHelpButton = new JButton(i18n("Variables"));
         variablesHelpButton.setToolTipText(i18n("Text substitution variables you can use here"));
@@ -102,9 +113,10 @@ public class MailTextsPage extends AbstractWizardPage
                 i18n("Alert Mail Text"), 
                 mailIntroductionTextField)); // full width
         
-        panel.add(todoList, BorderLayout.CENTER);
+        panel.add(todoList);
         
-        panel.add(Box.createRigidArea(new Dimension(1, 20)));
+        usePassingToNextMail.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        panel.add(usePassingToNextMail);
         
         panel.add(SwingUtil.buildScrollPane(
                 i18n("Continue-to-next Mail Text"),
@@ -135,6 +147,9 @@ public class MailTextsPage extends AbstractWizardPage
             procedureTodosField.setSelectedIndex(0);
         }
         
+        usePassingToNextMail.setSelected(alert.isUsePassingToNextMail());
+        passingToNextTextField.setEnabled(alert.isUsePassingToNextMail());
+        
         if (StringUtil.isNotEmpty(alert.getPassingToNextText()))
             passingToNextTextField.setText(alert.getPassingToNextText());
     }
@@ -147,8 +162,9 @@ public class MailTextsPage extends AbstractWizardPage
         if (StringUtil.isEmpty(mailIntroductionTextField.getText()) && procedureTodosAreEmpty())
             return i18n("Either Mail Text or Steps to be Taken must have content!");
         
-        if (StringUtil.isEmpty(passingToNextTextField.getText()))
-            return i18n("Passing-to-next Text must not be empty!");
+        if (usePassingToNextMail.isSelected())
+            if (StringUtil.isEmpty(passingToNextTextField.getText()))
+                return i18n("Passing-to-next Text must not be empty!");
         
         return null;
     }
@@ -172,6 +188,8 @@ public class MailTextsPage extends AbstractWizardPage
             }
             alert.setProcedureTodos(newList);
         }
+        
+        alert.setUsePassingToNextMail(usePassingToNextMail.isSelected());
         
         if (StringUtil.isNotEmpty(passingToNextTextField.getText()))
             alert.setPassingToNextText(passingToNextTextField.getText());
@@ -198,8 +216,10 @@ public class MailTextsPage extends AbstractWizardPage
             }
         };
         mailSubjectField.addFocusListener(focusListener);
+        mailIntroductionTextField.addFocusListener(focusListener);
         passingToNextTextField.addFocusListener(focusListener);
         procedureTodosField.addFocusListener(focusListener);
+        usePassingToNextMail.addFocusListener(focusListener);
     }
     
     private JComponent buildProcedureTodosList() {
@@ -309,7 +329,7 @@ public class MailTextsPage extends AbstractWizardPage
         tablePanel.add(buttonsPanel, BorderLayout.EAST);
         
         final JSplitPane listSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        listSplitPane.setResizeWeight(0.7);
+        listSplitPane.setResizeWeight(0.8);
         listSplitPane.setTopComponent(tablePanel);
         listSplitPane.setBottomComponent(new JScrollPane(cellEditor));
 
