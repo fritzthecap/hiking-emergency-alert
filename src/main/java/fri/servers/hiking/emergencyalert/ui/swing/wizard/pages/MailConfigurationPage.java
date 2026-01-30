@@ -9,9 +9,6 @@ import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -19,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.function.Consumer;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -40,7 +38,6 @@ import fri.servers.hiking.emergencyalert.ui.swing.util.PropertiesEditDialog;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
-import jakarta.mail.Authenticator;
 
 /**
  * Configure mail send- and receive-connection.
@@ -90,8 +87,6 @@ public class MailConfigurationPage extends AbstractWizardPage
     
     private Properties customPropertiesToCommit;
 
-    private Authenticator validAuthenticator;
-    
     @Override
     protected String getTitle() {
         return i18n("Mail Connection Configuration");
@@ -170,7 +165,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         
         bindProtocolToPort();
         
-        installFocusListeners();
+        installFocusValidation();
     }
 
     @Override
@@ -237,8 +232,6 @@ public class MailConfigurationPage extends AbstractWizardPage
                 return false; // connection is not working!
         }
         
-        getTrolley().setAuthenticator(validAuthenticator); // for reusing in the StateMachine's Mailer
-
         commitToMailConfiguration(getHike().getAlert().getMailConfiguration()); // commit to Hike data
         
         try { // silently save before going to route/times page
@@ -322,11 +315,15 @@ public class MailConfigurationPage extends AbstractWizardPage
         
         String error = null;
         try {
-            final ConnectionCheck connectionCheck = new ConnectionCheck(mailConfiguration, validAuthenticator);
-            final boolean success = connectionCheck.trySendAndReceive();
-            error = (success ? null : i18n("Either send or receive doesn't work, see console for errors."));
+            final ConnectionCheck connectionCheck = 
+                    new ConnectionCheck(mailConfiguration, getTrolley().getAuthenticator());
             
-            validAuthenticator = success ? connectionCheck.getValidAuthenticator() : null;
+            final boolean success = connectionCheck.trySendAndReceive();
+            
+            if (success) // reuse it in the StateMachine's Mailer
+                getTrolley().setAuthenticator(connectionCheck.getValidAuthenticator()); 
+            else
+                error = i18n("Either send or receive doesn't work, see console for errors.");
         }
         catch (MailException e) {
             System.err.println(e.toString());
@@ -403,27 +400,23 @@ public class MailConfigurationPage extends AbstractWizardPage
         receiveMailProtocolField.addItemListener(itemListener);
     }
 
-    private void installFocusListeners() {
-        final FocusListener focusListener = new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                final boolean valid = validate();
-                
-                mailPropertiesButton.setEnabled(valid);
-                mailTestButton.setEnabled(valid);
-            }
+    private void installFocusValidation() {
+        final JComponent[] focusComponents = new JComponent[] {
+                mailUserField,
+                receiveMailHostField,
+                receiveMailPortField,
+                (JComponent) receiveMailProtocolField.getEditor().getEditorComponent(),
+                sendMailHostField,
+                sendMailPortField,
+                (JComponent) sendMailProtocolField.getEditor().getEditorComponent(),
+                sendMailFromAccountField,
+                maximumConnectionTestSecondsField,
         };
-        focusListener.focusLost(null); // set initial state
-        
-        mailUserField.addFocusListener(focusListener);
-        receiveMailHostField.addFocusListener(focusListener);
-        receiveMailPortField.addFocusListener(focusListener);
-        receiveMailProtocolField.getEditor().getEditorComponent().addFocusListener(focusListener);
-        sendMailHostField.addFocusListener(focusListener);
-        sendMailPortField.addFocusListener(focusListener);
-        sendMailProtocolField.getEditor().getEditorComponent().addFocusListener(focusListener);
-        sendMailFromAccountField.addFocusListener(focusListener);
-        maximumConnectionTestSecondsField.addFocusListener(focusListener);
+        final Consumer<Boolean> afterValidate = (valid) -> {
+            mailPropertiesButton.setEnabled(valid);
+            mailTestButton.setEnabled(valid);
+        };
+        installFocusListener(focusComponents, afterValidate);
     }
 
     

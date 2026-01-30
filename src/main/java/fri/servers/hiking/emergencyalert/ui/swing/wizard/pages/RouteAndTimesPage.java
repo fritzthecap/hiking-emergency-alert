@@ -6,9 +6,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
@@ -123,7 +120,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
         
         getContentPanel().add(all, BorderLayout.CENTER);
         
-        installFocusListeners();
+        installFocusValidation();
     }
 
     @Override
@@ -348,17 +345,14 @@ public class RouteAndTimesPage extends AbstractWizardPage
     }
 
     
-    private void installFocusListeners() {
-        final FocusListener focusListener = new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                validate();
-            }
+    private void installFocusValidation() {
+        final JComponent[] focusComponents = new JComponent[] {
+                routeField,
+                plannedBeginDateField,
+                plannedBeginTimeField,
+                plannedHomeDateField,
+                plannedHomeTimeField,
         };
-        routeField.addFocusListener(focusListener);
-        plannedBeginDateField.addFocusListener(focusListener);
-        plannedBeginTimeField.addFocusListener(focusListener);
-        plannedHomeDateField.addFocusListener(focusListener);
-        plannedHomeTimeField.addFocusListener(focusListener);
+        installFocusListener(focusComponents, null);
     }
 }

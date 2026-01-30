@@ -9,8 +9,11 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.io.File;
 import java.util.Date;
+import java.util.function.Consumer;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JComponent;
@@ -38,9 +41,8 @@ public abstract class AbstractWizardPage
     private final JLabel errorField;
 
     private Trolley trolley;
-    private boolean uiWasBuilt;
-    
     private FileChooser saveFileChooser;
+    private UninstallableFocusListener focusListener;
     
     /** Constructor visible to sub-classes only. */
     protected AbstractWizardPage() {
@@ -85,23 +87,24 @@ public abstract class AbstractWizardPage
     protected abstract void populateUi(Hike hike);
 
     /**
-     * Called when entering this page. 
-     * Build UI when not done, populate UI with data.
+     * Called when entering this page. Builds and populates UI with data.
      * @param goingForward true when going to next page, false when to previous.
      * @param trolley contains StateMachine, Hike and other data passed between pages.
      */
     public final void enter(Trolley trolley, boolean goingForward) {
         this.trolley = trolley;
-        if (uiWasBuilt == false) {
-            titleField.setText(getTitle());
-            buildUi();
-            uiWasBuilt = true;
-        }
         
-        populateUi(trolley.stateMachine.getHike());
+        contentPanel.removeAll();
+        
+        titleField.setText(getTitle());
+        buildUi();
+        populateUi(getHike());
         
         if (goingForward)
             validate();
+        
+        contentPanel.revalidate();
+        contentPanel.repaint();
     }
 
     /**
@@ -127,9 +130,21 @@ public abstract class AbstractWizardPage
     }
 
     /**
+     * Installs a validating focus-listeners onto all given components.
+     * @param afterValidate something to be executed after validation, argument will be <code>valid</code>.
+     */
+    protected void installFocusListener(JComponent[] components, Consumer<Boolean> afterValidate) {
+        if (focusListener != null)
+            focusListener.uninstall(); // enable garbage-collection
+        
+        focusListener = new UninstallableFocusListener(components, afterValidate);
+    }
+
+    
+    /**
      * Called when going forward or backward to another page. 
      * @param goingForward true when going to next page, false when to previous.
-     * @return null when <code>commit()</code> returned null, else the trolley.
+     * @return null when <code>commit()</code> returned false, else the trolley.
      */
     public final Trolley leave(boolean goingForward) {
         if (goingForward) {
@@ -137,7 +152,15 @@ public abstract class AbstractWizardPage
             if (valid == false)
                 return null;
         }
-        return commit(goingForward) ? trolley : null;
+        
+        final boolean committed = commit(goingForward);
+        
+        if (committed && focusListener != null) {
+            focusListener.uninstall(); // enable garbage-collection
+            focusListener = null;
+        }
+        
+        return committed ? trolley : null;
     }
 
     /**
@@ -309,5 +332,35 @@ public abstract class AbstractWizardPage
                 i18n("Error"),
                 JOptionPane.ERROR_MESSAGE);
         return false;
+    }
+    
+
+    
+    private class UninstallableFocusListener extends FocusAdapter
+    {
+        private JComponent[] components;
+        private Consumer<Boolean> afterValidate;
+        
+        UninstallableFocusListener(JComponent[] components, Consumer<Boolean> afterValidate) {
+            this.components = components;
+            this.afterValidate = afterValidate;
+            
+            for (JComponent component : components)
+                component.addFocusListener(UninstallableFocusListener.this);
+        }
+        
+        @Override
+        public void focusLost(FocusEvent e) {
+            final boolean valid = validate();
+            
+            if (afterValidate != null)
+                afterValidate.accept(valid);
+        }
+        
+        void uninstall() {
+            for (JComponent component : components)
+                component.removeFocusListener(UninstallableFocusListener.this);
+            components = new JComponent[0];
+        }
     }
 }

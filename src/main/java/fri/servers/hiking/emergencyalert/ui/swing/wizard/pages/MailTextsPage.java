@@ -1,6 +1,12 @@
 package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 
-import static fri.servers.hiking.emergencyalert.mail.MailBuilder.*;
+import static fri.servers.hiking.emergencyalert.mail.MailBuilder.MACRO_ALL_CONTACTS;
+import static fri.servers.hiking.emergencyalert.mail.MailBuilder.MACRO_BEGIN_TIME;
+import static fri.servers.hiking.emergencyalert.mail.MailBuilder.MACRO_CONTACT;
+import static fri.servers.hiking.emergencyalert.mail.MailBuilder.MACRO_END_TIME;
+import static fri.servers.hiking.emergencyalert.mail.MailBuilder.MACRO_ME;
+import static fri.servers.hiking.emergencyalert.mail.MailBuilder.MACRO_MY_PHONE;
+import static fri.servers.hiking.emergencyalert.mail.MailBuilder.MACRO_NEXT_CONTACT;
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -8,9 +14,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -126,7 +129,7 @@ public class MailTextsPage extends AbstractWizardPage
         contentPanel.add(panel, BorderLayout.CENTER);
         getContentPanel().add(contentPanel);
         
-        installFocusListeners();
+        installFocusValidation();
     }
 
     @Override
@@ -208,20 +211,6 @@ public class MailTextsPage extends AbstractWizardPage
         return true;
     }
 
-    private void installFocusListeners() {
-        final FocusListener focusListener = new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                validate();
-            }
-        };
-        mailSubjectField.addFocusListener(focusListener);
-        mailIntroductionTextField.addFocusListener(focusListener);
-        passingToNextTextField.addFocusListener(focusListener);
-        procedureTodosField.addFocusListener(focusListener);
-        usePassingToNextMail.addFocusListener(focusListener);
-    }
-    
     private JComponent buildProcedureTodosList() {
         final DefaultListModel<String> listModel = new DefaultListModel<>();
         listModel.addElement(i18n("First try to reach me by phone $phone."));
@@ -357,5 +346,16 @@ public class MailTextsPage extends AbstractWizardPage
                 message,
                 i18n("Text Substitutions"), 
                 JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void installFocusValidation() {
+        final JComponent[] focusComponents = new JComponent[] {
+                mailSubjectField,
+                mailIntroductionTextField,
+                passingToNextTextField,
+                procedureTodosField,
+                usePassingToNextMail,
+        };
+        installFocusListener(focusComponents, null);
     }
 }

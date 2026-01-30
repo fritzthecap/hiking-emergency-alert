@@ -22,6 +22,13 @@ public class Trolley
         return "< "+i18n("Previous");
     }
     
+    /** Listeners are able to navigate to an arbitrary page. */
+    public interface PageRequestListener
+    {
+        /** Navigates to given page. */
+        void gotoPage(Class<? extends AbstractWizardPage> requestedPage);
+    }
+    
     public final StateMachine stateMachine;
     private final JButton nextButton, previousButton;
     private final DescriptionArea descriptionArea;
@@ -31,9 +38,18 @@ public class Trolley
     
     private Authenticator authenticator;
     
-    public Trolley(StateMachine stateMachine, DescriptionArea descriptionArea, JButton nextButton, JButton previousButton) {
+    private PageRequestListener pageRequestListener;
+    
+    public Trolley(
+            StateMachine stateMachine, 
+            DescriptionArea descriptionArea,
+            PageRequestListener pageRequestListener,
+            JButton nextButton, 
+            JButton previousButton)
+    {
         this.stateMachine = Objects.requireNonNull(stateMachine);
         this.descriptionArea = descriptionArea;
+        this.pageRequestListener = pageRequestListener;
         this.nextButton = nextButton;
         this.previousButton = previousButton;
 
@@ -55,9 +71,11 @@ public class Trolley
         return authenticator;
     }
     
+    /** @return explicitly loaded hike file, or null when default. */
     public File getHikeFile() {
         return hikeFile;
     }
+    /** Called when loading a hike-file from disk, or saving one to disk. */
     public void setHikeFile(File hikeFile) {
         this.hikeFile = hikeFile;
         refreshHikeCopy();
@@ -70,6 +88,11 @@ public class Trolley
         previousButton.setEnabled(enabled);
     }
     
+    /** Makes it possible to go to an arbitrary page. */
+    public void gotoPage(Class<? extends AbstractWizardPage> requestedPage) {
+        pageRequestListener.gotoPage(requestedPage);
+    }
+    
     /** Called on language change. */
     public void refreshLanguage() {
         nextButton.setText(buildNextButtonText());
@@ -77,18 +100,17 @@ public class Trolley
         descriptionArea.refreshLanguage();
     }
     
-    /** Called when loading a hike-file from disk, or saving one to disk. */
-    private void refreshHikeCopy() {
-        this.hikeCopy = hikeToJsonString(stateMachine.getHike());
-    }
-    
+    /**
+     * Saves hike to persistence.
+     * @param hike the hike to save as JSON.
+     */
     public void save(Hike hike) throws Exception {
         save(new HikeFileManager(), getHikeFile(), hike);
     }
     
     /**
      * Saves hike to persistence.
-     * @param hikeFileManager saves to file.
+     * @param hikeFileManager the file-manager that saves JSON files.
      * @param targetFile null for default file, or an explicitly chosen file.
      * @param hike the hike to save as JSON.
      * @return the file where hike was written to.
@@ -106,12 +128,16 @@ public class Trolley
             actualFile = new File(hikeFileManager.getSavePathFile());
         }
         
-        refreshHikeCopy(); // refresh change-detection with new data
+        refreshHikeCopy(); // refresh change-detection with current persistence-state
         
         return actualFile;
     }
     
     private String hikeToJsonString(Hike hike) {
         return new JsonGsonSerializer<Hike>().toJson(hike);
+    }
+    
+    private void refreshHikeCopy() {
+        this.hikeCopy = hikeToJsonString(stateMachine.getHike());
     }
 }

@@ -187,16 +187,17 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         
         final Trolley trolley;
         if (isFirstCall) // application startup
-            trolley = new Trolley(stateMachine, descriptionArea, nextButton, previousButton); // travels through all pages
+            trolley = createTrolley(); // travels through all pages
         else
             if ((trolley = oldPage.leave(goingForward)) != null) // can leave
                 contentPanel.remove(oldPage.getAddablePanel());
             else
                 return; // page does not allow to skip
 
-        final AbstractWizardPage newPage = pages[newIndex];
-        contentPanel.add(newPage.getAddablePanel(), BorderLayout.CENTER);
         pageIndex = newIndex;
+        
+        final AbstractWizardPage newPage = pages[pageIndex];
+        contentPanel.add(newPage.getAddablePanel(), BorderLayout.CENTER);
         
         descriptionArea.loadTextFor(newPage.getClass());
         
@@ -206,6 +207,28 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         
         contentPanel.revalidate();
         contentPanel.repaint();
+    }
+    
+    private Trolley createTrolley() {
+        return new Trolley(
+                stateMachine, 
+                descriptionArea,
+                new Trolley.PageRequestListener() {
+                    @Override
+                    public void gotoPage(Class<? extends AbstractWizardPage> requestedPage) {
+                        changePage(determinePageIndex(requestedPage), false);
+                    }
+                },
+                nextButton, 
+                previousButton); // travels through all pages
+    }
+
+    private int determinePageIndex(Class<? extends AbstractWizardPage> requestedPage) {
+        for (int i = 0; i < pages.length; i++)
+            if (pages[i].getClass().equals(requestedPage))
+                return i;
+        
+        throw new IllegalArgumentException("Unknown page class: "+requestedPage);
     }
 
     private void setButtonsEnabled() {

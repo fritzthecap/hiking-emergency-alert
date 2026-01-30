@@ -199,8 +199,10 @@ public class ObservationPage extends AbstractWizardPage
                     JOptionPane.YES_NO_OPTION,
                     stateMachine.notYetOnTheWay() ? JOptionPane.WARNING_MESSAGE : JOptionPane.QUESTION_MESSAGE))
             {
-                endState(stateMachine.inTime());
+                // START keep order of statements
                 getStateMachine().getUserInterface().comingHome();
+                endState(stateMachine.inTime());
+                // END keep order of statements
             }
         }
     }
@@ -223,10 +225,12 @@ public class ObservationPage extends AbstractWizardPage
                         JOptionPane.QUESTION_MESSAGE))
         {
             final Hike oldHike = getHike();
-            final Hike newHike = new Hike();
+            final Hike newHike = new Hike(); // new Hike contains no route yet!
             newHike.setAlert(oldHike.getAlert());
             
             getStateMachine().getUserInterface().registerHike(newHike);
+            
+            getTrolley().gotoPage(RouteAndTimesPage.class); // go back to "Route" page
         }
     }
 }

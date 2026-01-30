@@ -7,9 +7,6 @@ import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -65,6 +62,7 @@ public class ContactsPage extends AbstractWizardPage
     protected void buildUi() {
         getContentPanel().add(buildContactsUi(), BorderLayout.CENTER);
         getContentPanel().add(buildIntervalsUi(), BorderLayout.SOUTH);
+        installFocusValidation();
     }
 
     @Override
@@ -118,8 +116,6 @@ public class ContactsPage extends AbstractWizardPage
         panel.add(hikerPanel);
         panel.add(Box.createRigidArea(new Dimension(1, 16)));
         panel.add(contactsTable);
-        
-        installContactsFocusListeners();
         
         return panel;
     }
@@ -373,18 +369,6 @@ public class ContactsPage extends AbstractWizardPage
                 StringUtil.isEmpty(lastName));
     }
     
-    private void installContactsFocusListeners() {
-        final FocusListener focusListener = new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                validate();
-            }
-        };
-        nameOfHikerField.addFocusListener(focusListener);
-        addressOfHikerField.addFocusListener(focusListener);
-        phoneNumberOfHikerField.addFocusListener(focusListener);
-    }
-    
     
     private JComponent buildIntervalsUi() {
         alertIntervalMinutesField = SwingUtil.buildNumberField(
@@ -395,7 +379,7 @@ public class ContactsPage extends AbstractWizardPage
         alertIntervalShrinkingField = SwingUtil.buildNumberField(
                 i18n("Alert Interval Shrinking Percent"), 
                 i18n("25% on a 60 minutes interval would mean the 2nd interval be just 45 minutes, the 3rd just 34, etc."), 
-                100);
+                0);
         
         useContactDetectionMinutesField = new JCheckBox(i18n("Use Mail Detection Minutes of Contacts"));
         useContactDetectionMinutesField.setToolTipText(
@@ -425,8 +409,6 @@ public class ContactsPage extends AbstractWizardPage
         
         final JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         centerPanel.add(panel);
-        
-        installIntervalsFocusListeners();
         
         return centerPanel;
     }
@@ -490,16 +472,17 @@ public class ContactsPage extends AbstractWizardPage
         return (float) alertIntervalShrinking / 100f;
     }
     
-    private void installIntervalsFocusListeners() {
-        final FocusListener focusListener = new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                validate();
-            }
+    
+    private void installFocusValidation() {
+        final JComponent[] focusComponents = new JComponent[] {
+                confirmationPollingMinutesField,
+                useContactDetectionMinutesField,
+                alertIntervalMinutesField,
+                alertIntervalShrinkingField,
+                nameOfHikerField,
+                addressOfHikerField,
+                phoneNumberOfHikerField,
         };
-        confirmationPollingMinutesField.addFocusListener(focusListener);
-        useContactDetectionMinutesField.addFocusListener(focusListener);
-        alertIntervalMinutesField.addFocusListener(focusListener);
-        alertIntervalShrinkingField.addFocusListener(focusListener);
+        installFocusListener(focusComponents, null);
     }
 }
