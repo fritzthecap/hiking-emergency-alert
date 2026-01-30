@@ -1,11 +1,9 @@
 
-The hike's Begin Date/Time is not required!
-    Adjust validation to let it be optional.
-    Validation is in Validation.java and AbstractWizardPage.validateHikeTimes()
+Rename HelpRequestTitle to HelpRequestSubject, and
+    HelpRequestText to HelpRequestIntroduction
 
 Left side descriptions of current wizard page, in HTML.
-
-Multi-language support for at least German.
+    Translate UI text resources and HTML description texts!
 
 The whole application needs bigger fonts!
 
