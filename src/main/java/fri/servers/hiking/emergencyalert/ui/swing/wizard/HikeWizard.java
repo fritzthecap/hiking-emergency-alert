@@ -142,7 +142,7 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
     
     private void buildUi() {
         final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setResizeWeight(0.4);
+        splitPane.setResizeWeight(0.3);
         splitPane.setOneTouchExpandable(true);
         add(splitPane, BorderLayout.CENTER);
         splitPane.setLeftComponent(descriptionArea.getAddablePanel());

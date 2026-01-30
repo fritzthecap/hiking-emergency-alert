@@ -30,7 +30,7 @@ public class DescriptionArea
         this.descriptionArea = new JEditorPane();
         descriptionArea.setEditorKit(new HTMLEditorKit()); // .setContentType("text/html");
         descriptionArea.setEditable(false);
-        descriptionArea.setPreferredSize(new Dimension(50, 100));
+        descriptionArea.setPreferredSize(new Dimension(260, 260));
     }
     
     public JComponent getAddablePanel() {

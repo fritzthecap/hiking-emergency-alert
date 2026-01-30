@@ -39,12 +39,14 @@ public class HikeTimer extends Scheduler
      *      after every alert this will be applied on alertIntervalMinutes.
      */
     public void start(
-            final Date plannedBegin, 
+            Date plannedBegin, 
             final Date plannedHome, 
             IntervalModel intervalModel,
             EventDispatcher eventDispatcher)
     {
-        assertStart(plannedBegin, plannedHome); // excludes nulls
+        assertStart(plannedHome);
+        
+        final Date begin = (plannedBegin != null) ? plannedBegin : DateUtil.now();
         
         this.nextOverdueAlertTime = plannedHome;
         this.intervalModel = intervalModel;
@@ -62,7 +64,7 @@ public class HikeTimer extends Scheduler
         };
         
         super.start(scheduler -> {
-            scheduler.schedule(settingOff, plannedBegin);
+            scheduler.schedule(settingOff, begin);
             scheduler.schedule(createOverdueTask(), plannedHome);
         });
     }
@@ -88,12 +90,10 @@ public class HikeTimer extends Scheduler
     }
     
     
-    private void assertStart(Date plannedBegin, Date plannedHome) {
+    private void assertStart(Date plannedHome) {
         if (isRunning())
             throw new IllegalStateException(
                 "Timer is running, can not start again, start-events on a running StateMachine would cause errors!");
-        
-        Objects.requireNonNull(plannedBegin);
         
         if (Objects.requireNonNull(plannedHome).before(DateUtil.now()))
             throw new IllegalArgumentException("Planned home-time is before current time: "+plannedHome);

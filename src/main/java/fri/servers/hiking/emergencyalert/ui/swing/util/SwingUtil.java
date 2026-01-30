@@ -80,7 +80,7 @@ public final class SwingUtil
             numberField.commitEdit();
         }
         catch (ParseException e) {
-            System.err.println(e.toString());
+            //System.err.println(e.toString());
             return errorReturn;
         }
         final Object value = numberField.getValue();
@@ -182,6 +182,9 @@ public final class SwingUtil
          */
         public DateField(Date date, String formatString, String formatMask) {
             this.simpleDateFormat = new SimpleDateFormat(formatString);
+            
+            setFocusLostBehavior(JFormattedTextField.COMMIT); // else it restores value when getting empty
+            
             try {
                 final MaskFormatter maskFormatter = new MaskFormatter(formatMask);
                 setFormatterFactory(new DefaultFormatterFactory(maskFormatter));
@@ -199,13 +202,13 @@ public final class SwingUtil
                 return simpleDateFormat.parse(getText());
             }
             catch (ParseException e) {
-                System.err.println(e.toString());
+                //System.err.println(e.toString());
                 return null;
             }
         }
         
         public void setDateValue(Date date) {
-            final String text = simpleDateFormat.format((date != null) ? date : new Date());
+            final String text = (date != null) ? simpleDateFormat.format(date) : "";
             setText(text);
         }
     }

@@ -109,6 +109,7 @@ public class ObservationPage extends AbstractWizardPage
     
     @Override
     protected void populateUi(Hike hike) {
+        final String plannedBegin = (hike.getPlannedBegin() != null) ? DateUtil.toString(hike.getPlannedBegin()) : "";
         final String plannedHome = DateUtil.toString(hike.getPlannedHome());
         
         final String instructions = 
@@ -117,7 +118,7 @@ public class ObservationPage extends AbstractWizardPage
                 i18n("Emergency alert mails will be sent starting from")+" "+plannedHome+".\n"+
                 i18n("If you kill this window, the running observation will end!");
         instructionsArea.setText(instructions);
-        timePanel.setText(DateUtil.toString(hike.getPlannedBegin())+"   \u2192   "+plannedHome); // arrow right
+        timePanel.setText(plannedBegin+"   \u2192   "+plannedHome); // arrow right
         
         consoleOut.setText("");
         consoleErr.setText("");
@@ -200,8 +201,9 @@ public class ObservationPage extends AbstractWizardPage
                     stateMachine.notYetOnTheWay() ? JOptionPane.WARNING_MESSAGE : JOptionPane.QUESTION_MESSAGE))
             {
                 // START keep order of statements
+                final boolean inTime = stateMachine.inTime();
                 getStateMachine().getUserInterface().comingHome();
-                endState(stateMachine.inTime());
+                endState(inTime);
                 // END keep order of statements
             }
         }

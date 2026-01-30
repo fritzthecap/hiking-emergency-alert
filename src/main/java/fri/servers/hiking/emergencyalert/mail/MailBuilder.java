@@ -127,13 +127,14 @@ public class MailBuilder
     
     private String substitute(String text) {
         final String phoneNumber = hike.getAlert().getPhoneNumberOfHiker();
+        final String plannedBegin = (hike.getPlannedBegin() != null) ? DateUtil.toString(hike.getPlannedBegin()) : "";
         return text
                 .replace(MACRO_CONTACT, getContactName(this.contact))
                 .replace(MACRO_NEXT_CONTACT, getNextContactName())
                 .replace(MACRO_ALL_CONTACTS, getAllContactNames())
                 .replace(MACRO_ME, hike.getAlert().getNameOfHiker()) // never null
                 .replace(MACRO_MY_PHONE, StringUtil.isNotEmpty(phoneNumber) ? phoneNumber : "")
-                .replace(MACRO_BEGIN_TIME, DateUtil.toString(hike.getPlannedBegin())) // never null
+                .replace(MACRO_BEGIN_TIME, plannedBegin)
                 .replace(MACRO_END_TIME, DateUtil.toString(hike.getPlannedHome())); // never null
     }
 

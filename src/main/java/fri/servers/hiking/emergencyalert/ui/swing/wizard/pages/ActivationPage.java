@@ -131,7 +131,10 @@ public class ActivationPage extends AbstractWizardPage
     
     @Override
     protected void populateUi(Hike hike) {
-        hikeTimes.setText(DateUtil.toString(hike.getPlannedBegin())+"  \u2192  "+DateUtil.toString(hike.getPlannedHome()));
+        final String plannedBegin  = (hike.getPlannedBegin() != null) ? DateUtil.toString(hike.getPlannedBegin()) : "";
+        final String plannedEnd = DateUtil.toString(hike.getPlannedHome());
+        
+        hikeTimes.setText(plannedBegin+"  \u2192  "+plannedEnd);
         
         final Alert alert = hike.getAlert();
         
@@ -173,7 +176,7 @@ public class ActivationPage extends AbstractWizardPage
             final String message = 
                     i18n("Are you sure that you want to start the hike now?");
             final int response = JOptionPane.showConfirmDialog(
-                    getContentPanel(),
+                    getFrame(),
                     message,
                     i18n("Confirm Hike Begin"),
                     JOptionPane.YES_NO_OPTION,

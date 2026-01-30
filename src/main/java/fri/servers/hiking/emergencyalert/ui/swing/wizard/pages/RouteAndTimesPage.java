@@ -75,11 +75,11 @@ public class RouteAndTimesPage extends AbstractWizardPage
                 null);
         
         plannedHomeDateField = SwingUtil.buildDateField(
-                i18n("End Day"),
+                "* "+i18n("End Day"),
                 i18n("Date when you will be home again"),
                 null);
         plannedHomeTimeField = SwingUtil.buildTimeField(
-                i18n("Time"),
+                "* "+i18n("Time"),
                 i18n("24-hour time when you will be home again, the first alert mail would be sent then"),
                 null);
         
@@ -107,7 +107,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
         
         final JSplitPane routePanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         routePanel.setResizeWeight(0.5);
-        routePanel.setTopComponent(SwingUtil.buildScrollPane(i18n("Route Description"), routeField));
+        routePanel.setTopComponent(SwingUtil.buildScrollPane("* "+i18n("Route Description"), routeField));
         routePanel.setBottomComponent(imageTable);
         final JPanel splitPanel = new JPanel(new BorderLayout());
         splitPanel.add(routePanel, BorderLayout.CENTER);
@@ -138,7 +138,6 @@ public class RouteAndTimesPage extends AbstractWizardPage
             plannedBeginDateField.setDateValue(hike.getPlannedBegin());
             plannedBeginTimeField.setDateValue(hike.getPlannedBegin());
         }
-        // else: they would have now as default
         
         if (hike.getPlannedHome() != null) {
             plannedHomeDateField.setDateValue(hike.getPlannedHome());
@@ -156,15 +155,8 @@ public class RouteAndTimesPage extends AbstractWizardPage
         if (StringUtil.isEmpty(routeField.getText()))
             return i18n("The Route description must not be empty!");
         
-        final Date beginDate = plannedBeginDateField.getDateValue();
-        final Date beginTime = plannedBeginTimeField.getDateValue();
         final Date homeDate = plannedHomeDateField.getDateValue();
         final Date homeTime = plannedHomeTimeField.getDateValue();
-        
-        if (beginDate == null)
-            return i18n("The planned begin date must be given!");
-        if (beginTime == null)
-            return i18n("The planned begin time must be given!");
         
         if (homeDate == null)
             return i18n("The planned end date must be given!");
@@ -172,7 +164,14 @@ public class RouteAndTimesPage extends AbstractWizardPage
             return i18n("The planned end time must be given!");
         
         final Date homeDateTime = DateUtil.mergeDateAndTime(homeDate, homeTime);
-        final Date beginDateTime = DateUtil.mergeDateAndTime(beginDate, beginTime);
+        
+        final Date beginDate = plannedBeginDateField.getDateValue();
+        final Date beginTime = plannedBeginTimeField.getDateValue();
+        final Date beginDateTime;
+        if (beginDate != null && beginTime != null)
+            beginDateTime = DateUtil.mergeDateAndTime(beginDate, beginTime);
+        else
+            beginDateTime = null;
         
         return validateHikeTimes(beginDateTime, homeDateTime);
     }
@@ -203,11 +202,15 @@ public class RouteAndTimesPage extends AbstractWizardPage
         
         final Date beginDate = plannedBeginDateField.getDateValue();
         final Date beginTime = plannedBeginTimeField.getDateValue();
-        hike.setPlannedBegin(DateUtil.mergeDateAndTime(beginDate, beginTime));
+        if (beginDate != null && beginTime != null)
+            hike.setPlannedBegin(DateUtil.mergeDateAndTime(beginDate, beginTime));
+        else
+            hike.setPlannedBegin(null);
         
         final Date homeDate = plannedHomeDateField.getDateValue();
         final Date homeTime = plannedHomeTimeField.getDateValue();
-        hike.setPlannedHome(DateUtil.mergeDateAndTime(homeDate, homeTime));
+        if (homeDate != null && homeTime != null)
+            hike.setPlannedHome(DateUtil.mergeDateAndTime(homeDate, homeTime));
         
         return true;
     }

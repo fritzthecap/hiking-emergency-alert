@@ -98,7 +98,8 @@ public class Context
             throw new RuntimeException(e); // assuming user is still at the computer and sees the error
         }
         
-        System.out.println("Planned hike set-off is "+DateUtil.toString(hike.getPlannedBegin()));
+        if (hike.getPlannedBegin() != null)
+            System.out.println("Planned hike set-off is "+DateUtil.toString(hike.getPlannedBegin()));
         System.out.println("Emergency alerts will start at "+DateUtil.toString(hike.getPlannedHome()));
         System.out.println("Do NOT terminate this application before you are back!");
         System.out.println("Wish you luck, please click 'Home Again' as soon as you are back.");

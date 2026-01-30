@@ -211,9 +211,11 @@ public abstract class AbstractWizardPage
         if (millisInFuture / 60000 < 1) // home must be at least one minute after now
             return i18n("The planned end time must be in future!");
         
-        final long durationMillis = homeDateTime.getTime() - beginDateTime.getTime();
-        if (durationMillis / 60000 < 1) // duration must be at least one minute 
-            return i18n("The planned end time must be after begin!");
+        if (beginDateTime != null) {
+            final long durationMillis = homeDateTime.getTime() - beginDateTime.getTime();
+            if (durationMillis / 60000 < 1) // duration must be at least one minute 
+                return i18n("The planned end time must be after begin!");
+        }
         
         return null;
     }
@@ -302,7 +304,8 @@ public abstract class AbstractWizardPage
 
     private File createFilenameFromHike(String directory, String saveFilename) {
         final String baseName = saveFilename.substring(0, saveFilename.lastIndexOf("."));
-        final String beginDay = DateUtil.toDateString(getHike().getPlannedBegin());
+        final Date day = (getHike().getPlannedBegin() != null) ? getHike().getPlannedBegin() : getHike().getPlannedHome();
+        final String beginDay = DateUtil.toDateString(day);
         final String customName = baseName+"_"+beginDay+".json";
         return new File(directory, customName);
     }
