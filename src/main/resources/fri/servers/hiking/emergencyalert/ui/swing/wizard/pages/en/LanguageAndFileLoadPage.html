@@ -6,49 +6,49 @@
     
     <body>
         <p>
-        This desktop application runs at home while you are out on a hike.
-        It starts sending <b>alert e-mails</b> if you are not back within the scheduled time. 
-        <b>In case you have an accident in an area with no phone connection, this might save your life!</b>
+            This desktop application runs at home while you are out on a hike.
+            It starts sending <b>alert e-mails</b> if you are not back within the scheduled time. 
+            <b>In case you have an accident in an area with no phone connection, this might save your life!</b>
         </p>
         <p>
-        You need to have a <b>mail-provider</b> and -account, and a computer with <b>Internet connection</b>.
-        Further you need <b>mail contacts</b>, at least one, 
-        that could organize help for you in case of an emergency.
+            You need to have a <b>mail-provider</b> and -account, and a computer with <b>Internet connection</b>.
+            Further you need <b>mail contacts</b>, at least one, 
+            that could organize help for you in case of an emergency.
         </p>
         <ul>
-        <li>None of your contacts will receive an e-mail when you are back 
-          and press the <i style="white-space: nowrap;">"Home Again"</i> button in time.</li><br/>
-        <li>But when you are overdue, the first contact will get an e-mail 
-          (with the text you are going to input now).</li><br/>
-        <li>If that contact does not respond within an hour, the next contact will get the same e-mail,
-          and the first contact will be notified that the next was alerted.
-          Of course all of this is configurable.</li><br/>
-        <li>When one of the contacts responds to the alert e-mail, no more contacts will be notified.</li>
-        <li>The application uses a unique MAIL-ID to distinguish alert responses from your private mails.</li>
+            <li>None of your contacts will receive an e-mail when you are back in time
+                and press the <i style="white-space: nowrap;">"Home Again"</i> button.</li><br/>
+            <li>But when you are overdue, the first contact will get an e-mail 
+                (with a text you are going to input now).</li><br/>
+            <li>If that contact does not respond within an hour, the next contact will get the same e-mail,
+                and the first contact will be notified that the next was alerted.
+                Of course all of this is configurable.</li><br/>
+            <li>When one of the contacts responds to the alert e-mail, no more contacts will be notified.</li><br/>
+            <li>The application uses a unique MAIL-ID to distinguish alert responses from your private e-mails.</li>
         </ul>
         <p>
-        Here on the first page (to the right) you can choose your language,
-        or load a hike-file in case you already created a hike before.
-        The chosen language will be stored with the hike data.
+            Here on the first page (to the right) you can choose your language,
+            or load a hike-file in case you already created a hike before.
+            The chosen language will be stored with the hike data.
         </p>
         <p>
-        Next time you start this application, you most likely will not see this page any more, 
-        but you can always navigate <i>"Back"</i> to it and load any hike you ever created.
-        Hikes get stored in JSON format by default in 
+            Next time you start this application, you most likely will not see this page any more, 
+            but you can always navigate <i>"Back"</i> to it and load any hike you ever created.
+            Hikes get stored in JSON format by default in 
         </p>
         <p style="margin-left: 10"><code>$HOME/hiking-emergency-alert/hike.json</code></p>
         <p>
-        You can change that by running the application with 
-        <code>-Dhike.home=YourDirectory</code>
-        and also <code>-Dhike.file=MyHikeFile.json</code>.
+            You can change that by running the application with 
+            <code>-Dhike.home=MyDirectory</code>
+            and also <code>-Dhike.file=MyFile.json</code>.
         </p>
-        <p><i>
-        This is an open-source application that does not leak or steal your data,
-        although it needs Internet connection to send alert e-mails and receive response e-mails.
-        Your e-mail provider password will not be stored anywhere, 
-        you have to input it manually on every hike start. 
-        You can check the source code for integrity on</i>
-        github.com - fritzthecap - hiking-emergency-alert.
+        <p>
+            <i>This is an open-source application that does not leak or steal your data,
+            although it needs Internet connection to send alert e-mails and receive response e-mails.
+            Your e-mail provider password will not be stored anywhere, 
+            you have to input it manually on every hike start. 
+            You can check the integrity of the source-code on</i>
+            <b>github.com / fritzthecap / hiking-emergency-alert</b>.
         </p>
 
     </body>

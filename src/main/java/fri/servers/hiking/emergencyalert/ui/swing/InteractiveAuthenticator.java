@@ -89,7 +89,7 @@ public class InteractiveAuthenticator extends Authenticator
         public boolean display(Component parent, String title) {
             // set initial focus
             final JComponent focus = (usernameField.getText().length() <= 0 ? usernameField : passwordField);
-            final JOptionPane pane = new JOptionPane(panel, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION) {
+            final JOptionPane pane = new JOptionPane(panel, JOptionPane.QUESTION_MESSAGE, JOptionPane.DEFAULT_OPTION) {
                 @Override
                 public void selectInitialValue() {
                     focus.requestFocusInWindow();

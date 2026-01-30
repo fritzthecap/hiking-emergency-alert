@@ -6,6 +6,34 @@
     
     <body>
         <p>
+            <b>E-mail configuration</b> is not an easy task, but you need it. 
+            You can find your configuration for example on Android phones in 
+            <i>Settings -> Apps -> E-Mail ->
+            E-Mail settings ->
+            tap on the account (E-Mail Address) ->
+            scroll all the way down to Server Settings ->
+            Incoming Server, Outgoing Server.</i>
+        </p>
+        <p>
+            You may want to use other ports than secure ones, 
+            because the application has not been tested with secure mail. 
+            Anyway you can use the "More Properties" button 
+            to add connection settings (search for <i>jakarta email</i> documentations).
+        </p>
+        <p>
+            Both IMAP and POP3 protocols should work for receiving. 
+            Mind that their port is adjusted automatically when you toggle the protocol.
+        </p>
+        <p>
+            When navigating forward from here, the application tries to connect
+            to your INBOX, then sends a mail to it, receives it and also deletes it. 
+            Your password will be requested through a dialog.
+            No junk-mails will remain in your INBOX from this test, 
+            and it should be finished in seconds.
+        </p>
+        <p>
+            If your internet connection is slow, you should set the
+            "Maximum Connection Wait" seconds to a higher value.
         </p>
 
     </body>

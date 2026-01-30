@@ -1,5 +1,7 @@
 
-Required input fields must be marked somehow.
+The hike's Begin Date/Time is not required!
+    Adjust validation to let it be optional.
+    Validation is in Validation.java and AbstractWizardPage.validateHikeTimes()
 
 Left side descriptions of current wizard page, in HTML.
 
