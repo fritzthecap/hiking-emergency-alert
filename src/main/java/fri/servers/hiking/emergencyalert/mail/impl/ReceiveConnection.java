@@ -1,7 +1,7 @@
 package fri.servers.hiking.emergencyalert.mail.impl;
 
 import fri.servers.hiking.emergencyalert.mail.MailReceiveException;
-import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
+import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;

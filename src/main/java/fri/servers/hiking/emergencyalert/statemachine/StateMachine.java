@@ -2,7 +2,7 @@ package fri.servers.hiking.emergencyalert.statemachine;
 
 import java.util.Objects;
 import fri.servers.hiking.emergencyalert.mail.Mailer;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.states.AlertConfirmed;
 import fri.servers.hiking.emergencyalert.statemachine.states.HikeActivated;
 import fri.servers.hiking.emergencyalert.statemachine.states.HikerRegistered;

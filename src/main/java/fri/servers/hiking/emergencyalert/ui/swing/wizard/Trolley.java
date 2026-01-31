@@ -4,9 +4,9 @@ import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.io.File;
 import java.util.Objects;
 import javax.swing.JButton;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import jakarta.mail.Authenticator;
 
@@ -30,7 +30,7 @@ public class Trolley
     }
     
     public final StateMachine stateMachine;
-    private final JButton nextButton, previousButton;
+    private final JButton forwardButton, backwardButton;
     private final DescriptionArea descriptionArea;
     
     private String hikeCopy;
@@ -44,14 +44,14 @@ public class Trolley
             StateMachine stateMachine, 
             DescriptionArea descriptionArea,
             PageRequestListener pageRequestListener,
-            JButton nextButton, 
-            JButton previousButton)
+            JButton forwardButton, 
+            JButton backwardButton)
     {
         this.stateMachine = Objects.requireNonNull(stateMachine);
         this.descriptionArea = descriptionArea;
         this.pageRequestListener = pageRequestListener;
-        this.nextButton = nextButton;
-        this.previousButton = previousButton;
+        this.forwardButton = forwardButton;
+        this.backwardButton = backwardButton;
 
         refreshHikeCopy();
     }
@@ -81,11 +81,11 @@ public class Trolley
         refreshHikeCopy();
     }
     
-    public void setNextEnabled(boolean enabled) {
-        nextButton.setEnabled(enabled);
+    public void setForwardEnabled(boolean enabled) {
+        forwardButton.setEnabled(enabled);
     }
-    public void setPreviousEnabled(boolean enabled) {
-        previousButton.setEnabled(enabled);
+    public void setBackwardEnabled(boolean enabled) {
+        backwardButton.setEnabled(enabled);
     }
     
     /** Makes it possible to go to an arbitrary page. */
@@ -95,8 +95,8 @@ public class Trolley
     
     /** Called on language change. */
     public void refreshLanguage() {
-        nextButton.setText(buildNextButtonText());
-        previousButton.setText(buildPreviousButtonText());
+        forwardButton.setText(buildNextButtonText());
+        backwardButton.setText(buildPreviousButtonText());
         descriptionArea.refreshLanguage();
     }
     

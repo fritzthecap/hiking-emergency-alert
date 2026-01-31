@@ -12,7 +12,7 @@ import fri.servers.hiking.emergencyalert.mail.impl.MailSessionFactory.SessionWit
 import fri.servers.hiking.emergencyalert.mail.impl.MailerImpl;
 import fri.servers.hiking.emergencyalert.mail.impl.SendConnection;
 import fri.servers.hiking.emergencyalert.mail.impl.SendConnection.SendResult;
-import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
+import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import jakarta.mail.Authenticator;
 import jakarta.mail.PasswordAuthentication;
 import jakarta.mail.Session;

@@ -1,7 +1,7 @@
 package fri.servers.hiking.emergencyalert.mail.impl;
 
 import java.util.Properties;
-import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
+import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Session;

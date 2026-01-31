@@ -5,8 +5,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import fri.servers.hiking.emergencyalert.Version;
-import fri.servers.hiking.emergencyalert.persistence.Contact;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 import fri.servers.hiking.emergencyalert.util.Platform;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
@@ -57,7 +57,7 @@ public class MailBuilder
 
     
     private String subject() {
-        return substitute(hike.getAlert().getHelpRequestTitle());
+        return substitute(hike.getAlert().getHelpRequestSubject());
     }
     
     private String from() {
@@ -72,7 +72,7 @@ public class MailBuilder
         final StringBuilder textBuilder = new StringBuilder();
                 
         textBuilder.append(getContactTitle(contact)+" !\n\n");
-        textBuilder.append(substitute(hike.getAlert().getHelpRequestText()));
+        textBuilder.append(substitute(hike.getAlert().getHelpRequestIntroduction()));
         textBuilder.append("\n\n");
         textBuilder.append("MAIL-ID: "+hike.uniqueMailId);
         textBuilder.append("\n\n");

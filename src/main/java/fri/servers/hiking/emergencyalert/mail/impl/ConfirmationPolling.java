@@ -8,7 +8,7 @@ import fri.servers.hiking.emergencyalert.mail.Mail;
 import fri.servers.hiking.emergencyalert.mail.MailReceiveException;
 import fri.servers.hiking.emergencyalert.mail.Mailer;
 import fri.servers.hiking.emergencyalert.mail.impl.SendConnection.SendResult;
-import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
+import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.statemachine.Event;
 import fri.servers.hiking.emergencyalert.time.Scheduler;
 import fri.servers.hiking.emergencyalert.util.DateUtil;

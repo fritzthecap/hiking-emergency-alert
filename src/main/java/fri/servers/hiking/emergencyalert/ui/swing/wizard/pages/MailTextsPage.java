@@ -38,8 +38,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import fri.servers.hiking.emergencyalert.persistence.Alert;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.entities.Alert;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
@@ -136,11 +136,11 @@ public class MailTextsPage extends AbstractWizardPage
     protected void populateUi(Hike hike) {
         final Alert alert = getHike().getAlert();
         
-        if (StringUtil.isNotEmpty(alert.getHelpRequestTitle()))
-            mailSubjectField.setText(alert.getHelpRequestTitle());
+        if (StringUtil.isNotEmpty(alert.getHelpRequestSubject()))
+            mailSubjectField.setText(alert.getHelpRequestSubject());
         
-        if (StringUtil.isNotEmpty(alert.getHelpRequestText()))
-            mailIntroductionTextField.setText(hike.getAlert().getHelpRequestText());
+        if (StringUtil.isNotEmpty(alert.getHelpRequestIntroduction()))
+            mailIntroductionTextField.setText(hike.getAlert().getHelpRequestIntroduction());
         
         if (alert.getProcedureTodos() != null && alert.getProcedureTodos().size() > 0) {
             final DefaultListModel<String> listModel = (DefaultListModel<String>) procedureTodosField.getModel();
@@ -177,9 +177,9 @@ public class MailTextsPage extends AbstractWizardPage
         final Alert alert = getHike().getAlert();
         
         if (StringUtil.isNotEmpty(mailSubjectField.getText()))
-            alert.setHelpRequestTitle(mailSubjectField.getText());
+            alert.setHelpRequestSubject(mailSubjectField.getText());
         
-        alert.setHelpRequestText(mailIntroductionTextField.getText());
+        alert.setHelpRequestIntroduction(mailIntroductionTextField.getText());
         
         final DefaultListModel<String> listModel = (DefaultListModel<String>) procedureTodosField.getModel();
         if (listModel.getSize() > 0) {

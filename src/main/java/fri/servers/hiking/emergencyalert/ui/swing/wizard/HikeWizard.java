@@ -16,9 +16,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.event.MouseInputAdapter;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.ActivationPage;
@@ -42,9 +42,10 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
     private final JPanel contentPanel;
     private final JPanel glassPane;
     private final DescriptionArea descriptionArea;
+    private final WizardOutline wizardOutline;
     
-    private JButton previousButton;
-    private JButton nextButton;
+    private JButton backwardButton;
+    private JButton forwardButton;
     
     private AbstractWizardPage[] pages = new AbstractWizardPage[] {
         new LanguageAndFileLoadPage(),
@@ -66,6 +67,7 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         SwingUtil.makeComponentFocusable(contentPanel); // lets focus shift away from input fields
         frame.setGlassPane(this.glassPane = buildGlassPane());
         this.descriptionArea = new DescriptionArea();
+        this.wizardOutline = new WizardOutline(pages.length);
         
         // START keep order of statements!
         final boolean fileLoaded = loadDefaultHike();
@@ -77,8 +79,9 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         
         buildUi();
         
-        if (fileLoaded)
+        if (fileLoaded) // language was loaded from persistent hike
             pageIndex = 1; // skip language/file page
+        
         changePage(pageIndex, true);
         // END keep order of statements!
         
@@ -148,17 +151,17 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         splitPane.setLeftComponent(descriptionArea.getAddablePanel());
         splitPane.setRightComponent(contentPanel);
         
-        this.previousButton = new JButton(Trolley.buildPreviousButtonText()); // is disabled only 
+        this.backwardButton = new JButton(Trolley.buildPreviousButtonText());
+        this.forwardButton = new JButton(Trolley.buildNextButtonText());
         
-        this.nextButton = new JButton(Trolley.buildNextButtonText());
-        SwingUtil.makeComponentFocusable(nextButton); // click on even disabled button will trigger validation
+        SwingUtil.makeComponentFocusable(forwardButton); // click on even disabled button will trigger validation
 
         final ActionListener browsePagesListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 glassPane.setVisible(true);
                 try {
-                    final boolean next = (e.getSource() == nextButton);
+                    final boolean next = (e.getSource() == forwardButton);
                     final int newIndex = (next ? pageIndex + 1 : pageIndex - 1);
                     changePage(newIndex, false);
                 }
@@ -167,18 +170,24 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
                 }
             }
         };
-        previousButton.addActionListener(browsePagesListener);
-        nextButton.addActionListener(browsePagesListener);
+        backwardButton.addActionListener(browsePagesListener);
+        forwardButton.addActionListener(browsePagesListener);
         
-        final JPanel grid = new JPanel(new GridLayout(1, 2, 12, 0)); // gives buttons same size
-        grid.add(previousButton);
-        grid.add(nextButton);
+        // layout
         
-        final JPanel panel = new JPanel(new FlowLayout()); // centers buttons
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        panel.add(grid);
+        final JPanel buttonGrid = new JPanel(new GridLayout(1, 2, 12, 0)); // gives buttons same size
+        buttonGrid.add(backwardButton);
+        buttonGrid.add(forwardButton);
         
-        contentPanel.add(panel, BorderLayout.SOUTH);
+        final JPanel buttonsAndOutline = new JPanel(new BorderLayout());
+        buttonsAndOutline.add(wizardOutline, BorderLayout.NORTH);
+        buttonsAndOutline.add(buttonGrid, BorderLayout.CENTER);
+        
+        final JPanel buttonPanel = new JPanel(new FlowLayout()); // centers buttons
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+        buttonPanel.add(buttonsAndOutline);
+        
+        contentPanel.add(buttonPanel, BorderLayout.SOUTH);
     }
 
     private void changePage(int newIndex, boolean isFirstCall) {
@@ -195,6 +204,8 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
                 return; // page does not allow to skip
 
         pageIndex = newIndex;
+        
+        wizardOutline.setHighlight(pageIndex);
         
         final AbstractWizardPage newPage = pages[pageIndex];
         contentPanel.add(newPage.getAddablePanel(), BorderLayout.CENTER);
@@ -219,8 +230,8 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
                         changePage(determinePageIndex(requestedPage), false);
                     }
                 },
-                nextButton, 
-                previousButton); // travels through all pages
+                forwardButton, 
+                backwardButton); // travels through all pages
     }
 
     private int determinePageIndex(Class<? extends AbstractWizardPage> requestedPage) {
@@ -232,8 +243,8 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
     }
 
     private void setButtonsEnabled() {
-        previousButton.setEnabled(pageIndex > 0);
-        nextButton.setEnabled(pageIndex < pages.length - 1);
+        backwardButton.setEnabled(pageIndex > 0);
+        forwardButton.setEnabled(pageIndex < pages.length - 1);
     }
     
     private AbstractWizardPage page() {

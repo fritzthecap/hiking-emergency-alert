@@ -2,6 +2,9 @@ package fri.servers.hiking.emergencyalert.persistence;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
+import fri.servers.hiking.emergencyalert.persistence.entities.Alert;
+import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 
 /**
  * Provides assertions for different JSON library usages.
@@ -22,7 +25,7 @@ class AbstractJsonSerializationTest extends TestData
     }
     
     protected void assertTestAlert(Alert alert, Alert alertFromJson) {
-        assertEquals(alert.getHelpRequestText(), alertFromJson.getHelpRequestText());
+        assertEquals(alert.getHelpRequestIntroduction(), alertFromJson.getHelpRequestIntroduction());
         assertEquals(alert.getProcedureTodos(), alertFromJson.getProcedureTodos());
         assertEquals(alert.getPassingToNextText(), alertFromJson.getPassingToNextText());
         

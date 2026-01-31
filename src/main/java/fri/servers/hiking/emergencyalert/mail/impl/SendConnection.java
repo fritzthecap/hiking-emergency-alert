@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.Date;
 import fri.servers.hiking.emergencyalert.mail.Mail;
 import fri.servers.hiking.emergencyalert.mail.MailSendException;
-import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
+import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import jakarta.mail.Authenticator;
 import jakarta.mail.BodyPart;
 import jakarta.mail.Message;

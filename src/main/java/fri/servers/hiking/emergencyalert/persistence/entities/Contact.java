@@ -1,4 +1,4 @@
-package fri.servers.hiking.emergencyalert.persistence;
+package fri.servers.hiking.emergencyalert.persistence.entities;
 
 public class Contact
 {

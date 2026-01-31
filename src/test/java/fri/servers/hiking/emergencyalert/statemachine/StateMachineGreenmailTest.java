@@ -11,9 +11,9 @@ import fri.servers.hiking.emergencyalert.mail.Mail;
 import fri.servers.hiking.emergencyalert.mail.MailBuilder;
 import fri.servers.hiking.emergencyalert.mail.Mailer;
 import fri.servers.hiking.emergencyalert.mail.impl.MessageUtil;
-import fri.servers.hiking.emergencyalert.persistence.Contact;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.persistence.TestData;
+import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.states.OverdueAlert;
 import fri.servers.hiking.emergencyalert.time.HikeTimer;
 import fri.servers.hiking.emergencyalert.time.ImpatientTimer;
@@ -119,8 +119,8 @@ class StateMachineGreenmailTest extends AbstractGreenmailTest
         assertTrue(thirdText.startsWith(firstContact.getFirstName()));
         assertFalse(thirdText.contains(hike.uniqueMailId)); // passing-to-next message doesn't have that
         
-        assertTrue(replaceNewlines(firstText).contains(hike.getAlert().getHelpRequestText()));
-        assertTrue(replaceNewlines(secondText).contains(hike.getAlert().getHelpRequestText()));
+        assertTrue(replaceNewlines(firstText).contains(hike.getAlert().getHelpRequestIntroduction()));
+        assertTrue(replaceNewlines(secondText).contains(hike.getAlert().getHelpRequestIntroduction()));
         assertTrue(replaceNewlines(thirdText).contains(hike.getAlert().getPassingToNextText()));
     }
 

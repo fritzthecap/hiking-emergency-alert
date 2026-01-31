@@ -2,6 +2,7 @@ package fri.servers.hiking.emergencyalert.persistence;
 
 import java.io.File;
 import java.util.Objects;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
 
@@ -51,11 +52,11 @@ public class Validation
             throw new IllegalArgumentException(
                     "The hiking route must be described either as text or by image!");
                 
-        if (StringUtil.isEmpty(hike.getAlert().getHelpRequestTitle()))
+        if (StringUtil.isEmpty(hike.getAlert().getHelpRequestSubject()))
             throw new IllegalArgumentException(
                     "The subject for the overdue alert must not be empty!");
                 
-        if (StringUtil.isEmpty(hike.getAlert().getHelpRequestText()) && 
+        if (StringUtil.isEmpty(hike.getAlert().getHelpRequestIntroduction()) && 
                 hike.getAlert().getProcedureTodos().size() <= 0)
             throw new IllegalArgumentException(
                     "Either the overdue alert text or procedure steps must be given!");

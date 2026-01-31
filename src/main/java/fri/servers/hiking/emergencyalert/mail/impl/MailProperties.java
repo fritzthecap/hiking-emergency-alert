@@ -3,7 +3,7 @@ package fri.servers.hiking.emergencyalert.mail.impl;
 import java.util.List;
 import java.util.Properties;
 import fri.servers.hiking.emergencyalert.mail.MailUtil;
-import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
+import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 
 /**
  * Turns a MailConfiguration into Properties usable for the Java mail API.

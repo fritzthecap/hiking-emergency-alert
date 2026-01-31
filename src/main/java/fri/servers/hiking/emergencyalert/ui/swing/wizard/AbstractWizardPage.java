@@ -7,7 +7,6 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -23,8 +22,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.ui.swing.util.FileChooser;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
@@ -52,8 +51,7 @@ public abstract class AbstractWizardPage
                 BorderFactory.createLineBorder(Color.GRAY))
             );
         
-        titleField = new JLabel();
-        titleField.setFont(titleField.getFont().deriveFont(Font.BOLD, 20));
+        titleField = (JLabel) SwingUtil.increaseFontSize(new JLabel(), 160, true, false);
         titleField.setHorizontalAlignment(JLabel.CENTER);
         
         errorField = new JLabel();
@@ -116,7 +114,7 @@ public abstract class AbstractWizardPage
         final String error = validateFields();
         final boolean valid = (error == null);
         errorField.setText(valid ? "" : error);
-        trolley.setNextEnabled(valid);
+        trolley.setForwardEnabled(valid);
         return valid;
     }
     

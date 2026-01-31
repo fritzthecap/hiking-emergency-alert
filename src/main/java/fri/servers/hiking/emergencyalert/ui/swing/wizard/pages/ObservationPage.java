@@ -17,9 +17,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.ui.swing.Log;
+import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 import jakarta.mail.Authenticator;
@@ -68,8 +69,7 @@ public class ObservationPage extends AbstractWizardPage
         instructionsArea.setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER, BORDER));
         instructionsArea.setEditable(false);
         instructionsArea.setOpaque(false);
-        timePanel = new JLabel("", JLabel.CENTER);
-        timePanel.setFont(timePanel.getFont().deriveFont(20f));
+        timePanel = (JLabel) SwingUtil.increaseFontSize(new JLabel("", JLabel.CENTER), 160, true, false);
         
         // center
         consoleOut = new JTextArea();
@@ -124,7 +124,7 @@ public class ObservationPage extends AbstractWizardPage
         consoleErr.setText("");
         
         canClose = false;
-        getTrolley().setPreviousEnabled(false);
+        getTrolley().setBackwardEnabled(false);
         
         homeAgain.setForeground(Color.RED);
         homeAgain.setEnabled(true);
@@ -215,7 +215,7 @@ public class ObservationPage extends AbstractWizardPage
         
         canClose = true; // allow to close the window
         
-        getTrolley().setPreviousEnabled(true);
+        getTrolley().setBackwardEnabled(true);
         
         // ask for new hike and initialize it when Yes
         if (startNewHike && 

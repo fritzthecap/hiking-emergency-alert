@@ -1,8 +1,8 @@
 package fri.servers.hiking.emergencyalert.mail;
 
-import fri.servers.hiking.emergencyalert.persistence.Contact;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
-import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
+import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
+import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.statemachine.Event;
 import jakarta.mail.Authenticator;
 

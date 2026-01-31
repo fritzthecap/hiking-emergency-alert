@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
+import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 
 /** Test for the library "Gson". */
 class GsonSerializationTest extends AbstractJsonSerializationTest

@@ -5,9 +5,10 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.mail.Mail;
 import fri.servers.hiking.emergencyalert.mail.impl.MailerImpl;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.time.HikeTimer;
+import fri.servers.hiking.emergencyalert.ui.swing.util.FontSizer;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.HikeWizard;
 
 /**
@@ -27,6 +28,10 @@ public class SwingAlertHomeServer extends SwingUserInterface
                 new HikeTimer(), 
                 this);
         
+        // configure font when needed
+        FontSizer.checkFontSize();
+        
+        // build Swing UI
         final JFrame frame = new JFrame();
         final HikeWizard hikeInputWizard = new HikeWizard(frame, stateMachine);
         frame.getContentPane().add(hikeInputWizard);

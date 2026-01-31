@@ -3,7 +3,6 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.io.File;
 import java.util.Date;
@@ -18,9 +17,9 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import fri.servers.hiking.emergencyalert.mail.Mail;
 import fri.servers.hiking.emergencyalert.mail.MailBuilder;
-import fri.servers.hiking.emergencyalert.persistence.Alert;
-import fri.servers.hiking.emergencyalert.persistence.Contact;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.entities.Alert;
+import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.time.IntervalModel;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
@@ -53,7 +52,7 @@ public class ActivationPage extends AbstractWizardPage
                 i18n("Hike Times"), 
                 i18n("Please check your inputs, go back and correct them if wrong"), 
                 null);
-        SwingUtil.increaseFontSize(Font.BOLD, 14, hikeTimes);
+        SwingUtil.increaseFontSize(hikeTimes, 120, true, false);
         hikeTimes.setEditable(false);
         hikeTimes.setBackground(Color.WHITE);
         hikeTimes.setHorizontalAlignment(JTextField.CENTER);

@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.Event;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 

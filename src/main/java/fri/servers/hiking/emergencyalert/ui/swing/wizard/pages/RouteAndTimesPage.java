@@ -3,7 +3,6 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -26,7 +25,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.ui.swing.util.FileChooser;
 import fri.servers.hiking.emergencyalert.ui.swing.util.ImageViewer;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
@@ -92,13 +91,13 @@ public class RouteAndTimesPage extends AbstractWizardPage
         
         final JPanel beginPanel = new JPanel();
         final JLabel beginLabel = new JLabel(i18n("Hike Begin"));
-        beginPanel.add(SwingUtil.increaseFontSize(Font.BOLD, 16, SwingUtil.forceSize(beginLabel, labelSize)));
+        beginPanel.add(SwingUtil.increaseFontSize(SwingUtil.forceSize(beginLabel, labelSize), 140, true, false));
         beginPanel.add(plannedBeginDateField);
         beginPanel.add(plannedBeginTimeField);
         
         final JPanel homePanel = new JPanel();
         final JLabel endLabel = new JLabel(i18n("Hike End"));
-        homePanel.add(SwingUtil.increaseFontSize(Font.BOLD, 16, SwingUtil.forceSize(endLabel, labelSize)));
+        homePanel.add(SwingUtil.increaseFontSize(SwingUtil.forceSize(endLabel, labelSize), 140, true, false));
         homePanel.add(plannedHomeDateField);
         homePanel.add(plannedHomeTimeField);
         

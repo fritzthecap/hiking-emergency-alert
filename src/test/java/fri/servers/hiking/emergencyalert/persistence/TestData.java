@@ -3,6 +3,10 @@ package fri.servers.hiking.emergencyalert.persistence;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import fri.servers.hiking.emergencyalert.persistence.entities.Alert;
+import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
+import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 
 /** Provides unit test data. */
@@ -56,8 +60,8 @@ public class TestData
             "You can ignore the mail that was recently sent to you.";
 
         final Alert alert = new Alert();
-        alert.setHelpRequestTitle(helpRequestTitle);
-        alert.setHelpRequestText(helpRequestText);
+        alert.setHelpRequestSubject(helpRequestTitle);
+        alert.setHelpRequestIntroduction(helpRequestText);
         alert.setProcedureTodos(List.of(procedureTodos));
         alert.setPassingToNextText(passingToNextText);
         alert.setNameOfHiker("Me Myself");

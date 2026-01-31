@@ -2,8 +2,8 @@ package fri.servers.hiking.emergencyalert.time;
 
 import java.util.ArrayList;
 import java.util.List;
-import fri.servers.hiking.emergencyalert.persistence.Contact;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 
 /**
  * Calculation of alert times from a Hike.

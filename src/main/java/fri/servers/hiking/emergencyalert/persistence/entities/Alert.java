@@ -1,12 +1,12 @@
-package fri.servers.hiking.emergencyalert.persistence;
+package fri.servers.hiking.emergencyalert.persistence.entities;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Alert
 {
-    private String helpRequestTitle;
-    private String helpRequestText;
+    private String helpRequestSubject;
+    private String helpRequestIntroduction;
     private List<String> procedureTodos = new ArrayList<>();
     
     private String passingToNextText;
@@ -28,17 +28,17 @@ public class Alert
 
     private MailConfiguration mailConfiguration = new MailConfiguration();
     
-    public String getHelpRequestTitle() {
-        return helpRequestTitle;
+    public String getHelpRequestSubject() {
+        return helpRequestSubject;
     }
-    public void setHelpRequestTitle(String helpRequestTitle) {
-        this.helpRequestTitle = helpRequestTitle;
+    public void setHelpRequestSubject(String helpRequestSubject) {
+        this.helpRequestSubject = helpRequestSubject;
     }
-    public String getHelpRequestText() {
-        return helpRequestText;
+    public String getHelpRequestIntroduction() {
+        return helpRequestIntroduction;
     }
-    public void setHelpRequestText(String helpRequestText) {
-        this.helpRequestText = helpRequestText;
+    public void setHelpRequestIntroduction(String helpRequestIntroduction) {
+        this.helpRequestIntroduction = helpRequestIntroduction;
     }
     public List<String> getProcedureTodos() {
         return procedureTodos;

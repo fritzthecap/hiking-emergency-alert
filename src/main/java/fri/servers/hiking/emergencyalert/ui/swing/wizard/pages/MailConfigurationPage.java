@@ -32,8 +32,8 @@ import fri.servers.hiking.emergencyalert.mail.MailException;
 import fri.servers.hiking.emergencyalert.mail.MailUtil;
 import fri.servers.hiking.emergencyalert.mail.impl.ConnectionCheck;
 import fri.servers.hiking.emergencyalert.mail.impl.MailProperties;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
-import fri.servers.hiking.emergencyalert.persistence.MailConfiguration;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
+import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.ui.swing.util.PropertiesEditDialog;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
@@ -234,11 +234,13 @@ public class MailConfigurationPage extends AbstractWizardPage
         
         commitToMailConfiguration(getHike().getAlert().getMailConfiguration()); // commit to Hike data
         
-        try { // silently save before going to route/times page
-            getTrolley().save(getHike());
-        }
-        catch (Exception e) {
-            System.err.println("ERROR: Could not save base data, error was "+e);
+        if (goingForward) {
+            try { // silently save before going to route/times page
+                getTrolley().save(getHike());
+            }
+            catch (Exception e) {
+                System.err.println("ERROR: Could not save base data, error was "+e);
+            }
         }
 
         return true;

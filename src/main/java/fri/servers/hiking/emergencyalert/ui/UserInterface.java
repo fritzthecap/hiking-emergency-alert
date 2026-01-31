@@ -2,7 +2,7 @@ package fri.servers.hiking.emergencyalert.ui;
 
 import java.util.Objects;
 import fri.servers.hiking.emergencyalert.mail.Mail;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.Event;
 import jakarta.mail.Authenticator;
 

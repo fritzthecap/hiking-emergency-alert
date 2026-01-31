@@ -27,15 +27,21 @@ public final class SwingUtil
 {
     public static JButton getSmallButton(String label, String tooltip, ActionListener action) {
         final JButton button = new JButton(label);
-        increaseFontSize(Font.BOLD, 14f, button);
+        increaseFontSize(button, 120, true, false);
         button.setToolTipText(tooltip);
         button.addActionListener(action);
         forceSize(button, new Dimension(52, 24));
         return button;
     }
 
-    public static JComponent increaseFontSize(int fontStyle, float size, JComponent component) {
-        component.setFont(component.getFont().deriveFont(fontStyle, size));
+    public static JComponent increaseFontSize(JComponent component, int sizePercent, boolean bold, boolean italic) {
+        final Font font = component.getFont();
+        final float size = font.getSize2D();
+        final int style = font.getStyle();
+        final float newSize = Math.round(size * (float) sizePercent / 100.0);
+        final int newStyle = (bold && italic) ? (Font.BOLD | Font.ITALIC) : bold ? Font.BOLD : italic ? Font.ITALIC : style;
+        final Font newFont = font.deriveFont(newStyle, newSize);
+        component.setFont(newFont);
         return component;
     }
 
@@ -131,6 +137,7 @@ public final class SwingUtil
             }
         };
         field.setLineWrap(true);
+        field.setWrapStyleWord(true);
         
         setTitleAndTooltip(null, tooltip, field);
         

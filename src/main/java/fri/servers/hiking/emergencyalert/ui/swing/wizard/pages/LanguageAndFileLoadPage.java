@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Locale;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -17,12 +18,14 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import fri.servers.hiking.emergencyalert.persistence.Hike;
 import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
+import fri.servers.hiking.emergencyalert.persistence.entities.Alert;
+import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.ui.swing.util.FileChooser;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 import fri.servers.hiking.emergencyalert.util.Language;
+import fri.servers.hiking.emergencyalert.util.StringUtil;
 
 /**
  * Choose your UI language and/or load a hike file.
@@ -44,8 +47,11 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
     private final ItemListener languageSelectionListener = new ItemListener() {
         @Override
         public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED)
-                rebuildWithNewLanguage(getSelectedLocale(), true);
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                commit(false); // write language into Hike
+                rebuildWithNewLanguage(getSelectedLocale());
+                checkStoredHikeMailTexts(); // already stored texts can not be translated
+            }
         }
     };
     
@@ -79,6 +85,7 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
             languageChoiceField.addItem(item);
         
         languageChoiceField.setBorder(BorderFactory.createTitledBorder(i18n("Choose Your Language")));
+        languageChoiceField.setToolTipText(i18n("Your configured language is ")+"'"+System.getProperty("user.language")+"'");
         languageChoiceField.addItemListener(languageSelectionListener);
         
         languageChoiceField.setPreferredSize(FIELD_SIZE);
@@ -99,6 +106,9 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
         
         loadFile.setPreferredSize(FIELD_SIZE);
         loadFile.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        
+        // let load files only when saved files exist
+        loadFile.setEnabled(false == new HikeFileManager().isSavePathEmpty());
         
         // layout
         
@@ -138,9 +148,6 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
                 }
             }
         }
-        
-        // let load files only when saved files exist
-        loadFile.setEnabled(false == new HikeFileManager().isSavePathEmpty());
     }
 
     @Override
@@ -151,10 +158,7 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
     
 
     /** Called with true when another language gets selected by user. Rebuilds the whole UI. */
-    private void rebuildWithNewLanguage(Locale locale, boolean commitLanguageToHike) {
-        if (commitLanguageToHike)
-            commit(true);
-        
+    private void rebuildWithNewLanguage(Locale locale) {
         // for correctness, remove listeners before rebuilding UI
         languageChoiceField.removeItemListener(languageSelectionListener);
         loadFile.removeActionListener(loadFileListener);
@@ -197,6 +201,37 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
         }
     }
     
+    /**
+     * If there are already translated texts in the hike,
+     * ask if they should be reset to default.
+     */
+    private void checkStoredHikeMailTexts() {
+        final Alert alert = getHike().getAlert();
+        if (StringUtil.isNotEmpty(alert.getHelpRequestSubject()) ||
+                StringUtil.isNotEmpty(alert.getHelpRequestIntroduction()) ||
+                StringUtil.isNotEmpty(alert.getPassingToNextText()) ||
+                alert.getProcedureTodos().size() > 0)
+        {
+            final String message = 
+                    i18n("Replace mail texts by the defaults of the chosen language?")+
+                    "\n"+i18n("You may lose modifications if you did any!");
+            if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+                    getFrame(), 
+                    message, 
+                    i18n("Language Change"), // title
+                    JOptionPane.YES_NO_OPTION, 
+                    JOptionPane.QUESTION_MESSAGE))
+            {
+                alert.setHelpRequestSubject("");
+                alert.setHelpRequestIntroduction("");
+                alert.setPassingToNextText("");
+                alert.setProcedureTodos(new ArrayList<>());
+            }
+        }
+    }
+
+    // file load logic
+    
     private void loadHike() {
         final File[] hikeFile = fileChooser.open(true, "json"); // extension
         if (hikeFile != null)
@@ -211,7 +246,7 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
             
             final Locale newLocale = isUiLanguageChanged(hike);
             if (newLocale != null) // the language of the loaded hike is different from current one
-                rebuildWithNewLanguage(newLocale, false);
+                rebuildWithNewLanguage(newLocale);
             
             // when no error occurred until now, we can use this as save-file
             getTrolley().setHikeFile(hikeFile);
