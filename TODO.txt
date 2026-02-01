@@ -1,5 +1,2 @@
 
-Left side descriptions of current wizard page, in HTML.
-    Translate UI text resources and HTML description texts!
-
 Write more unit tests like StateMachineGreenmailTest.
