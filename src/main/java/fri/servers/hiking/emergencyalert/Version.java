@@ -15,8 +15,7 @@ public class Version
     }
     
     private static String readVersionFromMavenPomProperties() {
-        final String path = 
-                "/META-INF/maven/fri.servers/hiking-emergency-alert/pom.properties";
+        final String path = "/version.properties";
         final Properties mavenPomProperties = new Properties();
         try {
             mavenPomProperties.load(Version.class.getResourceAsStream(path));

@@ -7,7 +7,7 @@
 
     <groupId>fri.servers</groupId>
     <artifactId>hiking-emergency-alert</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     
     <organization>
         <name>Fritz Ritzberger</name>
@@ -71,20 +71,49 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources/</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
         <plugins>
-            <!-- JAR plugin is needed to add MANIFEST.MF with application main class -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.2</version>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.4.0</version>
                 <configuration>
+                    <encoding>UTF-8</encoding>
+                    <propertiesEncoding>ISO-8859-1</propertiesEncoding>
+                </configuration>
+            </plugin>
+        
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                     <archive>
-                        <manifest> <!-- The application main class -->
+                        <manifest>
                             <mainClass>fri.servers.hiking.emergencyalert.apps.AlertHomeServer</mainClass>
+                            <addClasspath>true</addClasspath>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             
         </plugins>
