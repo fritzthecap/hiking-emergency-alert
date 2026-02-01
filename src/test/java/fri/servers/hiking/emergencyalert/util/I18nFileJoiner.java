@@ -1,9 +1,12 @@
 package fri.servers.hiking.emergencyalert.util;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -28,40 +31,51 @@ public class I18nFileJoiner
      * @throws Exception when files have different line counts.
      */
     public static void main(String[] args) throws Exception {
-        new I18nFileJoiner().join(args[0], args[1]);
+        new I18nFileJoiner().join(args[0], args[1], args[2]);
     }
 
     
-    private PrintStream out = System.out;
-    private PrintStream err = System.err;
-
-    public void join(String keyFile, String propertiesFile) throws IOException {
-        if (propertiesFile.endsWith(".properties") == false)
-            throw new IllegalArgumentException("The second argument MUST be a properties file: "+propertiesFile);
-            
+    public void join(String keyFile, String sourcePropertiesFile, String resultPropertiesFile) throws IOException {
+        if (sourcePropertiesFile.endsWith(".properties") == false)
+            throw new IllegalArgumentException("The second argument MUST be a properties file: "+sourcePropertiesFile);
+        
         List<String> keyLines = Files.readAllLines(Path.of(keyFile));
         for (String line : keyLines)
             if (line.contains("="))
                 throw new IllegalArgumentException("The first argument must NOT be a properties file: '"+line+"'");
         
-        Properties properties = new Properties();
-        properties.load(new InputStreamReader(new FileInputStream(propertiesFile)));
+        Properties sourceProperties = new Properties();
+        sourceProperties.load(new FileInputStream(sourcePropertiesFile));
         
         StringBuilder missingValueKeys = new StringBuilder();
-        StringBuilder propertiesLines = new StringBuilder();
+        Properties resultProperties = new Properties();
         
-        loopKeys(keyLines, properties, propertiesLines, missingValueKeys);
+        loopKeys(keyLines, sourceProperties, resultProperties, missingValueKeys);
         
-        if (missingValueKeys.length() > 0)
-            err.println(missingValueKeys.toString());
-        else
-            out.println(propertiesLines.toString());
+        if (missingValueKeys.length() > 0) {
+            System.err.println(missingValueKeys.toString());
+        }
+        else {
+            Writer out = new OutputStreamWriter(
+                    new FileOutputStream(new File(resultPropertiesFile)),
+                    Charset.forName("ISO-8859-1"));
+            
+            for (int lineNumber = 0; lineNumber < keyLines.size(); lineNumber++) {
+                String key = keyLines.get(lineNumber);
+                String value = resultProperties.getProperty(key);
+                String property = key + " = " + value;
+                out.write(property);
+                out.write('\n');
+            }
+            out.close();
+            
+        }
     }
 
     private void loopKeys(
             List<String> keyLines, 
-            Properties properties, 
-            StringBuilder propertiesLines, 
+            Properties sourceProperties, 
+            Properties resultProperties, 
             StringBuilder missingValueKeys)
     {
         for (int lineNumber = 0; lineNumber < keyLines.size(); lineNumber++) {
@@ -69,11 +83,11 @@ public class I18nFileJoiner
             if (key.contains(" "))
                 throw new IllegalArgumentException("A key must not contain spaces: >"+key+"<");
             
-            String value = properties.getProperty(key);
+            String value = sourceProperties.getProperty(key);
             if (value == null)
-                missingValueKeys.append(lineNumber+": "+key+"\n");
+                missingValueKeys.append((lineNumber + 1)+": "+key+"\n");
             else
-                propertiesLines.append(key + " = "+value+"\n");
+                resultProperties.setProperty(key, value);
         }
     }
 }
