@@ -6,49 +6,62 @@
     
     <body>
         <p>
-        Diese Desktop-Anwendung läuft zu Hause, während Sie unterwegs sind.
-        Sie sendet <b>Warn-E-Mails</b>, wenn Sie nicht innerhalb der geplanten Zeit zurück sind. 
-        <b>Falls Sie einen Unfall in einem Gebiet ohne Telefonverbindung haben, könnte dies Ihr Leben retten!</b>
+            Diese Desktop-Anwendung läuft zu Hause, während du unterwegs bist.
+            Sie sendet <b>Warn-E-Mails</b>, wenn du nicht innerhalb der geplanten Zeit zurück bist. 
+            <b>Falls du einen Unfall in einem Gebiet ohne Telefonverbindung hast, könnte dies dein Leben retten!</b>
         </p>
         <p>
-        Sie benötigen einen <b>E-Mail-Anbieter</b> und ein E-Mail-Konto sowie einen Computer mit <b>Internetverbindung</b>.
-        Außerdem benötigen Sie mindestens einen <b>E-Mail-Kontakt</b>, 
-        der im Notfall Hilfe für Sie organisieren kann.
+            Du benötigst einen <b>E-Mail-Anbieter</b> und ein E-Mail-Konto 
+            sowie einen Computer mit <b>Internetverbindung</b>.
+            Außerdem benötigst du mindestens einen <b>E-Mail-Kontakt</b>, 
+            der im Notfall Hilfe für dich organisieren kann.
         </p>
         <ul>
-        <li>Keiner Ihrer Kontakte erhält eine E-Mail, wenn Sie zurück sind 
-          und rechtzeitig auf die Schaltfläche <i style="white-space: nowrap;">„Wieder daheim”</i> klicken. </li><br/>
-        <li>Wenn Sie jedoch zu spät kommen, erhält der erste Kontakt eine E-Mail 
-          (mit dem Text, den Sie jetzt eingeben werden).</li><br/>
-        <li>Wenn dieser Kontakt nicht innerhalb einer Stunde antwortet, erhält der nächste Kontakt die gleiche E-Mail,
-          und der erste Kontakt wird benachrichtigt, dass der nächste Kontakt alarmiert wurde.
-          All dies ist natürlich konfigurierbar.</li><br/>
-        <li>Wenn einer der Kontakte auf die Benachrichtigungs-E-Mail antwortet, werden keine weiteren Kontakte benachrichtigt.</li>
-        <li>Die Anwendung verwendet eine eindeutige MAIL-ID, um Benachrichtigungsantworten von Ihren privaten E-Mails zu unterscheiden.</li>
+            <li>Keiner deiner Kontakte erhält eine E-Mail, wenn du rechtzeitig zurück bist
+                und auf die Schaltfläche <i style="white-space: nowrap;">„Wieder daheim”</i> klickst. </li><br/>
+                
+            <li>Wenn du jedoch zu spät kommst, erhält der erste Kontakt eine E-Mail 
+                (mit einem Text, den du jetzt ausarbeiten wirst).</li><br/>
+                
+            <li>Wenn ein Kontakt nicht innerhalb einer Stunde antwortet, 
+                erhält der nächste Kontakt die gleiche E-Mail,
+                und der vorherige Kontakt wird über diese Verschiebung benachrichtigt.
+                All dies ist natürlich konfigurierbar.</li><br/>
+                
+            <li>Wenn einer der Kontakte auf die Benachrichtigungs-E-Mail antwortet, 
+                werden keine weiteren Kontakte benachrichtigt.</li><br/>
+            
+            <li>Die Anwendung verwendet eine eindeutige MAIL-ID, 
+                um Benachrichtigungsantworten von deinen privaten E-Mails zu unterscheiden.</li>
         </ul>
         <p>
-        Hier auf der ersten Seite (rechts) können Sie Ihre Sprache auswählen
-        oder eine Wanderungsdatei laden, falls Sie bereits eine Wanderung erstellt haben.
-        Die gewählte Sprache wird zusammen mit den Wanderungsdaten gespeichert.
+            Auf dieser ersten Seite kannst du deine Sprache auswählen
+            oder eine Wanderungsdatei laden, falls du bereits Wanderungen erstellt hast.
         </p>
         <p>
-        Wenn Sie diese Anwendung das nächste Mal starten, wird diese Seite höchstwahrscheinlich nicht mehr angezeigt, 
-        aber Sie können jederzeit über <i>„Zurück”</i> dorthin navigieren und jede von Ihnen erstellte Wanderung laden.
-        Wanderungen werden standardmäßig im JSON-Format gespeichert in 
+            Wenn du diese Anwendung das nächste Mal startest, 
+            wird diese Seite höchstwahrscheinlich nicht mehr angezeigt, 
+            aber du kannst jederzeit über <i>"Zurück"</i> dorthin navigieren und alte Wanderungen laden.
+            Diese werden standardmäßig im JSON-Format gespeichert unter 
         </p>
-        <p style="margin-left: 10"><code>$HOME/hiking-emergency-alert/hike.json</code></p>
+        <p style="margin-left: 8"><code>$HOME/hiking-emergency-alert/hike.json</code></p>
         <p>
-        Sie können dies ändern, indem Sie die Anwendung mit 
-        <code>-Dhike.home=IhrVerzeichnis</code>
-        und auch <code>-Dhike.file=MeineWanderdatei.json</code> ausführen.
+            Du kannst diese Standardeinstellung ändern, indem du die Anwendung mit 
+            den Java Optionen <code>-Dhike.home=MyDirectory</code>
+            und <code>-Dhike.file=MyFile.json</code> ausführst.
         </p>
-        <p><i>
-        Dies ist eine Open-Source-Anwendung, die Ihre Daten nicht weitergibt oder stiehlt,
-        obwohl sie eine Internetverbindung benötigt, um Alarm-E-Mails zu versenden und Antwort-E-Mails zu empfangen.
-        Das Passwort Ihres E-Mail-Anbieters wird nirgendwo gespeichert, 
-        Sie müssen es bei jedem Wanderungsbeginn manuell eingeben. 
-        Sie können den Quellcode auf Integrität überprüfen unter</i>
-        github.com - fritzthecap - hiking-emergency-alert.
+        <p>
+            Du kannst auch die Schriftgröße zwischen 80 und 140 Prozent ändern, indem du  
+            <code>-Dhike.fontPercent=120</code> verwendest.
+        </p>
+        <p>
+            <i>Dies ist eine Open-Source-Anwendung, die deine Daten nicht weitergibt oder stiehlt,
+            obwohl sie eine Internetverbindung benötigt, 
+            um Alarm-E-Mails zu versenden und Antwort-E-Mails zu empfangen.
+            Dein E-Mail Passwort wird nirgendwo gespeichert, 
+            du musst es bei jedem Wanderungsbeginn manuell eingeben. 
+            Du kannst die Integrität des Quellcodes unter</i>
+            <b>github.com / fritzthecap / hiking-emergency-alert</b> überprüfen.
         </p>
 
     </body>

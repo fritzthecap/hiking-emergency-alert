@@ -6,6 +6,34 @@
     
     <body>
         <p>
+            <b>La configuración del correo electrónico</b> no es una tarea fácil, pero es necesaria. 
+            En los teléfonos Android, se encuentra en 
+            <i>Ajustes -> Aplicaciones -> Correo electrónico ->
+            Ajustes de correo electrónico ->
+            pulse en la cuenta (dirección de correo electrónico) ->
+            desplácese hasta la parte inferior hasta Ajustes del servidor ->
+            Servidor entrante, Servidor saliente.</i>
+        </p>
+        <p>
+            Es posible que desee utilizar otros puertos distintos a los seguros, 
+            ya que la aplicación no se ha probado con correo seguro. 
+            Utilice el botón «Más propiedades» 
+            para añadir la configuración de conexión correspondiente (<i>jakarta email</i>).
+        </p>
+        <p>
+            Tanto el protocolo IMAP como el POP3 deberían funcionar para la recepción.
+            Ten en cuenta que su puerto se ajusta automáticamente cuando cambias de protocolo.
+        </p>
+        <p>
+            Al avanzar desde aquí, la aplicación intenta conectarse
+            a tu bandeja de entrada, luego envía un correo a tu propia cuenta, lo recibe y también lo elimina. 
+            Se te solicitará tu contraseña a través de un cuadro de diálogo.
+            Esta prueba no dejará ningún correo basura en su bandeja de entrada 
+            y debería completarse en unos segundos.
+        </p>
+        <p>
+            Si su conexión a Internet es lenta, es posible que desee establecer el
+            valor de «Tiempo máximo de espera de conexión» en segundos en un valor más alto.
         </p>
 
     </body>

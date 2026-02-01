@@ -6,6 +6,39 @@
     
     <body>
         <p>
+            Avant votre randonnée, vous devez suivre <b>six étapes</b> ici, 
+            la page « Contacts » est la deuxième.
+        </p>
+        <p>
+            Vous devez saisir votre <b>nom</b> et au moins une <b>adresse e-mail</b>. 
+            Surveillez le message de validation rouge en haut. 
+            Cliquer n'importe où en dehors d'un champ de saisie devrait le faire disparaître une fois la saisie corrigée.
+            Sinon, tant qu'une telle erreur s'affiche, vous ne pourrez pas continuer.
+        </p>
+        <p>
+            Vous souhaiterez peut-être utiliser l'<b>adresse</b> et le <b>numéro de téléphone</b> comme variables dans le 
+            texte de l'e-mail que vous allez rédiger à l'étape suivante, 
+            il peut donc être utile de les saisir.
+            Toutes ces informations seront enregistrées et vous n'aurez pas à les saisir à nouveau.
+        </p>
+        <p>
+            Au bas de la page se trouvent les paramètres d'intervalle de temps.
+            Après avoir envoyé un e-mail d'alerte à l'heure prévue de votre retour à la maison, l'application attend
+            <i>« Intervalle d'envoi d'alerte »</i> minutes avant d'envoyer un autre e-mail au contact suivant. 
+            Vous pouvez raccourcir ce délai d'attente pour chaque contact en utilisant le paramètre <i>« Pourcentage de réduction »</i>.
+        </p>
+        <p>
+            Vous pouvez également attribuer un temps de détection d'e-mail estimé à chaque contact
+            et utiliser ces temps comme temps d'attente. Pour chaque temps de détection manquant,
+            60 minutes seront prises par défaut.
+        </p>
+        <p>
+            L'application détecte les e-mails de réponse qui contiennent l'identifiant MAIL-ID de l'alerte envoyée. 
+            Avec un <i>« intervalle de réception de confirmation »</i> de 2 minutes, l'application
+            essaierait de recevoir une réponse toutes les 2 minutes.
+                        Lorsqu'elle en reçoit une, elle arrête l'observation de la randonnée, en supposant que les secours sont en route. 
+            Une telle réponse peut être complètement vide lorsque le courrier d'alerte y est joint, 
+            car l'application recherche le MAIL-ID unique dans toutes les parties texte et HTML.
         </p>
 
     </body>

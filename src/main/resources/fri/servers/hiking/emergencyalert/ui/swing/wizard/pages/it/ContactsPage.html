@@ -6,6 +6,39 @@
     
     <body>
         <p>
+            Prima dell'escursione dovresti seguire <b>sei passaggi</b> qui, 
+            la pagina “Contatti” è il secondo.
+        </p>
+        <p>
+            Devi inserire il tuo <b>nome</b> e almeno un <b>indirizzo e-mail di contatto</b>. 
+            Presta attenzione al messaggio di convalida rosso in alto. 
+            Cliccando in un punto qualsiasi al di fuori del campo di immissione, il messaggio dovrebbe scomparire una volta corretto l'inserimento.
+            In caso contrario, finché viene visualizzato tale errore, non potrai procedere.
+        </p>
+        <p>
+            Potresti voler utilizzare l'<b>indirizzo</b> e il <b>numero di telefono</b> come variabili nel 
+            testo dell'e-mail che elaborerai nel passaggio successivo, 
+            quindi potrebbe essere utile inserirli.
+            Tutto ciò verrà memorizzato e non dovrai farlo di nuovo.
+        </p>
+        <p>
+            In fondo sono presenti le impostazioni relative agli intervalli di tempo.
+            Dopo aver inviato un'e-mail di avviso all'ora prevista per il rientro a casa, l'applicazione attende
+            <i>“Intervallo di invio avviso”</i> minuti prima di inviare un'altra e-mail al contatto successivo. 
+            È possibile ridurre questo tempo di attesa per ciascun contatto utilizzando la <i>“Percentuale di riduzione”</i>.
+        </p>
+        <p>
+            In alternativa, è possibile assegnare un tempo di rilevamento e-mail stimato a ciascun contatto
+            e utilizzarlo come tempo di attesa. Per ogni tempo di rilevamento mancante,
+            verranno considerati 60 minuti come impostazione predefinita.
+        </p>
+        <p>
+            L'applicazione rileva le e-mail di risposta che contengono l'ID MAIL dell'allarme inviato. 
+            Con un <i>“Intervallo di ricezione conferma”</i> di 2 minuti, l'applicazione
+            cercherà di ricevere una risposta ogni 2 minuti.
+            Quando ne riceve una, interrompe l'osservazione dell'escursione, supponendo che i soccorsi siano in arrivo. 
+            Tale risposta può essere completamente vuota quando l'e-mail di avviso è allegata ad essa, 
+            perché l'applicazione cerca in tutte le parti di testo e HTML l'ID e-mail univoco.
         </p>
 
     </body>

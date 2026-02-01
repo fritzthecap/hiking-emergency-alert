@@ -6,6 +6,56 @@
     
     <body>
         <p>
+            Cette application de bureau fonctionne chez vous pendant que vous êtes en randonnée.
+            Elle commence à envoyer des <b>e-mails d'alerte</b> si vous n'êtes pas rentré à l'heure prévue. 
+            <b>Si vous avez un accident dans une zone sans connexion téléphonique, cela pourrait vous sauver la vie !</b>
+        </p>
+        <p>
+            Vous devez disposer d'un <b>fournisseur de messagerie</b> et d'un compte, ainsi que d'un ordinateur avec une <b>connexion Internet</b>.
+            Vous devez également avoir au moins un <b>contact de messagerie</b> 
+            qui pourra organiser les secours en cas d'urgence.
+        </p>
+        <ul>
+            <li>Aucun de vos contacts ne recevra d'e-mail lorsque vous serez rentré à l'heure prévue
+                et que vous aurez appuyé sur le bouton <i style="white-space: nowrap;">« De retour à la maison »</i>.</li><br/>
+                
+            <li>Mais si vous êtes en retard, le premier contact recevra un e-mail 
+                (avec un texte que vous allez rédiger maintenant).</li><br/>
+                
+            <li>Si un contact ne répond pas dans l'heure, le contact suivant recevra le même e-mail,
+                et le précédent sera informé de ce changement.
+                Bien sûr, tout cela est configurable. </li><br/>
+                
+            <li>Lorsque l'un des contacts répond à l'e-mail d'alerte, aucun autre contact ne sera averti. </li><br/>
+            
+            <li>L'application utilise un identifiant MAIL-ID unique pour distinguer les réponses aux alertes de vos e-mails privés. </li>
+        </ul>
+        <p>
+            Sur cette première page, vous pouvez choisir votre langue,
+            ou charger un fichier de randonnée si vous avez déjà créé des randonnées auparavant.
+        </p>
+        <p>
+            La prochaine fois que vous lancerez cette application, vous ne verrez probablement plus cette page, 
+            mais vous pourrez toujours y revenir en cliquant sur <i>« Retour »</i> et charger d'anciennes randonnées.
+            Elles sont stockées par défaut au format JSON dans 
+        </p>
+        <p style="margin-left: 8"><code>$HOME/hiking-emergency-alert/hike.json</code></p>
+        <p>
+            Vous pouvez modifier cette valeur par défaut en exécutant l'application avec 
+            <code>-Dhike.home=MyDirectory</code>
+            et <code>-Dhike.file=MyFile.json</code>.
+        </p>
+        <p>
+            Vous pouvez également modifier la taille de la police entre 80 et 140 %, à l'aide de  
+            <code>-Dhike.fontPercent=120</code>.
+        </p>
+        <p>
+            <i>Il s'agit d'une application open source qui ne divulgue ni ne vole vos données,
+            bien qu'elle nécessite une connexion Internet pour envoyer des e-mails d'alerte et recevoir des e-mails de réponse.
+            Le mot de passe de votre fournisseur de messagerie ne sera stocké nulle part, 
+            vous devrez le saisir manuellement à chaque début de randonnée. 
+            Vous pouvez vérifier l'intégrité du code source sur</i>
+            <b>github.com / fritzthecap / hiking-emergency-alert</b>.
         </p>
 
     </body>

@@ -6,6 +6,56 @@
     
     <body>
         <p>
+            Esta aplicación de escritorio se ejecuta en casa mientras usted está fuera de excursión.
+            Comienza a enviar <b>correos electrónicos de alerta</b> si no regresa dentro del tiempo previsto. 
+            <b>En caso de que tenga un accidente en una zona sin conexión telefónica, ¡esto podría salvarle la vida!</b>
+        </p>
+        <p>
+            Necesitas tener un <b>proveedor de correo electrónico</b> y una cuenta, así como un ordenador con <b>conexión a Internet</b>.
+            Además, necesitas <b>contactos de correo electrónico</b>, al menos uno, 
+            que pueda organizar la ayuda en caso de emergencia.
+        </p>
+        <ul>
+            <li>Ninguno de tus contactos recibirá un correo electrónico cuando regreses a tiempo
+                y pulses el botón <i style="white-space: nowrap;">«De vuelta a casa»</i>.</li><br/>
+                
+            <li>Pero cuando se retrase, el primer contacto recibirá un correo electrónico 
+                (con un texto que va a redactar ahora).</li><br/>
+                
+            <li>Si un contacto no responde en el plazo de una hora, el siguiente contacto recibirá el mismo correo electrónico,
+                y se notificará al anterior sobre ese cambio.
+                Por supuesto, todo esto es configurable.</li><br/>
+                
+            <li>Cuando uno de los contactos responde al correo electrónico de alerta, no se notificará a más contactos.</li><br/>
+            
+            <li>La aplicación utiliza un MAIL-ID único para distinguir las respuestas a las alertas de tus correos electrónicos privados.</li>
+        </ul>
+        <p>
+            En esta primera página puedes elegir tu idioma,
+            o cargar un archivo de ruta en caso de que ya hayas creado rutas anteriormente.
+        </p>
+        <p>
+            La próxima vez que inicies esta aplicación, es muy probable que ya no veas esta página, 
+            pero siempre puedes navegar <i>«Atrás»</i> hasta ella y cargar rutas antiguas.
+            Se almacenan en formato JSON de forma predeterminada en 
+        </p>
+        <p style="margin-left: 8"><code>$HOME/hiking-emergency-alert/hike.json</code></p>
+        <p>
+            Puede cambiar ese valor predeterminado ejecutando la aplicación con 
+            <code>-Dhike.home=MyDirectory</code>
+            y <code>-Dhike.file=MyFile.json</code>.
+        </p>
+        <p>
+            También puede cambiar el tamaño de la fuente entre el 80 y el 140 por ciento, utilizando  
+            <code>-Dhike.fontPercent=120</code>.
+        </p>
+        <p>
+            <i>Esta es una aplicación de código abierto que no filtra ni roba sus datos,
+            aunque necesita conexión a Internet para enviar correos electrónicos de alerta y recibir correos electrónicos de respuesta.
+            La contraseña de su proveedor de correo electrónico no se almacenará en ningún sitio, 
+            tiene que introducirla manualmente cada vez que comience una excursión. 
+            Puede comprobar la integridad del código fuente en</i>
+            <b>github.com / fritzthecap / hiking-emergency-alert</b>.
         </p>
 
     </body>

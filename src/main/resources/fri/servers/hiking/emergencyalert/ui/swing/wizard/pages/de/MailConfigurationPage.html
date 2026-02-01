@@ -6,6 +6,35 @@
     
     <body>
         <p>
+            <b>E-Mail-Konfiguration</b> ist keine leichte Aufgabe, aber du brauchst das. 
+            Auf Android-Handys findest du das unter 
+            <i>Einstellungen -> Apps -> E-Mail ->
+            E-Mail-Einstellungen ->
+            auf das Konto tippen (E-Mail-Adresse) ->
+            ganz nach unten scrollen zu "Servereinstellungen" ->
+            "Posteingangsserver", "Postausgangsserver".</i>
+        </p>
+        <p>
+            Möglicherweise möchtest du andere als die sicheren Ports verwenden, 
+            da die Anwendung nicht mit sicherer E-Mail getestet wurde. 
+            Verwende die Schaltfläche "Weitere Eigenschaften",
+            um entsprechende Verbindungseinstellungen hinzuzufügen (<i>jakarta email</i>).
+        </p>
+        <p>
+            Sowohl das IMAP- als auch das POP3-Protokoll sollten für den Empfang funktionieren.
+            Beachte dass der Port automatisch angepasst wird, wenn du das Protokoll umschaltest.
+        </p>
+        <p>
+            Wenn du von hier aus weiter navigierst, versucht die Anwendung, eine Verbindung
+            zu deinem Posteingang herzustellen, sendet dann eine E-Mail an dein Konto, 
+            empfängt sie und löscht sie auch. 
+            Dein Passwort wird in einem Dialogfeld abgefragt.
+            Durch diesen Test bleiben keine Junk-Mails in deinem Posteingang zurück, 
+            und er sollte in wenigen Sekunden abgeschlossen sein.
+        </p>
+        <p>
+            Wenn deine Internetverbindung langsam ist, solltest du möglicherweise die
+            "Maximale Verbindungswartezeit" in Sekunden auf einen höheren Wert einstellen.
         </p>
 
     </body>

@@ -6,6 +6,39 @@
     
     <body>
         <p>
+            Antes de la excursión, debes seguir <b>seis pasos</b> aquí, 
+            la página «Contactos» es el segundo.
+        </p>
+        <p>
+            Debe introducir su <b>nombre</b> y al menos una <b>dirección de correo electrónico</b>. 
+            Preste atención al mensaje de validación rojo que aparece en la parte superior. 
+            Al hacer clic en cualquier lugar fuera del campo de entrada, este debería desaparecer cuando se haya corregido la entrada.
+            De lo contrario, mientras se muestre dicho error, no podrá seguir navegando.
+        </p>
+        <p>
+            Es posible que desee utilizar la <b>dirección</b> y el <b>número de teléfono</b> como variables en el 
+            texto del correo electrónico que va a redactar en el siguiente paso, 
+            por lo que puede ser útil introducirlos.
+            Todo ello se almacenará y no tendrá que volver a hacerlo.
+        </p>
+        <p>
+            En la parte inferior se encuentran los ajustes de intervalos de tiempo.
+            Después de enviar un correo electrónico de alerta a la hora prevista de llegada a casa, la aplicación espera
+            <i>«Intervalo de envío de alertas»</i> minutos hasta enviar otro correo electrónico al siguiente contacto. 
+            Puede acortar este tiempo de espera con cada contacto utilizando el <i>«Porcentaje de reducción»</i>.
+        </p>
+        <p>
+            Alternativamente, puede asignar un tiempo estimado de detección de correo electrónico a cada contacto
+            y utilizarlo como tiempo de espera. Por cada tiempo de detección que falte,
+            se tomarán 60 minutos como valor predeterminado.
+        </p>
+        <p>
+            La aplicación detecta los correos electrónicos de respuesta que contienen el MAIL-ID de la alerta enviada. 
+            Con un <i>«Intervalo de recepción de confirmación»</i> de 2 minutos, la aplicación
+            intentaría recibir una respuesta cada 2 minutos.
+            Cuando recibe una, detiene la observación de la excursión, asumiendo que la ayuda está en camino. 
+            Dicha respuesta puede estar completamente vacía cuando se adjunta el correo de alerta, 
+            ya que la aplicación busca el MAIL-ID único en todas las partes de texto y HTML.
         </p>
 
     </body>

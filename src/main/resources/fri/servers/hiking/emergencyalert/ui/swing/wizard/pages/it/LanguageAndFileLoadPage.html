@@ -6,6 +6,56 @@
     
     <body>
         <p>
+            Questa applicazione desktop funziona a casa mentre sei fuori per un'escursione.
+            Inizia a inviare <b>e-mail di avviso</b> se non torni entro l'orario previsto. 
+            <b>Nel caso in cui tu abbia un incidente in una zona senza connessione telefonica, questo potrebbe salvarti la vita!</b>
+        </p>
+        <p>
+            È necessario disporre di un <b>provider di posta elettronica</b> e di un account, nonché di un computer con <b>connessione a Internet</b>.
+            Inoltre, è necessario avere almeno un <b>contatto e-mail</b> 
+            che possa organizzare i soccorsi in caso di emergenza.
+        </p>
+        <ul>
+            <li>Nessuno dei tuoi contatti riceverà un'e-mail quando tornerai in tempo
+                e premerai il pulsante <i style="white-space: nowrap;">“Home Again”</i>.</li><br/>
+                
+            <li>Ma quando sei in ritardo, il primo contatto riceverà un'e-mail 
+                (con un testo che dovrai redigere ora).</li><br/>
+                
+            <li>Se un contatto non risponde entro un'ora, il contatto successivo riceverà la stessa e-mail,
+                e il precedente verrà informato di tale cambiamento.
+                Naturalmente tutto questo è configurabile.</li><br/>
+                
+            <li>Quando uno dei contatti risponde all'e-mail di avviso, nessun altro contatto verrà avvisato.</li><br/>
+            
+            <li>L'applicazione utilizza un MAIL-ID univoco per distinguere le risposte agli avvisi dalle tue e-mail private.</li>
+        </ul>
+        <p>
+            In questa prima pagina puoi scegliere la lingua,
+            oppure caricare un file di escursione nel caso in cui tu abbia già creato delle escursioni in precedenza.
+        </p>
+        <p>
+            La prossima volta che avvierai questa applicazione, molto probabilmente non vedrai più questa pagina, 
+            ma potrai sempre tornare indietro con il pulsante <i>“Indietro”</i> e caricare le vecchie escursioni.
+            Questi vengono memorizzati in formato JSON per impostazione predefinita in 
+        </p>
+        <p style="margin-left: 8"><code>$HOME/hiking-emergency-alert/hike.json</code></p>
+        <p>
+            Puoi modificare questa impostazione predefinita eseguendo l'applicazione con 
+            <code>-Dhike.home=MyDirectory</code>
+            e <code>-Dhike.file=MyFile.json</code>.
+        </p>
+        <p>
+            È anche possibile modificare la dimensione dei caratteri tra l'80 e il 140 percento, utilizzando  
+            <code>-Dhike.fontPercent=120</code>.
+        </p>
+        <p>
+            <i>Si tratta di un'applicazione open source che non divulga né ruba i dati dell'utente,
+            anche se necessita di una connessione Internet per inviare e-mail di allerta e ricevere e-mail di risposta.
+            La password del tuo provider di posta elettronica non verrà memorizzata da nessuna parte, 
+            dovrai inserirla manualmente all'inizio di ogni escursione. 
+            Puoi verificare l'integrità del codice sorgente su</i>
+            <b>github.com / fritzthecap / hiking-emergency-alert</b>.
         </p>
 
     </body>

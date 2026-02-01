@@ -6,6 +6,34 @@
     
     <body>
         <p>
+            <b>La configurazione dell'e-mail</b> non è un'operazione facile, ma è necessaria. 
+            Sui telefoni Android è possibile trovarla in 
+            <i>Impostazioni -> App -> E-mail ->
+            Impostazioni e-mail ->
+            toccare l'account (indirizzo e-mail) ->
+            scorrere fino in fondo a Impostazioni server ->
+            Server in arrivo, Server in uscita.</i>
+        </p>
+        <p>
+            Potrebbe essere necessario utilizzare porte diverse da quelle sicure, 
+            poiché l'applicazione non è stata testata con la posta sicura. 
+            Utilizzare il pulsante “Altre proprietà” 
+            per aggiungere le impostazioni di connessione corrispondenti (<i>jakarta email</i>).
+        </p>
+        <p>
+            Entrambi i protocolli IMAP e POP3 dovrebbero funzionare per la ricezione.
+            Tieni presente che la loro porta viene regolata automaticamente quando si attiva il protocollo.
+        </p>
+        <p>
+            Quando si naviga in avanti da qui, l'applicazione cerca di connettersi
+            alla tua casella di posta in arrivo, quindi invia un'e-mail al tuo account, la riceve e la elimina. 
+            La tua password verrà richiesta tramite una finestra di dialogo.
+            Nessuna email indesiderata rimarrà nella tua casella di posta in arrivo dopo questo test, 
+            che dovrebbe terminare in pochi secondi.
+        </p>
+        <p>
+            Se la tua connessione Internet è lenta, potresti voler impostare il valore
+            “Tempo massimo di attesa connessione” su un valore più alto.
         </p>
 
     </body>

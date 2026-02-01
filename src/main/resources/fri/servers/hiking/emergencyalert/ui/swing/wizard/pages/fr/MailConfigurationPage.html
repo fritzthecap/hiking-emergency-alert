@@ -6,6 +6,34 @@
     
     <body>
         <p>
+            La <b>configuration de la messagerie électronique</b> n'est pas une tâche facile, mais elle est indispensable. 
+            Sur les téléphones Android, vous la trouverez dans 
+            <i>Paramètres -> Applications -> Messagerie électronique ->
+            Paramètres de messagerie électronique ->
+            appuyez sur le compte (adresse électronique) ->
+            faites défiler jusqu'en bas vers Paramètres du serveur ->
+            Serveur entrant, Serveur sortant.
+        </p>
+        <p>
+            Vous pouvez utiliser d'autres ports que ceux sécurisés, 
+            car l'application n'a pas été testée avec le courrier sécurisé. 
+            Utilisez le bouton « Plus de propriétés » 
+            pour ajouter les paramètres de connexion correspondants (<i>jakarta email</i>).
+        </p>
+        <p>
+            Les protocoles IMAP et POP3 devraient tous deux fonctionner pour la réception.
+            Notez que leur port est ajusté automatiquement lorsque vous basculez entre les protocoles.
+        </p>
+        <p>
+            Lorsque vous avancez à partir d'ici, l'application tente de se connecter
+            à votre boîte de réception, puis envoie un e-mail à votre propre compte, le reçoit et le supprime. 
+            Votre mot de passe vous sera demandé dans une boîte de dialogue.
+            Ce test ne laissera aucun courrier indésirable dans votre boîte de réception 
+            et ne devrait prendre que quelques secondes.
+        </p>
+        <p>
+            Si votre connexion Internet est lente, vous pouvez définir la valeur
+            « Délai d'attente maximal de connexion » en secondes sur une valeur plus élevée.
         </p>
 
     </body>
