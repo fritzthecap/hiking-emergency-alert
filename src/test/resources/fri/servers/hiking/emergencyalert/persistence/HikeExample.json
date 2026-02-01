@@ -6,8 +6,8 @@
   "plannedBegin": "2026-01-13 08:00",
   "plannedHome": "2026-01-13 08:01",
   "alert": {
-    "helpRequestTitle": "Hiking emergency - I need help!",
-    "helpRequestText": "I had an accident while hiking and need help. Below you find a description of my planned route.",
+    "helpRequestSubject": "Hiking emergency - I need help!",
+    "helpRequestIntroduction": "I had an accident while hiking and need help. Below you find a description of my planned route.",
     "procedureTodos": [
       "First try to reach me by phone: 123456789.",
       "If I do not respond, please call the local emergency service.",

@@ -46,12 +46,6 @@ public final class Language
         String packageName = className.substring(0, className.lastIndexOf("."));
         try {
             languageBundle = ResourceBundle.getBundle(packageName+"."+RESOURCE_FILE_BASENAME, locale);
-            // if "user.language" is "de", this .... loads 
-            // strings_de.properties instead of strings.properties for Locale.ENGLISH
-            // when no strings_en.properties exists!
-            // Thus you are forced to copy strings.properties to strings_en.properties ...
-            // Found workaround: empty strings_en.properties solves the issue.
-            // See https://hwellmann.blogspot.com/2010/02/misconceptions-about-java.html
         }
         catch (MissingResourceException e)  {
             System.err.println("ERROR: Could not load resource bundle for language "+locale.getLanguage()+", error was: "+e);
@@ -64,6 +58,9 @@ public final class Language
     }
 
     public static String i18n(String text) {
+        if (languageBundle == null) // was not yet initialized
+            return text;
+        
         final String key = replace(text);
         try {
             return languageBundle.getString(key);
