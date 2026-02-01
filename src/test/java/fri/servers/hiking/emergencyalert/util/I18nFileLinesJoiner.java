@@ -9,6 +9,8 @@ import java.util.List;
 /**
  * Reads two files and joins them line by line,
  * putting a " = " between left and right part.
+ * 
+ * @Deprecated not needed any more.
  */
 public class I18nFileLinesJoiner
 {
@@ -23,7 +25,7 @@ public class I18nFileLinesJoiner
     
     private PrintStream out = System.out;
 
-    public void join(String keyFile, String valueFile) throws IOException {
+    private void join(String keyFile, String valueFile) throws IOException {
         List<String> keyLines = Files.readAllLines(Path.of(keyFile));
         List<String> valueLines = Files.readAllLines(Path.of(valueFile));
         

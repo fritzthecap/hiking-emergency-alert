@@ -27,7 +27,7 @@ import java.util.Properties;
  * <li>You can do the same with other strings_xx.properties unless they are empty.</li>
  * 
  * <li>When empty, it is time for a bulk translation instead of doing it manually.</li>
- * <li>Use I18nFileSplitter with key file and strings.properties to get an ordered 
+ * <li>Use I18nFileSplitter with strings.properties to get an ordered 
  *      line-list of (right-side) English text resources (values, not keys).</li>
  * <li>Translate this line-list on DeepL to another language, keeping line order.</li>
  * <li>Use I18nFileLinesJoiner to join the translated line-list with the key file,

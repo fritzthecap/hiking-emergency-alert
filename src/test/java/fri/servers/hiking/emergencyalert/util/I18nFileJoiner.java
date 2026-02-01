@@ -17,25 +17,22 @@ import java.util.Properties;
  * Then opens the second file, which must be a properties file, and assigns
  * the property-values of it to the identical keys of the first file,
  * whereby non-existing values are reported separately with line numbers.
- * Outputs the keys in their order with assigned values with a " = " between, 
- * non-existing values are left empty for manual correction
- * according to separately reported messages.
- * <p/>
- * This is for finding language resource keys that are in Java source but not yet
- * in language-properties. These language properties must be the second argument.
+ * When all values are existing, outputs the keys in their order with assigned values
+ * (with a " = " between) into the third argument with ISO-8859-1 encoding.
+ * Else just outputs on stderr the keys that are missing their values.
  */
 public class I18nFileJoiner
 {
     /**
-     * First argument must be key-file, second value-file.
-     * @throws Exception when files have different line counts.
+     * First argument must be key-file, 
+     * second source-properties-file, 
+     * third result-properties-file.
      */
     public static void main(String[] args) throws Exception {
         new I18nFileJoiner().join(args[0], args[1], args[2]);
     }
 
-    
-    public void join(String keyFile, String sourcePropertiesFile, String resultPropertiesFile) throws IOException {
+    private void join(String keyFile, String sourcePropertiesFile, String resultPropertiesFile) throws IOException {
         if (sourcePropertiesFile.endsWith(".properties") == false)
             throw new IllegalArgumentException("The second argument MUST be a properties file: "+sourcePropertiesFile);
         
