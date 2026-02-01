@@ -1,0 +1,84 @@
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Java Text Resource Management</title>
+    </head>
+
+    <body>
+        <p>
+           The initial situation is that developers have written English
+           UI labels directly into the source code as String objects.
+           These should now be internationalized, i.e. there will be
+           properties files where these labels and messages are available
+           for different languages.
+        </p>
+        <p>First step would be to enclose all these strings into global
+            static method calls. So you go from
+        </p>
+        <blockquote><code>
+            showMessage("My message is here!");
+        </code></blockquote>
+        <p>
+            to
+        </p>
+        <blockquote><code><pre>
+            import static fri.servers.hiking.emergencyalert.util.Language.i18n; 
+            
+            showMessage(i18n("My message is here!"));
+        </pre></code></blockquote>
+        <p>
+            There must not be "\n" newlines inside any text. 
+            None of the texts must be spread over several lines or
+            contain variable placeholders. For example
+        </p>
+        <blockquote><code><pre>
+            String message = "some "+var1+
+                " more "+var2+
+                " words";
+        </pre></code></blockquote>
+        <p>
+            would have to look like
+        </p>
+        <blockquote><code><pre>
+            String message = i18n("some ")+var1+
+                i18n(" more")+var2+
+                i18n(" words");
+        </pre></code></blockquote>
+        <p>
+            Then you can use <b>I18nScanner</b> to read all string resources
+            out of .java source code that has to be internationalized.
+            The tool takes all the strings, replaces "=", ":" and " " (blank) by "_"
+            and uses these as generated keys, then outputs the keys and their 
+            original values into an ISO-8859-1 encoded properties file.
+         </p>
+         <p>
+            If that property file gets loaded by the <b>Language</b> class,
+            you would see on the UI what you have seen before, but 
+            all the strings in .java sources have become keys for property values now.
+            That means, if you change a string in source code, 
+            its generated key won't be replaced and the internationalization
+            gets lost for that string. 
+            In other words, there is a phase where developers can change any 
+            string in source code freely, and a second phase where they can 
+            not do this any more.
+        </p>
+
+        <ol>
+            <li><b>I18nScanner</b> creates your initial <b>strings.properties</b> in English.</li>
+            <li>Now you want to create <b>strings_de.properties</b>.</li>
+            <li>With <b>I18nFileSplitter -k</b>, you can create a keys.txt file from strings.properties
+                that contains all keys in ISO-8859-1 encoding.</li>
+            <li>Another call to <b>I18nFileSplitter -v</b> can create another values.txt file 
+                that contains all values in UTF-8 encoding for some online-translator.</li>
+            <li>Mind that the order and number of lines in both files is significant and must remain the same.</li>
+            <li>Translate all the lines in the value file, but do not change the order of lines.</li>
+            <li>Store these translations to some values_xx.txt file, tagged with the target language.</li>
+            <li>Now run <b>I18nFileJoiner</b> with the keys.txt file and the values_xx.txt file
+                and redirect the result to strings_xx.properties, which will be in ISO-8859-1 encoding.</li>
+            <li>strings_xx.properties is now your internationalization source code, move it to the 
+                src/main/resources package where your i18n resource bundles reside.</li>
+        </ol>
+
+    </body>
+</html>

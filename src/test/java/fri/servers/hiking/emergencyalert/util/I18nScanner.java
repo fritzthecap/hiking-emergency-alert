@@ -6,36 +6,18 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.io.StringReader;
+import java.io.Writer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.SequencedMap;
 
 /**
- * Scans Java sources for i18n identifiers and outputs
- * them as properties file content.
- * Option -v for outputting keys, -v for values, both possible too.
- * <ol>
- * <li>Use I18nScanner to create an ordered list of keys, put it into a file.</li>
- * <li>Use I18nFileJoiner with that key file and strings.properties to create 
- *      an ordered list of English text resource properties.
- *      This reports missing values before outputting properties.</li>
- * <li>Complete strings.properties until no missing values are reported any more.</li>
- * <li>When no values are missing any more, replace strings.properties content
- *      by the I18nFileJoiner output properties.</li>
- * <li>You can do the same with other strings_xx.properties unless they are empty.</li>
- * 
- * <li>When empty, it is time for a bulk translation instead of doing it manually.</li>
- * <li>Use I18nFileSplitter with strings.properties to get an ordered 
- *      line-list of (right-side) English text resources (values, not keys).</li>
- * <li>Translate this line-list on DeepL to another language, keeping line order.</li>
- * <li>Use I18nFileLinesJoiner to join the translated line-list with the key file,
- *      they should be in same order and have same line-count.</li>
- * <li>Put the result into strings_xx.properties, xx being the other language.</li>
- * </ol>
+ * Scans Java sources for i18n identifiers and outputs them for building properties.
+ * Option -k for outputting keys,-v for values, else both (default).
  */
-public class I18nScanner
+public class I18nScanner extends AbstractI18n
 {
     private static final String START_TOKEN = "i18n(\"";
     private static final String END_TOKEN = "\")"; // must be on same line!
@@ -44,38 +26,39 @@ public class I18nScanner
     
     public static void main(String[] args) throws Exception {
         boolean doKey = false, doValue = false;
-        String directory = null;
+        String directory = null, file = null;
         for (String arg : args) {
-            if (arg.startsWith("-")) {
-                if (arg.startsWith("-v"))
-                    doValue = true;
-                else if (arg.startsWith("-k"))
-                    doKey = true;
-            }
-            else {
+            if (arg.equals("-k") && doKey == false)
+                doKey = true;
+            else if (arg.equals("-v") && doValue == false)
+                doValue = true;
+            else if (directory == null)
                 directory = arg;
-            }
+            else if (file == null)
+                file = arg;
+            else
+                throw new IllegalArgumentException("Too many arguments: "+arg);
         }
-        new I18nScanner(doKey, doValue).scan(directory);
-    }
-    
-    
-    private boolean doKey;
-    private boolean doValue;
-    private PrintStream out = System.out;
-    
-    public I18nScanner(boolean doKey, boolean doValue) {
-        this.doKey = doKey;
-        this.doValue = doValue;
         
-        if (doKey == false && doValue == false) {
-            this.doKey = true;
-            this.doValue = true;
-        }
+        I18nScanner i18nScanner = new I18nScanner(directory, file);
+        if (doKey == doValue) // both false or both true
+            i18nScanner.scanProperties();
+        if (doKey)
+            i18nScanner.scanKeys();
+        else if (doValue)
+            i18nScanner.scanValues();
     }
     
-    public void scan(String directory) throws IOException {
-        Map<String,String> map = new LinkedHashMap<>();
+    
+    private final SequencedMap<String,String> map = new LinkedHashMap<>();
+    private final String file;
+    
+    public I18nScanner(String directory, String file) throws IOException {
+        this.file = file;
+        
+        File sourceDirectory = new File(directory);
+        if (sourceDirectory.isDirectory() == false)
+            throw new IllegalArgumentException("Not a directory: "+directory);
         
         RecursiveFileVisitor fileVisitor = new RecursiveFileVisitor() {
             @Override
@@ -83,16 +66,33 @@ public class I18nScanner
                 readJavaSource(file, map);
             }
         };
-        int fileCount = fileVisitor.traverse(new File(directory), EXTENSION);
-        
-        if (checkPropertiesCompatibility(map))
-            output(map, doKey, doValue);
-        
+        int fileCount = fileVisitor.traverse(sourceDirectory, EXTENSION);
         System.err.println("Collected "+map.size()+" i18n identifiers from "+fileCount+" "+EXTENSION+" files");
     }
 
+    public void scanValues() throws IOException {
+        scan(Boolean.FALSE);
+    }
+
+    public void scanKeys() throws IOException {
+        scan(Boolean.TRUE);
+    }
+
+    public void scanProperties() throws IOException {
+        scan(null);
+    }
+
+    private void scan(Boolean doKeys) throws IOException {
+        if (checkPropertyKeysCompatibility(map))
+            output(doKeys);
+    }
+
+    /** RecursiveFileVisitor callback: scanning .java sources. */
     private void readJavaSource(File file, Map<String,String> map) throws FileNotFoundException, IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+        try (BufferedReader reader = 
+                new BufferedReader(
+                        new InputStreamReader(new FileInputStream(file)))) // hoping that source is in UTF-8
+        {
             String line;
             while ((line = reader.readLine()) != null) {
                 int startIndex = line.indexOf(START_TOKEN);
@@ -102,27 +102,26 @@ public class I18nScanner
                         String value = line.substring(startIndex + START_TOKEN.length(), endIndex);
                         startIndex = line.indexOf(START_TOKEN, endIndex); // skip to next in line
                         
-                        String key = replace(value);
+                        String key = replaceSpaces(value);
                         map.put(key, value);
                     }
                     else {
-                        System.err.println("I18n not terminated in file "+file.getName()+": "+line);
                         startIndex = -1;
+                        throw new IllegalStateException("I18n not terminated in "+file.getName()+", line "+line);
                     }
                 }
             }
         }
     }
 
-    private String replace(String resourceKey) {
+    private String replaceSpaces(String resourceKey) {
         return resourceKey
                 .replace(' ', '_')
                 .replace("=", "_")
-                .replace(":", "_")
-                ;
+                .replace(":", "_");
     }
 
-    private boolean checkPropertiesCompatibility(Map<String,String> map) throws IOException {
+    private boolean checkPropertyKeysCompatibility(Map<String,String> map) throws IOException {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String,String> entry : map.entrySet()) {
             String propertiesLine = entry.getKey() + " = " + entry.getValue();
@@ -153,14 +152,22 @@ public class I18nScanner
         return wrongKey <= 0 && wrongValue <= 0;
     }
 
-    private void output(Map<String,String> map, boolean key, boolean value) {
-        for (Map.Entry<String, String> entry : map.entrySet())
-            if (key && ! value)
-                out.println(entry.getKey());
-            else if ( ! key && value)
-                out.println(entry.getValue());
-            else if (key && value)
-                out.println(entry.getKey()+" = "+entry.getValue());
+    private void output(Boolean doKeys) throws IOException {
+        try (Writer writer = (doKeys == Boolean.FALSE) // values only
+                ? createUtf8Writer(file) // online translator needs UTF-8 strings
+                : createIso88591Writer(file))
+        {
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                if (doKeys == Boolean.TRUE)
+                    writer.write(entry.getKey());
+                else if (doKeys == Boolean.FALSE)
+                    writer.write(entry.getValue());
+                else
+                    writer.write(entry.getKey()+" = "+entry.getValue());
+                
+                writer.write("\n");
+            }
+        }
     }
     
     

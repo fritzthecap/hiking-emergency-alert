@@ -1,45 +1,59 @@
 package fri.servers.hiking.emergencyalert.util;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.BiFunction;
 
 /**
- * Reads a key file line by line, which is the first argument and not a properties file.
- * Then opens the second file, which must be a properties file, and assigns
- * the property-values of it to the identical keys of the first file,
- * whereby non-existing values are reported separately with line numbers.
- * When all values are existing, outputs the keys in their order with assigned values
- * (with a " = " between) into the third argument with ISO-8859-1 encoding.
- * Else just outputs on stderr the keys that are missing their values.
+ * Reads a key file line by line, which is the first argument, not a .properties file.
+ * Then opens the second argument file, which can be a .properties file or a .txt file,
+ * and assigns either the value for key on line from the .properties file, or the value 
+ * from same line number from the .txt file.
+ * Non-existing .properties values are reported separately on stderr with line numbers.
+ * In case of .txt file, an exception is thrown when both files do not have the same number of lines.
+ * The application ends and does not write the result properties file when values are missing.
+ * But when all values can be found, it outputs the keys, in their order, with assigned values
+ * into the third argument properties file, using ISO-8859-1 encoding.
  */
-public class I18nFileJoiner
+public class I18nFileJoiner extends AbstractI18n
 {
-    /**
-     * First argument must be key-file, 
-     * second source-properties-file, 
-     * third result-properties-file.
-     */
     public static void main(String[] args) throws Exception {
-        new I18nFileJoiner().join(args[0], args[1], args[2]);
+        if (args.length != 3)
+            throw new IllegalArgumentException(
+                    "SYNTAX: java I18nFileJoiner keys.txt source.properties result.properties\n"+
+                    "    or: java I18nFileJoiner keys.txt values.txt result.properties");
+            
+        I18nFileJoiner joiner = new I18nFileJoiner(args[0], args[1]);
+        joiner.join(args[2]);
     }
 
-    private void join(String keyFile, String sourcePropertiesFile, String resultPropertiesFile) throws IOException {
-        if (sourcePropertiesFile.endsWith(".properties") == false)
-            throw new IllegalArgumentException("The second argument MUST be a properties file: "+sourcePropertiesFile);
+
+    private final List<String> keyLines;
+    private final String valueFile;
+    
+    public I18nFileJoiner(String keyFile, String valueFile) throws IOException {
+        assertPropertiesFile(1, keyFile, false);
         
-        List<String> keyLines = Files.readAllLines(Path.of(keyFile));
-        for (String line : keyLines)
-            if (line.contains("="))
-                throw new IllegalArgumentException("The first argument must NOT be a properties file: '"+line+"'");
+        this.keyLines = readIso88591Keys(keyFile);
+        this.valueFile = valueFile;
+    }
+    
+    private void join(String resultPropertiesFile) throws IOException {
+        assertPropertiesFile(3, resultPropertiesFile, true);
+        
+        boolean isPropertiesJoin = valueFile.endsWith(".properties");
+        if (isPropertiesJoin)
+            joinFromProperties(valueFile, resultPropertiesFile);
+        else
+            joinLines(valueFile, resultPropertiesFile);
+    }
+    
+    private void joinFromProperties(String sourcePropertiesFile, String resultPropertiesFile) throws IOException {
+        assertPropertiesFile(2, sourcePropertiesFile, true);
         
         Properties sourceProperties = new Properties();
         sourceProperties.load(new FileInputStream(sourcePropertiesFile));
@@ -47,34 +61,6 @@ public class I18nFileJoiner
         StringBuilder missingValueKeys = new StringBuilder();
         Properties resultProperties = new Properties();
         
-        loopKeys(keyLines, sourceProperties, resultProperties, missingValueKeys);
-        
-        if (missingValueKeys.length() > 0) {
-            System.err.println(missingValueKeys.toString());
-        }
-        else {
-            Writer out = new OutputStreamWriter(
-                    new FileOutputStream(new File(resultPropertiesFile)),
-                    Charset.forName("ISO-8859-1"));
-            
-            for (int lineNumber = 0; lineNumber < keyLines.size(); lineNumber++) {
-                String key = keyLines.get(lineNumber);
-                String value = resultProperties.getProperty(key);
-                String property = key + " = " + value;
-                out.write(property);
-                out.write('\n');
-            }
-            out.close();
-            
-        }
-    }
-
-    private void loopKeys(
-            List<String> keyLines, 
-            Properties sourceProperties, 
-            Properties resultProperties, 
-            StringBuilder missingValueKeys)
-    {
         for (int lineNumber = 0; lineNumber < keyLines.size(); lineNumber++) {
             String key = keyLines.get(lineNumber);
             if (key.contains(" "))
@@ -86,5 +72,31 @@ public class I18nFileJoiner
             else
                 resultProperties.setProperty(key, value);
         }
+        
+        if (missingValueKeys.length() > 0) {
+            System.err.println(missingValueKeys.toString());
+        }
+        else {
+            BiFunction<String,Integer,String> valueProvider = 
+                    (key, lineNumber) -> resultProperties.getProperty(key);
+                    
+            writeResultProperties(keyLines, valueProvider, resultPropertiesFile);
+        }
+    }
+
+    private void joinLines(String valueFile, String resultPropertiesFile) throws IOException {
+        assertPropertiesFile(2, valueFile, false);
+        
+        List<String> valueLines = Files.readAllLines(Path.of(valueFile)); // values in text-files are in UTF-8
+        
+        if (keyLines.size() != valueLines.size())
+            throw new IllegalStateException(
+                    "Key file has "+keyLines.size()+
+                    " lines, value file has "+valueLines.size()+" lines!");
+        
+        BiFunction<String,Integer,String> valueProvider = 
+                (key, lineNumber) -> valueLines.get(lineNumber);
+                
+        writeResultProperties(keyLines, valueProvider, resultPropertiesFile);
     }
 }

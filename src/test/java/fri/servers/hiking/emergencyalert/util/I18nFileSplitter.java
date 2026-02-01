@@ -1,71 +1,86 @@
 package fri.servers.hiking.emergencyalert.util;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.nio.charset.Charset;
+import java.io.Writer;
+import java.util.List;
 
 /**
- * Reads a properties file and splits it line by line,
- * outputting either key (-k) or value (-v).
+ * Reads a properties file and splits it line by line, outputting either key (-k) or value (-v).
  */
-public class I18nFileSplitter
+public class I18nFileSplitter extends AbstractI18n
 {
-    /**
-     * Single argument must be a properties-file.
-     */
+    /** First argument must be a .properties-file, second a .txt file. */
     public static void main(String[] args) throws Exception {
         boolean doKey = false, doValue = false;
-        String file = null;
+        String sourcePropertiesFile = null;
+        String resultTextFile = null;
+        
         for (String arg : args) {
-            if (arg.startsWith("-")) {
-                if (arg.startsWith("-v"))
-                    doValue = true;
-                else if (arg.startsWith("-k"))
-                    doKey = true;
-            }
-            else {
-                if (file != null)
-                    throw new IllegalArgumentException("Can process only one file, too much: "+arg);
-                file = arg;
-            }
+            if (arg.equals("-k") && doKey == false)
+                doKey = true;
+            else if (arg.equals("-v") && doValue == false)
+                doValue = true;
+            else if (sourcePropertiesFile == null)
+                sourcePropertiesFile = arg; 
+            else if (resultTextFile == null)
+                resultTextFile = arg;
+            else                
+                throw new IllegalArgumentException("Too many arguments: "+arg);
         }
-        new I18nFileSplitter(doKey, doValue).split(file);
+        
+        I18nFileSplitter i18nFileSplitter = new I18nFileSplitter(sourcePropertiesFile, resultTextFile);
+        if (doKey)
+            i18nFileSplitter.splitKeys();
+        else if (doValue)
+            i18nFileSplitter.splitValues();
+        else
+            throw new IllegalArgumentException("Either keys or values must be requested, giving one of -k or -v option");
     }
 
     
-    private boolean doKey;
-    private boolean doValue;
-    private PrintStream out = System.out;
+    private final String sourcePropertiesFile, resultTextFile;
     
-    public I18nFileSplitter(boolean doKey, boolean doValue) {
-        this.doKey = doKey;
-        this.doValue = doValue;
+    public I18nFileSplitter(String sourcePropertiesFile, String resultTextFile) throws IOException {
+        assertPropertiesFile(2, sourcePropertiesFile, true);
+        assertPropertiesFile(3, resultTextFile, false);
         
-        if (doKey == doValue)
-            throw new IllegalArgumentException("Can not split both keys and values!");
+        this.sourcePropertiesFile = sourcePropertiesFile;
+        this.resultTextFile = resultTextFile;
     }
     
-    private void split(String propertiesFile) throws IOException {
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(
-                        new FileInputStream(propertiesFile), Charset.forName("ISO-8859-1"))))
+    private void splitKeys() throws IOException {
+        split(true);
+    }
+
+    private void splitValues() throws IOException {
+        split(false);
+    }
+
+    private void split(boolean doKey) throws IOException {
+        List<String> propertyLines = readIso88591Lines(sourcePropertiesFile);
+        
+        try (Writer writer = doKey 
+                     ? createIso88591Writer(resultTextFile) 
+                     : createUtf8Writer(resultTextFile)) // online translator needs UTF-8 strings
         {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                int index = line.indexOf("=");
-                if (index > 0) {
-                    String key = line.substring(0, index).trim();
-                    String value = line.substring(index + 1);
-                    while (value.startsWith(" "))
-                        value = value.substring(1);
+            for (String propertyLine : propertyLines) {
+                if (propertyLine.trim().startsWith("#") == false) {
+                    int index = propertyLine.indexOf("=");
+                    if (index < 0)
+                        index = propertyLine.indexOf(":");
                     
-                    if (doKey)
-                        out.println(key);
-                    else if (doValue)
-                        out.println(value);
+                    if (index > 0) {
+                        String key = propertyLine.substring(0, index).trim(); // key must not not contain spaces
+                        String value = propertyLine.substring(index + 1);
+                        while (value.startsWith(" ")) // cut off leading spaces
+                            value = value.substring(1);
+                        
+                        if (doKey)
+                            writer.write(key);
+                        else
+                            writer.write(value);
+                        writer.write("\n");
+                    }
                 }
             }
         }
