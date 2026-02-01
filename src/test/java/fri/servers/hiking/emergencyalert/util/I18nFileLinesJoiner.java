@@ -17,7 +17,7 @@ public class I18nFileLinesJoiner
      * @throws Exception when files have different line counts.
      */
     public static void main(String[] args) throws Exception {
-        new I18nFileJoiner().join(args[0], args[1]);
+        new I18nFileLinesJoiner().join(args[0], args[1]);
     }
 
     
