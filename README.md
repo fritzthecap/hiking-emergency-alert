@@ -22,6 +22,9 @@ It was implemented using Java 21 (compatible with 17), the UI is good old Swing.
 Persisted hike data are in JSON format (gson 2.13.2).
 E-mail goes with jakarta mail 2.1.5 and angus-mail 2.0.5 libraries.
 
+For German readers, here is my Blog article about this idea:
+- https://fritzthecat-retired.blogspot.com/2025/12/wandern-notfallmeldung.html
+
 ----
 
 Screenshots:
