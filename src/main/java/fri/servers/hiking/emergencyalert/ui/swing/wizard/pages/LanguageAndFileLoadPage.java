@@ -18,6 +18,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.persistence.entities.Alert;
@@ -165,6 +166,12 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
         
         // load text resources of selected language
         Language.load(locale);
+        
+        // change dialog button texts
+        UIManager.put("OptionPane.cancelButtonText", i18n("Cancel"));
+        UIManager.put("OptionPane.okButtonText", i18n("Ok"));
+        UIManager.put("OptionPane.yesButtonText", i18n("Yes"));
+        UIManager.put("OptionPane.noButtonText", i18n("No"));
         
         // rebuild the complete UI
         getContentPanel().removeAll();
