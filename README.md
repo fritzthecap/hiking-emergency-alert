@@ -47,7 +47,7 @@ Screenshots:
 
 ----
 
-<img width="900" height="600" alt="Hiking-Emergency-Alert_MailConfiguration" src="https://github.com/user-attachments/assets/57b3fecd-2a2b-4eb5-85a1-2cea3d37babb" />
+<img width="900" height="600" alt="Hiking-Emergency-Alert_MailConfiguration" src="https://github.com/user-attachments/assets/4f2f1db6-bdd8-45ba-a5b9-73382e5a663f" />
 
 ----
 
