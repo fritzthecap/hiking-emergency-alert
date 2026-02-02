@@ -39,7 +39,7 @@ Screenshots:
 
 ----
 
-<img width="900" height="600" alt="Hiking-Emergency-Alert_Contacts" src="https://github.com/user-attachments/assets/7c34a821-992d-41ac-9fda-a88b1da63156" />
+<img width="900" height="600" alt="Hiking-Emergency-Alert_Contacts" src="https://github.com/user-attachments/assets/e66c028e-8ed5-445e-9a57-4ec11a35154f" />
 
 ----
 
