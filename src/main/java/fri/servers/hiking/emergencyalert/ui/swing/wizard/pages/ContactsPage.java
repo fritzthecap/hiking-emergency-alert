@@ -2,6 +2,7 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
@@ -22,6 +23,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -103,7 +105,15 @@ public class ContactsPage extends AbstractWizardPage
                 null);
         
         final JComponent contactsTable = buildContactsTable();
-        contactsTable.setBorder(BorderFactory.createTitledBorder("* "+i18n("Emergency Alert Contacts")));
+        
+        final String contactTip = i18n("Use your own e-mail as first contact for the case you are Ok but running late!");
+        final TitledBorder insideBorder = BorderFactory.createTitledBorder(contactTip);
+        contactsTable.setToolTipText(contactTip);
+        insideBorder.setTitleColor(Color.GRAY);
+        contactsTable.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder("* "+i18n("Emergency Alert Contacts")), // outside
+                insideBorder)
+            );
         
         final JPanel hikerPanel = new JPanel();
         hikerPanel.setLayout(new BoxLayout(hikerPanel, BoxLayout.X_AXIS));
