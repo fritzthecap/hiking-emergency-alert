@@ -15,15 +15,18 @@ Supported languages:
 - Italian
 - Spanish
 
+To use this application you need at least Java 17 installed on your computer. This is freely available on the [Open Java website](https://jdk.java.net/25/), or [here](https://www.oracle.com/de/java/technologies/downloads/).
+As soon as you have installed the Java Runtime Environment and downloaded _hiking-emergency-alert.jar_, launch
+
+    java -jar hiking-emergency-alert.jar
 ----
 
 This project started 2026-01-01 and had its first release 2026-02-02.
-It was implemented using Java 21 (compatible with 17), the UI is good old Swing.
-Persisted hike data are in JSON format (gson 2.13.2).
-E-mail goes with jakarta mail 2.1.5 and angus-mail 2.0.5 libraries.
+It was implemented using _Java 21_ (compatible with 17), the UI is good old _Swing_.
+Persisted hike data are in _JSON_ format (_gson 2.13.2_).
+E-mail goes with _jakarta-mail 2.1.5_ and _angus-mail 2.0.5_ libraries.
 
-For German readers, here is my Blog article about this idea:
-- https://fritzthecat-retired.blogspot.com/2025/12/wandern-notfallmeldung.html
+For German readers, I have written a [Blog article](https://fritzthecat-retired.blogspot.com/2025/12/wandern-notfallmeldung.html) about this idea.
 
 ----
 
