@@ -8,6 +8,13 @@ This goes on until either a contact responded, or there are no more contacts. Of
 
 It makes sense that you configure yourself as first contact. That way you can stop the alert chain when you are just late but not helpless in a ditch without phone connection. That will work in case you have your phone with you and can receive and send e-mail on it. The response e-mail must either contain the original e-mail as attachment, or the MAIL-ID that can be found in the original's content text.
 
+Supported languages:
+- German
+- English
+- French
+- Italian
+- Spanish
+
 ----
 
 This project started 2026-01-01 and had its first release 2026-02-02.
