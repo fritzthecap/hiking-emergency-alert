@@ -11,7 +11,7 @@
     rm target/hiking-emergency-alert-*.jar
     
 - Launch:
-    mvn -DskipTests package
+    mvn -DskipTests clean package
     
 - Check that the JAR files in target have no SNAPSHOT postfix
 
