@@ -18,7 +18,7 @@ Supported languages:
 To use this application you need at least Java 17 installed on your computer. This is freely available on the [Open Java website](https://jdk.java.net/25/), or [here](https://www.oracle.com/de/java/technologies/downloads/).
 As soon as you have installed the Java Runtime Environment and downloaded _hiking-emergency-alert.jar_, launch
 
-    java -jar hiking-emergency-alert.ja
+    java -jar hiking-emergency-alert.jar
 
 The application stores your hike-data by default in _$HOME/hiking-emergency-alert_ directory, that gets created as soon as you once have configured your mail connection successfully. You can generate different hikes and load them on the fist page of the "wizard", see screenshots below.
 
@@ -39,7 +39,7 @@ Screenshots:
 
 ----
 
-<img width="900" height="600" alt="Hiking-Emergency-Alert_Contacts" src="https://github.com/user-attachments/assets/7c34a821-992d-41ac-9fda-a88b1da63156" />
+<img width="900" height="600" alt="Hiking-Emergency-Alert_Contacts" src="https://github.com/user-attachments/assets/e66c028e-8ed5-445e-9a57-4ec11a35154f" />
 
 ----
 
@@ -47,7 +47,7 @@ Screenshots:
 
 ----
 
-<img width="900" height="600" alt="Hiking-Emergency-Alert_MailConfiguration" src="https://github.com/user-attachments/assets/57b3fecd-2a2b-4eb5-85a1-2cea3d37babb" />
+<img width="900" height="600" alt="Hiking-Emergency-Alert_MailConfiguration" src="https://github.com/user-attachments/assets/4f2f1db6-bdd8-45ba-a5b9-73382e5a663f" />
 
 ----
 
