@@ -1,0 +1,36 @@
+
+- Check that all unit-tests are green
+
+- Commit and push all source changes to repository, mention numbers of fixed issue in comments
+
+- Edit pom.xml and remove the '-SNAPSHOT' from <version> XML-element and save file
+
+- Open terminal window and go into the project-directory where Maven pom.xml file is
+
+- Remove old JAR files from compile target directory:
+    rm target/hiking-emergency-alert-*.jar
+    
+- Launch:
+    mvn -DskipTests package
+    
+- Check that the JAR files in target have no SNAPSHOT postfix
+
+- Copy the jar-with-dependencies JAR file in target to project directory, leaving out version: 
+    cp target/hiking-emergency-alert-*-jar-with-dependencies.jar ./hiking-emergency-alert.jar
+    
+- Remove the unneeded smaller JAR file from target directory:
+    rm target/hiking-emergency-alert-1.?.jar
+    
+- Check that correct version is in title-bar of application by launching it:
+    java -jar hiking-emergency-alert.jar
+    
+- Commit and push all project changes to repository
+
+- For major releases, create a release on github ("Releases" - "Draft a New Release"),
+   attach the hiking-emergency-alert.jar file to the release, and
+   edit README.md and adjust the release version number in hyperlink.
+   Then fetch / pull the README.md change to local disk!
+   
+- Edit pom.xml, increase version number and add '-SNAPSHOT', save file
+
+- Commit and push new SNAPSHOT version number in pom.xml to github
