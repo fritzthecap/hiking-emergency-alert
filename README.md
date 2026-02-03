@@ -15,12 +15,12 @@ Supported languages:
 - Italian
 - Spanish
 
-To use this application you need at least Java 17 installed on your computer. This is freely available on the [Open Java website](https://jdk.java.net/25/), or [here](https://www.oracle.com/de/java/technologies/downloads/).
+To use this application you need at least Java 17 installed on your computer. This is freely available on the [Open Java website](https://jdk.java.net/25/), or [from Oracle](https://www.oracle.com/de/java/technologies/downloads/).
 As soon as you have installed the Java Runtime Environment and downloaded _hiking-emergency-alert.jar_, launch
 
     java -jar hiking-emergency-alert.jar
 
-The application stores your hike-data by default in _$HOME/hiking-emergency-alert_ directory, that gets created as soon as you once have configured your mail connection successfully. You can generate different hikes and load them on the fist page of the "wizard", see screenshots below.
+The application stores your hike-data by default in _$HOME/hiking-emergency-alert_ directory, that gets created as soon as you once have configured your mail connection successfully. You can generate different hikes and load them on the first page of the "wizard", see screenshots below.
 
 ----
 
