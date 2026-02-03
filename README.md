@@ -55,7 +55,7 @@ Screenshots:
 
 ----
 
-<img width="900" height="600" alt="Hiking-Emergency-Alert_Activation" src="https://github.com/user-attachments/assets/ee6a34ea-d76d-481b-870f-2c97ac4825da" />
+<img width="900" height="600" alt="Hiking-Emergency-Alert_Activation" src="https://github.com/user-attachments/assets/65430141-2819-4f68-b993-8593e13dec96" />
 
 ----
 
