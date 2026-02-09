@@ -68,6 +68,8 @@ import fri.servers.hiking.emergencyalert.util.StringUtil;
  * </blockquote>
  * Die Ports nur übernehmen, wenn SSL-Zertifikate des Mail-Providers
  * auf dem Computer installiert wurden!
+ * 
+ * @see https://www.oracle.com/java/technologies/javamail-sslnotes.html
  */
 public class MailConfigurationPage extends AbstractWizardPage
 {
@@ -103,7 +105,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         receiveMailProtocolField = SwingUtil.buildComboBox(
                 "* "+i18n("Protocol"), 
                 i18n("Protocol to use for reading INBOX mails"), 
-                new String [] { "pop3", "imap" });
+                new String [] { "pop3", "imap", "pop3s", "imaps" });
         receiveMailHostField = SwingUtil.buildTextField(
                 "* "+i18n("Host"), 
                 i18n("Something like 'pop.provider.domain' or 'imap.provider.domain'"), 
@@ -116,7 +118,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         sendMailProtocolField = SwingUtil.buildComboBox(
                 "* "+i18n("Protocol"), 
                 i18n("Protocol to use for sending mail"), 
-                new String [] { "smtp" });
+                new String [] { "smtp", "smtps" });
         sendMailHostField = SwingUtil.buildTextField(
                 "* "+i18n("Host"), 
                 i18n("Maybe the same as receive host, or something like 'smtp.provider.domain'"), 
@@ -436,7 +438,7 @@ public class MailConfigurationPage extends AbstractWizardPage
     }
     
     private void bindProtocolToPort() {
-        final ItemListener itemListener = new ItemListener() {
+        final ItemListener receiveProtocolListener = new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 final String protocol = (String) receiveMailProtocolField.getSelectedItem();
@@ -450,8 +452,19 @@ public class MailConfigurationPage extends AbstractWizardPage
                     receiveMailPortField.setValue(993);
             }
         };
-
-        receiveMailProtocolField.addItemListener(itemListener);
+        receiveMailProtocolField.addItemListener(receiveProtocolListener);
+        
+        final ItemListener sendProtocolListener = new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                final String protocol = (String) sendMailProtocolField.getSelectedItem();
+                if ("smtp".equals(protocol))
+                    sendMailPortField.setValue(25);
+                else if ("smtps".equals(protocol))
+                    sendMailPortField.setValue(465); // 587
+            }
+        };
+        sendMailProtocolField.addItemListener(sendProtocolListener);
     }
 
     private void installFocusValidation() {
