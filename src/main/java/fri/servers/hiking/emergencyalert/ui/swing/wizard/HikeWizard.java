@@ -77,7 +77,6 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         final String hikeLanguage = stateMachine.getHike().getAlert().getIso639Language();
         Language.load(hikeLanguage);
         // resource bundle is loaded, can use i18n() from now on
-        
         SwingLanguage.setJOptionPaneButtonLabels();
         
         buildUi();

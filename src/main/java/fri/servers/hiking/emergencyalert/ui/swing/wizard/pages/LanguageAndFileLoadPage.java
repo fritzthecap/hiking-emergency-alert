@@ -166,7 +166,6 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
         
         // load text resources of selected language
         Language.load(locale);
-        
         // change dialog button texts
         SwingLanguage.setJOptionPaneButtonLabels();
         

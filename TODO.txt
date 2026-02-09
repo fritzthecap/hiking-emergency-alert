@@ -1,5 +1,3 @@
 
-Split hikes:
-    https://github.com/fritzthecap/hiking-emergency-alert/issues/1
-
-Write more unit tests like StateMachineGreenmailTest.
+Ab jetzt auf:
+  https://github.com/fritzthecap/hiking-emergency-alert/issues
