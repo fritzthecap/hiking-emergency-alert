@@ -15,7 +15,7 @@ import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 public class MailProperties extends Properties
 {
     /**
-     * Additional properties needed for secure mail.
+     * Additional properties needed for secure mail, as a new clone of the static properties.
      * @see https://mailtrap.io/blog/starttls-ssl-tls/
      */
     public static Properties customProperties() {
@@ -73,7 +73,7 @@ public class MailProperties extends Properties
     private void putCommonProperties(MailConfiguration mailConfiguration) {
         put("mail.user", mailConfiguration.getMailUser());
         put("mail.transport.protocol", mailConfiguration.getSendMailProtocol());
-        put("mail.store.protocol", mailConfiguration.getReceiveMailProtocol()); // TODO: is that correct also on send?
+        put("mail.store.protocol", mailConfiguration.getReceiveMailProtocol());
     }
     
     private void putSendProperties(MailConfiguration mailConfiguration) {
