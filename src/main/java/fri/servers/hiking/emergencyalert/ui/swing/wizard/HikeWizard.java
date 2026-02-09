@@ -20,6 +20,7 @@ import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
+import fri.servers.hiking.emergencyalert.ui.swing.util.SwingLanguage;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.ActivationPage;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.ContactsPage;
@@ -76,6 +77,8 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         final String hikeLanguage = stateMachine.getHike().getAlert().getIso639Language();
         Language.load(hikeLanguage);
         // resource bundle is loaded, can use i18n() from now on
+        
+        SwingLanguage.setJOptionPaneButtonLabels();
         
         buildUi();
         
