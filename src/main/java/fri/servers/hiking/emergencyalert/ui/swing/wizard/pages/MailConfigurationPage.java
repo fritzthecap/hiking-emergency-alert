@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.Vector;
 import java.util.function.Consumer;
 import javax.swing.BorderFactory;
@@ -276,7 +277,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         if (maximumConnectionTestSeconds > 0)
             mailConfiguration.setMaximumConnectionTestSeconds(maximumConnectionTestSeconds);
         
-        if (customPropertiesToCommit != null) {
+        if (customPropertiesToCommit != null) { // dialog edited custom properties
             mailConfiguration.getCustomProperties().clear();
             
             for (Map.Entry<Object,Object> entrySet : customPropertiesToCommit.entrySet()) {
@@ -287,6 +288,10 @@ public class MailConfigurationPage extends AbstractWizardPage
                 mailConfiguration.getCustomProperties().add(tuple);
             }
         }
+        else { // dialog did no changes to custom properties
+            mailConfiguration.setCustomProperties(
+                    getHike().getAlert().getMailConfiguration().getCustomProperties());
+        }
 
         return mailConfiguration;
     }
@@ -295,30 +300,64 @@ public class MailConfigurationPage extends AbstractWizardPage
         final MailConfiguration mailConfigurationForDialog = new MailConfiguration();
         commitToMailConfiguration(mailConfigurationForDialog); // fill from UI fields
         
-        final MailProperties coreProperties = new MailProperties(mailConfigurationForDialog);
-        final Properties customProperties = mergeProperties(
+        final MailProperties coreProperties = new MailProperties(mailConfigurationForDialog); // no custom properties
+        
+        final List<List<String>> persistentCustomProperties = getHike().getAlert().getMailConfiguration().getCustomProperties();
+        
+        // merge all possible properties together
+        final Properties customProperties = mergePropertiesOverDefaults(
+                persistentCustomProperties,
                 this.customPropertiesToCommit, 
-                MailProperties.customProperties()); // is a clone
+                MailProperties.customProperties()); // is an always new clone
+        
+        // merge included properties
+        final Properties propertiesToInclude = mergePropertiesWhenCommitable(
+                persistentCustomProperties, // they were included
+                this.customPropertiesToCommit); // uncommitted included
+        final Properties customPropertiesBackup = (Properties) propertiesToInclude.clone(); // change tracking
         
         final CustomPropertiesEditDialog propertiesEditor = new CustomPropertiesEditDialog(
                 getFrame(), 
-                coreProperties, // rendered read-only
-                customProperties, // will be edited
-                mailConfigurationForDialog.getCustomProperties(), // set include flags for these
+                coreProperties, // rendered read-only on top
+                customProperties, // will be editable below
+                propertiesToInclude, // set include flags for editable
                 i18n("Mail Properties"));
         propertiesEditor.setVisible(true); // is modal
         
-        if (propertiesEditor.wasCommitted()) // dialog finished
-            this.customPropertiesToCommit = customProperties;
+        // dialog finished
+        if (propertiesEditor.wasCommitted() && customPropertiesBackup.equals(customProperties) == false)
             // edited clone, only those with include-flag will be in customProperties
+            this.customPropertiesToCommit = customProperties;
     }
     
-    private Properties mergeProperties(Properties customPropertiesToCommit, Properties customProperties) {
-        if (customPropertiesToCommit != null)
+    private Properties mergePropertiesOverDefaults(
+            List<List<String>> persistentCustomProperties,
+            Properties customPropertiesToCommit, 
+            Properties defautCustomProperties)
+    {
+        if (persistentCustomProperties != null) // adopt persistent property values
+            for (List<String> tuple : persistentCustomProperties)
+                defautCustomProperties.setProperty(tuple.get(0), tuple.get(1));
+        
+        if (customPropertiesToCommit != null) // uncommitted properties overwrite persistet values
             for (Map.Entry<Object,Object> entry : customPropertiesToCommit.entrySet())
-                customProperties.setProperty((String) entry.getKey(), (String) entry.getValue());
-                
-        return customProperties;
+                defautCustomProperties.setProperty((String) entry.getKey(), (String) entry.getValue());
+        
+        return defautCustomProperties;
+    }
+
+    private Properties mergePropertiesWhenCommitable(
+            List<List<String>> persistentCustomProperties,
+            Properties customPropertiesToCommit)
+    {
+        final Properties properties = new Properties(customPropertiesToCommit);
+        
+        if (persistentCustomProperties != null) // adopt persistent property values
+            for (List<String> tuple : persistentCustomProperties)
+                if (customPropertiesToCommit == null || customPropertiesToCommit.containsKey(tuple.get(0)))
+                    properties.setProperty(tuple.get(0), tuple.get(1));
+        
+        return properties;
     }
 
     private boolean connectionTest(boolean showSuccessDialog) {
@@ -436,20 +475,20 @@ public class MailConfigurationPage extends AbstractWizardPage
     /** Custom mail properties edit dialog. */
     private static class CustomPropertiesEditDialog extends PropertiesEditDialog
     {
-        private Properties readOnlyProperties;
-        private List<List<String>> propertiesToBeMarkedIncluded;
+        private final Properties readOnlyProperties;
+        private final Set<String> propertiesToInclude;
         private boolean committed;
         
         CustomPropertiesEditDialog(
                 Frame parent, 
                 Properties readOnlyProperties, 
                 Properties editableProperties, 
-                List<List<String>> propertiesToBeMarkedIncluded,
+                Properties propertiesToInclude,
                 String title)
         {
             super(parent, editableProperties, title);
             this.readOnlyProperties = readOnlyProperties;
-            this.propertiesToBeMarkedIncluded = propertiesToBeMarkedIncluded;
+            this.propertiesToInclude = propertiesToInclude.stringPropertyNames();
         }
         
         boolean wasCommitted() {
@@ -481,11 +520,8 @@ public class MailConfigurationPage extends AbstractWizardPage
             for (int i = 0; i < namesAndValues.size(); i++) {
                 final Vector<Object> triple = namesAndValues.get(i);
                 final Object tripleName = triple.get(0);
-                for (List<String> tuple : propertiesToBeMarkedIncluded) {
-                    final String tupleName = tuple.get(0);
-                    if (tripleName.equals(tupleName))
-                        triple.set(2, Boolean.TRUE); // set include from false to true
-                }
+                if (propertiesToInclude.contains(tripleName))
+                    triple.set(2, Boolean.TRUE); // set include-flag from false to true
             }
         }
     }
