@@ -1,5 +1,6 @@
 package fri.servers.hiking.emergencyalert.mail.impl;
 
+import java.util.Map;
 import java.util.Properties;
 import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
@@ -31,6 +32,7 @@ public class MailSessionFactory
             boolean send)
     {
         final Properties mailProperties = new MailProperties(mailConfiguration, send);
+        dumpProperties(mailProperties);
         
         // some mail servers deny SMTP access without login, so do authentication in any case
         final Authenticator authenticator = (authenticatorOrNull != null)
@@ -40,5 +42,12 @@ public class MailSessionFactory
         return new SessionWithAuthenticator(
                 Session.getInstance(mailProperties, authenticator),
                 authenticator);
+    }
+
+    private void dumpProperties(Properties mailProperties) {
+        System.err.println("======================= START MailProperties =======================");
+        for (Map.Entry<Object,Object> entry : mailProperties.entrySet())
+            System.err.println(entry.getKey()+" = "+entry.getValue());
+        System.err.println("======================= END MailProperties =======================");
     }
 }
