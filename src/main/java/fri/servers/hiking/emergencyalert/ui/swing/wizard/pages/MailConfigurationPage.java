@@ -296,7 +296,9 @@ public class MailConfigurationPage extends AbstractWizardPage
         commitToMailConfiguration(mailConfigurationForDialog); // fill from UI fields
         
         final MailProperties coreProperties = new MailProperties(mailConfigurationForDialog);
-        final Properties customProperties = MailProperties.customProperties(); // is a clone
+        final Properties customProperties = mergeProperties(
+                this.customPropertiesToCommit, 
+                MailProperties.customProperties()); // is a clone
         
         final CustomPropertiesEditDialog propertiesEditor = new CustomPropertiesEditDialog(
                 getFrame(), 
@@ -311,6 +313,14 @@ public class MailConfigurationPage extends AbstractWizardPage
             // edited clone, only those with include-flag will be in customProperties
     }
     
+    private Properties mergeProperties(Properties customPropertiesToCommit, Properties customProperties) {
+        if (customPropertiesToCommit != null)
+            for (Map.Entry<Object,Object> entry : customPropertiesToCommit.entrySet())
+                customProperties.setProperty((String) entry.getKey(), (String) entry.getValue());
+                
+        return customProperties;
+    }
+
     private boolean connectionTest(boolean showSuccessDialog) {
         final MailConfiguration mailConfiguration = new MailConfiguration();
         commitToMailConfiguration(mailConfiguration);

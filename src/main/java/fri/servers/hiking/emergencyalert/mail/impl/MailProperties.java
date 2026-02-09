@@ -73,8 +73,7 @@ public class MailProperties extends Properties
     private void putCommonProperties(MailConfiguration mailConfiguration) {
         put("mail.user", mailConfiguration.getMailUser());
         put("mail.transport.protocol", mailConfiguration.getSendMailProtocol());
-        put("mail.store.protocol", mailConfiguration.getReceiveMailProtocol());
-        
+        put("mail.store.protocol", mailConfiguration.getReceiveMailProtocol()); // TODO: is that correct also on send?
     }
     
     private void putSendProperties(MailConfiguration mailConfiguration) {
