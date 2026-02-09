@@ -13,14 +13,14 @@ import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 /**
  * The bullet line above "Back" and "Forward" buttons showing the wizard status.
  */
-public class WizardOutline extends JPanel
+class WizardOutline extends JPanel
 {
     private static final Color normalColor = Color.GRAY;
     private static final Color highlightColor = Color.RED;
     
     private List<JLabel> balls = new ArrayList<>();
     
-    public WizardOutline(int pageCount) {
+    WizardOutline(int pageCount) {
         setLayout(new FlowLayout(FlowLayout.CENTER));
         
         final JPanel bar = new JPanel();
