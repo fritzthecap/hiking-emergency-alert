@@ -26,10 +26,10 @@ public class MailProperties extends Properties
         CUSTOM_PROPERTIES.put("mail.smtp.username", "user.name");
         CUSTOM_PROPERTIES.put("mail.smtp.auth", "true");
         
-        CUSTOM_PROPERTIES.put("mail.smtp.port", "587, or 465 (old), or 2525");
+        CUSTOM_PROPERTIES.put("mail.smtp.port", "465, or 587, or 2525");
         CUSTOM_PROPERTIES.put("mail.smtp.starttls.enable", "true");
         CUSTOM_PROPERTIES.put("mail.smtp.ssl.enable", "true");
-        CUSTOM_PROPERTIES.put("mail.smtp.ssl.protocols", "TLSv1.2 or TLSv1.3");
+        CUSTOM_PROPERTIES.put("mail.smtp.ssl.protocols", "TLSv1.2, or TLSv1.3");
         CUSTOM_PROPERTIES.put("mail.smtp.ssl.trust", "*");
         CUSTOM_PROPERTIES.put("mail.smtp.ssl.checkserveridentity", "false");
         CUSTOM_PROPERTIES.put("mail.smtp.socketFactory.port", "465");
