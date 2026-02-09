@@ -66,7 +66,10 @@ public class AbstractI18n
         return createWriter(resultPropertiesFile, "ISO-8859-1");
     }
     
-    private final Writer createWriter(String resultPropertiesFile, String charsetName) throws FileNotFoundException {
+    protected final Writer createWriter(String resultPropertiesFile, String charsetName) throws FileNotFoundException {
+        if (resultPropertiesFile == null)
+            throw new IllegalArgumentException("RGiven result properties file is null!");
+        
         return new BufferedWriter(
                 new OutputStreamWriter(
                         new FileOutputStream(new File(resultPropertiesFile)),

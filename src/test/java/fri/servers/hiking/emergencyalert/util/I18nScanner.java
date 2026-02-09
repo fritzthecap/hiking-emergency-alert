@@ -6,8 +6,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -16,6 +18,8 @@ import java.util.SequencedMap;
 /**
  * Scans Java sources for i18n identifiers and outputs them for building properties.
  * Option -k for outputting keys,-v for values, else both (default).
+ * <p/>
+ * SYNTAX: java I18nScanner [-k] [-v] javaSouceDirectory [outputFile]
  */
 public class I18nScanner extends AbstractI18n
 {
@@ -153,20 +157,27 @@ public class I18nScanner extends AbstractI18n
     }
 
     private void output(Boolean doKeys) throws IOException {
-        try (Writer writer = (doKeys == Boolean.FALSE) // values only
-                ? createUtf8Writer(file) // online translator needs UTF-8 strings
-                : createIso88591Writer(file))
+        // write property values in UTF-8, because online translator needs UTF-8 strings,
+        // and property names in ISO-8859-1, because this is the Java properties file encoding
+        String charsetName = (doKeys == Boolean.FALSE) ? "UTF-8" : "ISO-8859-1";
+        try (Writer writer = (file == null) // no output file was given, write to stdout
+                ? new PrintWriter(System.out, true, Charset.forName(charsetName))
+                : createWriter(file, charsetName))
         {
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                if (doKeys == Boolean.TRUE)
-                    writer.write(entry.getKey());
-                else if (doKeys == Boolean.FALSE)
-                    writer.write(entry.getValue());
-                else
-                    writer.write(entry.getKey()+" = "+entry.getValue());
-                
-                writer.write("\n");
-            }
+            writeResults(doKeys, writer);
+        }
+    }
+
+    private void writeResults(Boolean doKeys, Writer writer) throws IOException {
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            if (doKeys == Boolean.TRUE)
+                writer.write(entry.getKey());
+            else if (doKeys == Boolean.FALSE)
+                writer.write(entry.getValue());
+            else
+                writer.write(entry.getKey()+" = "+entry.getValue());
+            
+            writer.write("\n");
         }
     }
     
