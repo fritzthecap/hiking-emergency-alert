@@ -1,6 +1,6 @@
 # hiking-emergency-alert
 
-**CAUTION:** secure mail properties handling is buggy in 1.0, fix is on the way, use the coming version 1.2 !
+> **CAUTION:** secure mail properties handling is buggy in 1.0, fix is on the way, use the coming version 1.1 !
 
 A desktop application that runs at home while you are hiking. It starts to send alert e-mails when you are overdue.
 
