@@ -32,7 +32,7 @@ public class MailSessionFactory
             boolean send)
     {
         final Properties mailProperties = new MailProperties(mailConfiguration, send);
-        dumpProperties(mailProperties);
+        dumpProperties(mailProperties, send);
         
         // some mail servers deny SMTP access without login, so do authentication in any case
         final Authenticator authenticator = (authenticatorOrNull != null)
@@ -44,10 +44,23 @@ public class MailSessionFactory
                 authenticator);
     }
 
-    private void dumpProperties(Properties mailProperties) {
+    private void dumpProperties(Properties mailProperties, boolean send) {
         System.err.println("======================= START MailProperties =======================");
-        for (Map.Entry<Object,Object> entry : mailProperties.entrySet())
-            System.err.println(entry.getKey()+" = "+entry.getValue());
+        for (Map.Entry<Object,Object> entry : mailProperties.entrySet()) {
+            final String key = (String) entry.getKey();
+            
+            final boolean unspecificKey = 
+                    key.contains(".imap") == false && key.contains(".pop3") == false &&
+                    key.contains(".smtp") == false;
+            final boolean shouldPrint = 
+                    (send == true  && key.contains(".imap") == false && key.contains(".pop3") == false) ||
+                    (send == false && key.contains(".smtp") == false);
+            final boolean isTimeout = 
+                    key.endsWith("timeout");
+            
+            if (isTimeout == false && (unspecificKey || shouldPrint))
+                System.err.println(key+" = "+entry.getValue());
+        }
         System.err.println("======================= END MailProperties =======================");
     }
 }
