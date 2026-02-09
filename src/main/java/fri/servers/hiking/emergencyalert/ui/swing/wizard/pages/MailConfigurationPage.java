@@ -350,10 +350,13 @@ public class MailConfigurationPage extends AbstractWizardPage
             List<List<String>> persistentCustomProperties,
             Properties customPropertiesToCommit)
     {
-        final Properties properties = new Properties(customPropertiesToCommit);
+        final Properties properties = (customPropertiesToCommit == null) 
+                ? new Properties()
+                : (Properties) customPropertiesToCommit.clone();
         
         if (persistentCustomProperties != null) // adopt persistent property values
             for (List<String> tuple : persistentCustomProperties)
+                // add if no customPropertiesToCommit exists, or the persistent property is contained in it
                 if (customPropertiesToCommit == null || customPropertiesToCommit.containsKey(tuple.get(0)))
                     properties.setProperty(tuple.get(0), tuple.get(1));
         
