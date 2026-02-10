@@ -40,6 +40,11 @@ public class ObservationPage extends AbstractWizardPage
     private JTextArea consoleErr;
     
     @Override
+    protected boolean shouldShowSaveButton() {
+        return false;
+    }
+    
+    @Override
     protected String getTitle() {
         return i18n("Observation");
     }
@@ -233,6 +238,7 @@ public class ObservationPage extends AbstractWizardPage
             getStateMachine().getUserInterface().registerHike(newHike);
             
             getTrolley().gotoPage(RouteAndTimesPage.class); // go back to "Route" page
+            getTrolley().setHikeFile(null); // forget old file name
         }
     }
 }

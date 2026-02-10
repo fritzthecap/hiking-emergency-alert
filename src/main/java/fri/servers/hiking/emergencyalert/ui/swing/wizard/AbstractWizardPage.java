@@ -8,6 +8,8 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.io.File;
@@ -15,6 +17,7 @@ import java.util.Date;
 import java.util.function.Consumer;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -38,8 +41,10 @@ public abstract class AbstractWizardPage
     private final JPanel contentPanel;
     private final JLabel titleField;
     private final JLabel errorField;
-
+    
     private Trolley trolley;
+    
+    private JButton saveButton;
     private FileChooser saveFileChooser;
     private UninstallableFocusListener focusListener;
     
@@ -75,6 +80,11 @@ public abstract class AbstractWizardPage
     }
     
     
+    /** @return true when this page should show a save-button. By default this returns true. */
+    protected boolean shouldShowSaveButton() {
+        return true;
+    }
+
     /** @return the title of this wizard page, appearing on top. */
     protected abstract String getTitle();
 
@@ -95,6 +105,8 @@ public abstract class AbstractWizardPage
         contentPanel.removeAll();
         
         titleField.setText(getTitle());
+        ensureSaveButton(); // i18n is available now
+        
         buildUi();
         populateUi(getHike());
         
@@ -335,8 +347,26 @@ public abstract class AbstractWizardPage
         return false;
     }
     
+    private void ensureSaveButton() { /// called from enter()
+        if (shouldShowSaveButton() == false)
+            return;
+        
+        if (this.saveButton == null) {
+            this.saveButton = new JButton(i18n("Save"));
+            final JPanel titleAndError = (JPanel) titleField.getParent();
+            titleAndError.add(saveButton, BorderLayout.EAST);
+            saveButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    saveHikeToFile(trolley.getHikeFile() == null);
+                }
+            });
+            saveButton.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+        }
+    }
 
-    
+
+
     private class UninstallableFocusListener extends FocusAdapter
     {
         private JComponent[] components;

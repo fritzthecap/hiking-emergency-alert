@@ -63,6 +63,11 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
         }
     };
 
+    @Override
+    protected boolean shouldShowSaveButton() {
+        return false;
+    }
+    
     /** Language for title would not get updated, so return no title! */
     @Override
     protected String getTitle() {
