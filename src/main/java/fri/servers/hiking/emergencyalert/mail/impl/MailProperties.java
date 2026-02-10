@@ -10,9 +10,17 @@ import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 /**
  * Turns a MailConfiguration into Properties usable for the Java mail API.
  * 
+ * @see https://jakarta.ee/specifications/mail/2.1/apidocs/jakarta.mail/jakarta/mail/package-summary
+ * 
+ * @see https://jakarta.ee/specifications/mail/1.6/apidocs/index.html
+ * @see https://jakarta.ee/specifications/mail/1.6/apidocs/com/sun/mail/smtp/package-summary
+ * @see https://jakarta.ee/specifications/mail/1.6/apidocs/com/sun/mail/pop3/package-summary
+ * @see https://jakarta.ee/specifications/mail/1.6/apidocs/com/sun/mail/imap/package-summary
+ * 
  * @see https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html
  * @see https://javaee.github.io/javamail/docs/api/com/sun/mail/pop3/package-summary.html
  * @see https://javaee.github.io/javamail/docs/api/com/sun/mail/imap/package-summary.html
+ * 
  * @see https://mailtrap.io/blog/starttls-ssl-tls/
  */
 public class MailProperties extends Properties
