@@ -28,11 +28,14 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import fri.servers.hiking.emergencyalert.mail.MailException;
 import fri.servers.hiking.emergencyalert.mail.MailUtil;
 import fri.servers.hiking.emergencyalert.mail.impl.ConnectionCheck;
 import fri.servers.hiking.emergencyalert.mail.impl.MailProperties;
+import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.ui.swing.util.PropertiesEditDialog;
@@ -89,6 +92,8 @@ public class MailConfigurationPage extends AbstractWizardPage
     private JFormattedTextField maximumConnectionTestSecondsField;
     
     private Properties customPropertiesToCommit;
+    
+    private String lastSuccessfulConfigurationSnapshot;
 
     @Override
     protected String getTitle() {
@@ -237,6 +242,8 @@ public class MailConfigurationPage extends AbstractWizardPage
         
         commitToMailConfiguration(getHike().getAlert().getMailConfiguration()); // commit to Hike data
         
+        customPropertiesToCommit = null; // no uncommitted data any more
+        
         if (goingForward) {
             try { // silently save before going to route/times page
                 getTrolley().save(getHike());
@@ -291,8 +298,9 @@ public class MailConfigurationPage extends AbstractWizardPage
             }
         }
         else { // dialog did no changes to custom properties
-            mailConfiguration.setCustomProperties(
-                    getHike().getAlert().getMailConfiguration().getCustomProperties());
+            final MailConfiguration persistentMailConfiguration = getHike().getAlert().getMailConfiguration();
+            if (persistentMailConfiguration != mailConfiguration)
+                mailConfiguration.setCustomProperties(persistentMailConfiguration.getCustomProperties());
         }
 
         return mailConfiguration;
@@ -328,7 +336,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         
         // dialog finished
         if (propertiesEditor.wasCommitted() && customPropertiesBackup.equals(customProperties) == false)
-            // edited clone, only those with include-flag will be in customProperties
+            // only those with include-flag will be in customProperties
             this.customPropertiesToCommit = customProperties;
     }
     
@@ -365,35 +373,48 @@ public class MailConfigurationPage extends AbstractWizardPage
         return properties;
     }
 
-    private boolean connectionTest(boolean showSuccessDialog) {
+    private boolean connectionTest(boolean showTestSuccess) {
         final MailConfiguration mailConfiguration = new MailConfiguration();
         commitToMailConfiguration(mailConfiguration);
+        
+        if (showTestSuccess == false) { // "Forward" navigation
+            final String mailConfigurationSnapshot = createMailConfigurationSnapshot(mailConfiguration);
+            final boolean noChange = mailConfigurationSnapshot.equals(lastSuccessfulConfigurationSnapshot);
+            if (noChange)
+                return true; // user did no configuration changes, and last connection succeeded
+        }
         
         String error = null;
         try {
             final ConnectionCheck connectionCheck = 
                     new ConnectionCheck(mailConfiguration, getTrolley().getAuthenticator());
             
-            final boolean success = connectionCheck.trySendAndReceive();
-            
-            if (success) // reuse it in the StateMachine's Mailer
+            if (connectionCheck.trySendAndReceive()) { // reuse authenticator in the StateMachine's Mailer
                 getTrolley().setAuthenticator(connectionCheck.getValidAuthenticator()); 
-            else
+                lastSuccessfulConfigurationSnapshot = createMailConfigurationSnapshot(mailConfiguration);
+            }
+            else {
                 error = i18n("Either send or receive doesn't work, see console for errors.");
+                lastSuccessfulConfigurationSnapshot = null;
+            }
         }
         catch (MailException e) {
-            System.err.println(e.toString());
+            e.printStackTrace();
             error = e.getMessage();
         }
         
         if (error != null)
             JOptionPane.showMessageDialog(getFrame(), error, 
                     i18n("Error"), JOptionPane.ERROR_MESSAGE);
-        else if (showSuccessDialog)
+        else if (showTestSuccess)
             JOptionPane.showMessageDialog(getFrame(), i18n("Connection works!"), 
                     i18n("Success"), JOptionPane.INFORMATION_MESSAGE);
         
         return (error == null);
+    }
+
+    private String createMailConfigurationSnapshot(MailConfiguration mailConfiguration) {
+        return new JsonGsonSerializer<MailConfiguration>().toJson(mailConfiguration);
     }
 
     private void layoutFields(JLabel maximumConnectionTestSecondsLabel, JLabel seconds) {
@@ -511,16 +532,26 @@ public class MailConfigurationPage extends AbstractWizardPage
             return committed;
         }
         
+        /** Adds a read-only table at NORTH in a split-pane. */
         @Override
         protected Container buildUi() {
             final Container contentPane = super.buildUi();
             
-            // add core properties table to top
-            final JComponent readOnlyTable = buildReadOnlyTable(readOnlyProperties);
-            readOnlyTable.setBorder(BorderFactory.createTitledBorder(i18n("Core Properties")));
-            contentPane.add(readOnlyTable, BorderLayout.NORTH);
+            // core properties table on top
+            final JScrollPane readOnlyTableScrollPane = buildReadOnlyTable(readOnlyProperties);
+            readOnlyTableScrollPane.setBorder(BorderFactory.createTitledBorder(i18n("Core Properties")));
             
-            ((JComponent) table.getParent().getParent()).setBorder(BorderFactory.createTitledBorder(i18n("Editable Custom Properties")));
+            // editable custom properties below
+            final JScrollPane mainTableScrollPane = (JScrollPane) table.getParent().getParent();
+            table.getColumnModel().getColumn(2).setPreferredWidth(16); // make checkbox-column smaller
+            mainTableScrollPane.setBorder(BorderFactory.createTitledBorder(i18n("Editable Custom Properties")));
+            
+            final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+            splitPane.setTopComponent(readOnlyTableScrollPane);
+            splitPane.setBottomComponent(mainTableScrollPane); // this automatically removes it from its current parent
+            splitPane.setOneTouchExpandable(true);
+            
+            contentPane.add(splitPane, BorderLayout.CENTER);
 
             setIncludeFlags();
             
