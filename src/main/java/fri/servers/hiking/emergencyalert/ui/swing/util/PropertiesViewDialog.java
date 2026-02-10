@@ -8,10 +8,10 @@ import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 import javax.swing.DefaultCellEditor;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -54,10 +54,10 @@ public class PropertiesViewDialog extends JDialog
     }
 
     protected Container buildUi() {
-        final JScrollPane scrollPane = buildPanel();
+        final JScrollPane tableScrollPane = buildTableScrollPane();
         final Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
-        contentPane.add(scrollPane, BorderLayout.CENTER);
+        contentPane.add(tableScrollPane, BorderLayout.CENTER);
         return contentPane;
     }
 
@@ -85,7 +85,7 @@ public class PropertiesViewDialog extends JDialog
     }
 
     /** Convenience method that builds another table from given properties. */
-    protected final JComponent buildReadOnlyTable(Properties readOnlyProperties) {
+    protected final JScrollPane buildReadOnlyTable(Properties readOnlyProperties) {
         final Vector<Vector<Object>> namesAndValues = buildNamesAndValues(readOnlyProperties);
 
         final Vector<Object> columnNames = buildColumns();
@@ -103,12 +103,19 @@ public class PropertiesViewDialog extends JDialog
     protected void addMoreTableCells(Vector<Object> newRow) {
     }
 
+    /** Override to return class for further cell values. */
     protected Class<?> getColumnClassForIndex(int columnIndex) {
         return String.class;
     }
 
+    /** Displayed property names go through here. Override for custom sort oder. */
+    protected List<String> sort(List<String> propertyNames) {
+        Collections.sort(propertyNames);
+        return propertyNames;
+    }
+
     
-    private JScrollPane buildPanel() {
+    private JScrollPane buildTableScrollPane() {
         this.namesAndValues = buildNamesAndValues(properties);
 
         final Vector<Object> columnNames = buildColumns();
@@ -130,9 +137,10 @@ public class PropertiesViewDialog extends JDialog
     }
 
     private void setTableHeight(JTable table, TableModel model) {
-        final int rowCount = Math.min(model.getRowCount() + 1, 30);
+        final int MAX_ROW_COUNT = 12;
+        final int rowCount = Math.max(model.getRowCount(), MAX_ROW_COUNT);
         final int height = rowCount * table.getRowHeight();
-        table.setPreferredScrollableViewportSize(new Dimension(400, height));
+        table.setPreferredScrollableViewportSize(new Dimension(500, height));
     }
 
     private Vector<Object> buildColumns() {
@@ -144,8 +152,7 @@ public class PropertiesViewDialog extends JDialog
     
     private Vector<Vector<Object>> buildNamesAndValues(Properties properties) {
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        final Vector<String> names = new Vector(properties.keySet());
-        Collections.sort(names);
+        final List<String> names = sort(new Vector(properties.keySet()));
         
         final Vector<Vector<Object>> nameAndValues = new Vector<>(properties.size() > 0 ? properties.size() : 1);
         for (Object name : names) {
