@@ -23,29 +23,33 @@ public class MailProperties extends Properties
         
         CUSTOM_PROPERTIES.put("mail.debug", "true");
         
-        CUSTOM_PROPERTIES.put("mail.smtp.username", "user.name");
+        CUSTOM_PROPERTIES.put("mail.smtp.user", "your name"); // would override "mail.user"
+        CUSTOM_PROPERTIES.put("mail.smtp.from", "your email");
         CUSTOM_PROPERTIES.put("mail.smtp.auth", "true");
-        
         CUSTOM_PROPERTIES.put("mail.smtp.port", "465, or 587, or 2525");
-        CUSTOM_PROPERTIES.put("mail.smtp.starttls.enable", "true");
-        CUSTOM_PROPERTIES.put("mail.smtp.ssl.enable", "true");
+        CUSTOM_PROPERTIES.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        CUSTOM_PROPERTIES.put("mail.smtp.socketFactory.port", "465, or 587, or 2525");
+        CUSTOM_PROPERTIES.put("mail.smtp.socketFactory.fallback", "false"); // default is true
+        CUSTOM_PROPERTIES.put("mail.smtp.starttls.enable", "true"); // default is false
+        CUSTOM_PROPERTIES.put("mail.smtp.ssl.enable", "true"); // default is false for "smtp", true for "smtps"
         CUSTOM_PROPERTIES.put("mail.smtp.ssl.protocols", "TLSv1.2, or TLSv1.3");
         CUSTOM_PROPERTIES.put("mail.smtp.ssl.trust", "*");
-        CUSTOM_PROPERTIES.put("mail.smtp.ssl.checkserveridentity", "false");
-        CUSTOM_PROPERTIES.put("mail.smtp.socketFactory.port", "465");
-        CUSTOM_PROPERTIES.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-        CUSTOM_PROPERTIES.put("mail.smtp.socketFactory.fallback", "false");
+        //CUSTOM_PROPERTIES.put("mail.smtp.ssl.checkserveridentity", "true"); // default is false
         
-        CUSTOM_PROPERTIES.put("mail.imaps.host", "secure.imap.host");
+        CUSTOM_PROPERTIES.put("mail.imaps.host", "secure.imap.hostname");
         CUSTOM_PROPERTIES.put("mail.imaps.port", "993");
         CUSTOM_PROPERTIES.put("mail.imaps.ssl.enable", "true");
         CUSTOM_PROPERTIES.put("mail.imaps.ssl.trust", "*");
         
-        CUSTOM_PROPERTIES.put("mail.pop3s.host", "secure.pop.host");
+        CUSTOM_PROPERTIES.put("mail.pop3s.host", "secure.pop.hostname");
         CUSTOM_PROPERTIES.put("mail.pop3s.port", "995");
         CUSTOM_PROPERTIES.put("mail.pop3s.ssl.enable", "true");
         CUSTOM_PROPERTIES.put("mail.pop3s.ssl.trust", "*");
 
+        CUSTOM_PROPERTIES.put("mail.xxx.xxx", "x");
+        CUSTOM_PROPERTIES.put("mail.yyy.yyy", "y");
+        CUSTOM_PROPERTIES.put("mail.zzz.zzz", "z");
+        
         return CUSTOM_PROPERTIES;
     }
     
