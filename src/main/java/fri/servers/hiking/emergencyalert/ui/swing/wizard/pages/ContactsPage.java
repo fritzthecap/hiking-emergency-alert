@@ -87,6 +87,7 @@ public class ContactsPage extends AbstractWizardPage
         return commitContacts() && commitIntervals();
     }
 
+    // user and contacts
     
     private JComponent buildContactsUi() {
         nameOfHikerField = SwingUtil.buildTextField(
@@ -379,6 +380,7 @@ public class ContactsPage extends AbstractWizardPage
                 StringUtil.isEmpty(lastName));
     }
     
+    // intervals
     
     private JComponent buildIntervalsUi() {
         alertIntervalMinutesField = SwingUtil.buildNumberField(
@@ -391,7 +393,7 @@ public class ContactsPage extends AbstractWizardPage
                 i18n("25% on a 60 minutes interval would mean the 2nd interval be just 45 minutes, the 3rd just 34, etc."), 
                 0);
         
-        useContactDetectionMinutesField = new JCheckBox(i18n("Use Mail Detection Minutes of Contacts"));
+        useContactDetectionMinutesField = new JCheckBox(i18n("Use Mail Detection Minutes of Contacts"), false);
         useContactDetectionMinutesField.setToolTipText(
                 i18n("For alert intervals, use the estimated mail detection minutes of listed contacts"));
         
@@ -426,7 +428,8 @@ public class ContactsPage extends AbstractWizardPage
     private void populateIntervalsUi(Hike hike) {
         alertIntervalMinutesField.setValue(hike.getAlert().getAlertIntervalMinutes());
         alertIntervalShrinkingField.setValue(floatToPercent(hike.getAlert().getAlertIntervalShrinking()));
-        useContactDetectionMinutesField.setSelected(hike.getAlert().isUseContactDetectionMinutes());
+        if (hike.getAlert().isUseContactDetectionMinutes()) // depends on JCheckBox initially being false
+            useContactDetectionMinutesField.doClick(); // setSelected() would NOT trigger ActionListener
         confirmationPollingMinutesField.setValue(hike.getAlert().getConfirmationPollingMinutes());
     }
     
