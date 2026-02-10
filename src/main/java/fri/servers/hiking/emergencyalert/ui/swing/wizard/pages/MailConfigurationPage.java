@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -309,7 +310,6 @@ public class MailConfigurationPage extends AbstractWizardPage
     private void openCustomMailPropertiesDialog() {
         final MailConfiguration mailConfigurationForDialog = new MailConfiguration();
         commitToMailConfiguration(mailConfigurationForDialog); // fill from UI fields
-        
         final MailProperties coreProperties = new MailProperties(mailConfigurationForDialog); // no custom properties
         
         final List<List<String>> persistentCustomProperties = getHike().getAlert().getMailConfiguration().getCustomProperties();
@@ -514,6 +514,9 @@ public class MailConfigurationPage extends AbstractWizardPage
     {
         private final Properties readOnlyProperties;
         private final Set<String> propertiesToInclude;
+        
+        private boolean sortByCorePropertyNames;
+        
         private boolean committed;
         
         CustomPropertiesEditDialog(
@@ -524,10 +527,21 @@ public class MailConfigurationPage extends AbstractWizardPage
                 String title)
         {
             super(parent, editableProperties, title);
-            this.readOnlyProperties = readOnlyProperties;
+            
+            this.readOnlyProperties = removeTimeoutProperties(readOnlyProperties);
             this.propertiesToInclude = propertiesToInclude.stringPropertyNames();
         }
         
+        private Properties removeTimeoutProperties(Properties readOnlyProperties) {
+            final Properties reducedProperties = new Properties();
+            for (Map.Entry<Object,Object> entry : readOnlyProperties.entrySet()) {
+                final String key = (String) entry.getKey();
+                if (key.endsWith("timeout") == false)
+                    reducedProperties.setProperty(key, (String) entry.getValue());
+            }
+            return reducedProperties;
+        }
+
         boolean wasCommitted() {
             return committed;
         }
@@ -538,17 +552,20 @@ public class MailConfigurationPage extends AbstractWizardPage
             final Container contentPane = super.buildUi();
             
             // core properties table on top
+            sortByCorePropertyNames = true;
             final JScrollPane readOnlyTableScrollPane = buildReadOnlyTable(readOnlyProperties);
             readOnlyTableScrollPane.setBorder(BorderFactory.createTitledBorder(i18n("Core Properties")));
             
             // editable custom properties below
+            sortByCorePropertyNames = false;
             final JScrollPane mainTableScrollPane = (JScrollPane) table.getParent().getParent();
             table.getColumnModel().getColumn(2).setPreferredWidth(16); // make checkbox-column smaller
             mainTableScrollPane.setBorder(BorderFactory.createTitledBorder(i18n("Editable Custom Properties")));
             
             final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+            splitPane.setResizeWeight(0.2);
             splitPane.setTopComponent(readOnlyTableScrollPane);
-            splitPane.setBottomComponent(mainTableScrollPane); // this automatically removes it from its current parent
+            splitPane.setBottomComponent(mainTableScrollPane); // this automatically removes it from its former parent
             splitPane.setOneTouchExpandable(true);
             
             contentPane.add(splitPane, BorderLayout.CENTER);
@@ -556,6 +573,15 @@ public class MailConfigurationPage extends AbstractWizardPage
             setIncludeFlags();
             
             return contentPane;
+        }
+        
+        @Override
+        protected List<String> sort(List<String> propertyNames) {
+            if (sortByCorePropertyNames)
+                Collections.sort(propertyNames, MailProperties.corePropertiesSorter());
+            else
+                Collections.sort(propertyNames, MailProperties.customPropertiesSorter());
+            return propertyNames;
         }
 
         @Override
