@@ -361,7 +361,6 @@ public abstract class AbstractWizardPage
                     saveHikeToFile(trolley.getHikeFile() == null);
                 }
             });
-            saveButton.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         }
     }
 

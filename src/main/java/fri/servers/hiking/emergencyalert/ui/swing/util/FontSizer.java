@@ -9,21 +9,29 @@ import javax.swing.plaf.FontUIResource;
 public class FontSizer
 {
     /**
-     * Reads system-property <code>-Dhike.fontPercent</code> 
-     * and sizes fonts when between 0 and 140 percent.
+     * Reads system-property <code>-Dhike.fontPercent</code>.
      */
-    public static void checkFontSize() {
+    public static int getFontPercent() {
         final String fontPercentProperty = System.getProperty("hike.fontPercent");
         try {
-            if (fontPercentProperty != null) {
-                final int fontPercent = Integer.valueOf(fontPercentProperty);
-                if (fontPercent != 100 && fontPercent >= 80 && fontPercent <= 140)
-                    FontSizer.changeFontSize(fontPercent);
-            }
+            final int fontPercent = Integer.valueOf(fontPercentProperty);
+            if (fontPercent != 100 && fontPercent >= 80 && fontPercent <= 140)
+                return fontPercent;
         }
         catch (Exception e) {
             System.err.println(e.toString());
         }
+        return -1;
+    }
+
+    /**
+     * Reads system-property <code>-Dhike.fontPercent</code> 
+     * and sizes fonts when between 0 and 140 percent.
+     */
+    public static void checkFontSize() {
+        final int fontPercent = getFontPercent();
+        if (fontPercent != -1)
+            FontSizer.changeFontSize(fontPercent);
     }
 
     /** This does not work for components that were sized explicitly! */
