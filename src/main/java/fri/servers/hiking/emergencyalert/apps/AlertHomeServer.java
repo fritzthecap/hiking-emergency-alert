@@ -84,7 +84,7 @@ public class AlertHomeServer
     
     /** @param hikeJson JSON containing the hike to start, or null to run Swing UI. */
     public AlertHomeServer(String hikeJson) throws IOException {
-        final String title = "Hiking-Emergency-Alert Version "+Version.get();
+        final String title = "Hiking-Emergency-Alert "+Version.get();
         System.out.println(title);
         
         if (hikeJson == null)
