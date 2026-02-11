@@ -21,6 +21,10 @@ As soon as you have installed the Java Runtime Environment and downloaded _hikin
 
     java -jar hiking-emergency-alert.jar
 
+Following JVM-argument would give you bigger fonts:
+
+    java -DfontPercent=120 -jar hiking-emergency-alert.jar
+
 The application stores your hike-data by default in _$HOME/hiking-emergency-alert_ directory, that gets created as soon as you once have configured your mail connection successfully. You can generate different hikes and load them on the first page of the "wizard", see screenshots below.
 
 ----
@@ -32,9 +36,12 @@ E-mail goes with _jakarta-mail 2.1.5_ and _angus-mail 2.0.5_ libraries.
 
 For German readers, I have written a [Blog article](https://fritzthecat-retired.blogspot.com/2025/12/wandern-notfallmeldung.html) about this idea.
 
+<img width="658" height="825" alt="hiking-emergency-alert_states" src="https://github.com/user-attachments/assets/73278624-7f67-4b3d-a16f-3c1f15f51712" />
+
+
 ----
 
-Screenshots:
+Here are screenshots of all wizard-pages of the user-interface:
 
 <img width="900" height="600" alt="Hiking-Emergency-Alert_Language" src="https://github.com/user-attachments/assets/7ec48e7c-0811-4208-b1fb-4060d69e4cda" />
 
