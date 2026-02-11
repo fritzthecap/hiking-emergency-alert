@@ -13,13 +13,15 @@ public class FontSizer
      */
     public static int getFontPercent() {
         final String fontPercentProperty = System.getProperty("hike.fontPercent");
-        try {
-            final int fontPercent = Integer.valueOf(fontPercentProperty);
-            if (fontPercent != 100 && fontPercent >= 80 && fontPercent <= 140)
-                return fontPercent;
-        }
-        catch (Exception e) {
-            System.err.println(e.toString());
+        if (fontPercentProperty != null) {
+            try {
+                final int fontPercent = Integer.valueOf(fontPercentProperty);
+                if (fontPercent != 100 && fontPercent >= 80 && fontPercent <= 140)
+                    return fontPercent;
+            }
+            catch (Exception e) {
+                System.err.println(e.toString());
+            }
         }
         return -1;
     }
