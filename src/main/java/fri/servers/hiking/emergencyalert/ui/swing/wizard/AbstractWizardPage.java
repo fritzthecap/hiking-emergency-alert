@@ -6,7 +6,6 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,8 +22,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.text.JTextComponent;
 import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
@@ -40,7 +41,7 @@ public abstract class AbstractWizardPage
     private final JPanel addablePanel;
     private final JPanel contentPanel;
     private final JLabel titleField;
-    private final JLabel errorField;
+    private final JTextArea errorField;
     
     private Trolley trolley;
     
@@ -50,24 +51,30 @@ public abstract class AbstractWizardPage
     
     /** Constructor visible to sub-classes only. */
     protected AbstractWizardPage() {
+        titleField = (JLabel) SwingUtil.increaseFontSize(new JLabel(), 160, true, false);
+        titleField.setHorizontalAlignment(JLabel.CENTER);
+        
+        errorField = new JTextArea();
+        errorField.setEditable(false);
+        errorField.setLineWrap(true);
+        errorField.setWrapStyleWord(true);
+        errorField.setForeground(Color.RED);
+        errorField.setOpaque(false);
+        errorField.setRows(1);
+        
+        final JPanel errorPanel = new JPanel(new BorderLayout());
+        errorPanel.add(errorField, BorderLayout.CENTER);
+        
+        final JPanel titleAndError = new JPanel(new BorderLayout());
+        titleAndError.add(titleField, BorderLayout.CENTER);
+        titleAndError.add(errorPanel, BorderLayout.SOUTH);
+        
         this.addablePanel = new JPanel(new BorderLayout());
         addablePanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(8, 8, 0, 8),
                 BorderFactory.createLineBorder(Color.GRAY))
             );
         
-        titleField = (JLabel) SwingUtil.increaseFontSize(new JLabel(), 160, true, false);
-        titleField.setHorizontalAlignment(JLabel.CENTER);
-        
-        errorField = new JLabel();
-        errorField.setForeground(Color.RED);
-        final JPanel errorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        errorPanel.add(Box.createRigidArea(new Dimension(1, 20)));
-        errorPanel.add(errorField, BorderLayout.CENTER);
-        
-        final JPanel titleAndError = new JPanel(new BorderLayout());
-        titleAndError.add(titleField, BorderLayout.CENTER);
-        titleAndError.add(errorPanel, BorderLayout.SOUTH);
         addablePanel.add(titleAndError, BorderLayout.NORTH);
         
         this.contentPanel = new JPanel(new BorderLayout());
