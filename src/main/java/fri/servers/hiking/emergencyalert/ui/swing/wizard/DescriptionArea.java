@@ -43,6 +43,7 @@ public class DescriptionArea
         localStyleSheet.addStyleSheet(editorKit.getGlobalStyleSheet()); // merge JDK default styles into empty sheet
         editorKit.setStyleSheet(localStyleSheet);
         
+        // size fonts for given HTML elements
         final int fontPercent = FontSizer.getFontPercent();
         if (fontPercent != -1) {
             for (Map.Entry<String,Integer> fontSize : fontSizes.entrySet()) {
@@ -52,7 +53,7 @@ public class DescriptionArea
             }
         }
 
-        descriptionArea.setEditorKit(editorKit); // instead of setContentType("text/html")
+        descriptionArea.setEditorKit(editorKit); // HTML-only view
         
         descriptionArea.setPreferredSize(new Dimension(260, 260));
     }
