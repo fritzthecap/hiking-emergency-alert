@@ -258,8 +258,15 @@ public class MailTextsPage extends AbstractWizardPage
                         final int selectedIndex = procedureTodosField.getSelectedIndex();
                         if (selectedIndex >= 0) {
                             listModel.remove(selectedIndex);
-                            cellEditor.setText("");
-                            ((JButton) e.getSource()).setEnabled(false);
+                            final int newSize = procedureTodosField.getModel().getSize();
+                            if (newSize <= 0) {
+                                cellEditor.setText("");
+                                ((JButton) e.getSource()).setEnabled(false);
+                            }
+                            else {
+                                procedureTodosField.setSelectedIndex(
+                                        selectedIndex >= newSize ? selectedIndex - 1 : selectedIndex);
+                            }
                         }
                     }
                 });
