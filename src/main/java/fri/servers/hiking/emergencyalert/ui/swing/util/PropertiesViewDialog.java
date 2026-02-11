@@ -91,10 +91,9 @@ public class PropertiesViewDialog extends JDialog
         final Vector<Object> columnNames = buildColumns();
         
         final TableModel model = new DefaultTableModel(namesAndValues, columnNames);
-        final JTable table = new JTable(model);
-        table.setEnabled(false);
-
-        setTableHeight(table, model);
+        final JTable table = buildTable(model);
+        
+        setTableUneditableButCopyable(table);
 
         return new JScrollPane(table);
     }
@@ -115,6 +114,13 @@ public class PropertiesViewDialog extends JDialog
     }
 
     
+    private JTable buildTable(TableModel model) {
+        final JTable table = new JTable(model);
+        table.getTableHeader().setReorderingAllowed(false);
+        setTableHeight(table, model);
+        return table;
+    }
+    
     private JScrollPane buildTableScrollPane() {
         this.namesAndValues = buildNamesAndValues(properties);
 
@@ -127,11 +133,9 @@ public class PropertiesViewDialog extends JDialog
                 return getColumnClassForIndex(columnIndex);
             }
         };
-        table = new JTable(model);
+        table = buildTable(model);
 
         setUneditableButCopyableCellEditor(); // allow copy, deny editing
-
-        setTableHeight(table, model);
 
         return new JScrollPane(table);
     }
@@ -140,7 +144,7 @@ public class PropertiesViewDialog extends JDialog
         final int MAX_ROW_COUNT = 12;
         final int rowCount = Math.max(model.getRowCount(), MAX_ROW_COUNT);
         final int height = rowCount * table.getRowHeight();
-        table.setPreferredScrollableViewportSize(new Dimension(500, height));
+        table.setPreferredScrollableViewportSize(new Dimension(600, height));
     }
 
     private Vector<Object> buildColumns() {

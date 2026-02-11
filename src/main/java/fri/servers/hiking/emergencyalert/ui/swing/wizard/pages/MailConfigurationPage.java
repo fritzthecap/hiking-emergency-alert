@@ -515,9 +515,8 @@ public class MailConfigurationPage extends AbstractWizardPage
         private final Properties readOnlyProperties;
         private final Set<String> propertiesToInclude;
         
-        private boolean sortByCorePropertyNames;
-        
         private boolean committed;
+        private boolean sortByCorePropertyNames;
         
         CustomPropertiesEditDialog(
                 Frame parent, 
@@ -559,8 +558,10 @@ public class MailConfigurationPage extends AbstractWizardPage
             // editable custom properties below
             sortByCorePropertyNames = false;
             final JScrollPane mainTableScrollPane = (JScrollPane) table.getParent().getParent();
+            mainTableScrollPane.setToolTipText(i18n("If you edit a property, you also need to include it!"));
             table.getColumnModel().getColumn(2).setPreferredWidth(16); // make checkbox-column smaller
             mainTableScrollPane.setBorder(BorderFactory.createTitledBorder(i18n("Editable Custom Properties")));
+            table.setToolTipText(i18n("Right mouse click opens context menu"));
             
             final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
             splitPane.setResizeWeight(0.2);

@@ -123,11 +123,7 @@ public class MailProperties extends Properties
             List.of("mail.pop3s.ssl.enable", "true"),
             List.of("mail.pop3s.ssl.trust", "*"),
             List.of("mail.pop3s.ssl.checkserveridentity", "true"), // default is false
-            List.of("mail.pop3s.starttls.enable", "true"), // default is false
-
-            List.of("mail.xxx.xxx", "x"), // arbitrary editable properties
-            List.of("mail.yyy.yyy", "y"),
-            List.of("mail.zzz.zzz", "z")
+            List.of("mail.pop3s.starttls.enable", "true") // default is false
         );
     
     private static final List<String> sortedCustomPropertyNames;
