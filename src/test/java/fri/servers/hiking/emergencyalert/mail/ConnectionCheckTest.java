@@ -8,7 +8,7 @@ import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.ui.swing.SwingUserInterface;
 import jakarta.mail.Authenticator;
 
-class MailConnectionCheckTest
+class ConnectionCheckTest
 {
     record HostPortProtocol(String host, int port, String protocol)
     {
@@ -25,6 +25,7 @@ class MailConnectionCheckTest
         assertTrue(popTest.success());
         assertTrue(imapTest.success());
     }
+    
     
     private record Result(Authenticator authenticator, boolean success)
     {
@@ -55,5 +56,4 @@ class MailConnectionCheckTest
             return new Result(null, false);
         }
     }
-
 }
