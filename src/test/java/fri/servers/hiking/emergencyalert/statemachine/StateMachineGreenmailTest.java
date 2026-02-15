@@ -75,11 +75,13 @@ class StateMachineGreenmailTest extends AbstractGreenmailTest
         
         // assert number of sent mails
         final List<Contact> alertContacts = hike.getAlert().getAlertContacts();
-        final int expectedMails = (alertContacts.size() * 2 - 1); // -1: last gets no passing-to-next mail
+        final int expectedMails = 1 // set-off mail
+                + (alertContacts.size() * 2 // each gets an alert and passing-to-next mail
+                - 1); // last gets no passing-to-next mail
         assertEquals(
                 expectedMails, 
                 mailsToHiker.length + mailsToFirstPerson.length + mailsToSecondPerson.length);
-        assertEquals(0, mailsToHiker.length);
+        assertEquals(1, mailsToHiker.length); // set-off mail
         assertEquals(2, mailsToFirstPerson.length);
         assertEquals(1, mailsToSecondPerson.length);
         
