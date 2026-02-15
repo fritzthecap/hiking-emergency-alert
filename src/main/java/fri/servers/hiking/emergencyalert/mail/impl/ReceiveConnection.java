@@ -5,7 +5,6 @@ import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
 import jakarta.mail.Store;
 
 public class ReceiveConnection extends MailSessionFactory
@@ -61,10 +60,17 @@ public class ReceiveConnection extends MailSessionFactory
             try {
                 if (inbox != null)
                     inbox.close(true); // true: expunge DELETED messages
+            }
+            catch (Exception e) { // ignore
+                System.err.println("INBOX close failed: "+e.toString());
+            }
+            
+            try {
                 if (store != null)
                     store.close();
             }
-            catch (MessagingException e) { // ignore
+            catch (Exception e) { // ignore
+                System.err.println("Store close failed: "+e.toString());
             }
         }
         
