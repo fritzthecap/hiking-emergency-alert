@@ -60,7 +60,9 @@ public class InboxVisitorConnection extends ReceiveConnection implements InboxVi
             final String messageId = MessageUtil.messageId(message);
             final String text = MessageUtil.textContent(message); // fetches text also from attached mails
             
-            if (isAlertConfirmation(sentDate, messageId, text)) {
+            if (isAlertConfirmation(sentDate, messageId, text) && 
+                    MessageUtil.isDeliveryFailedMail(message) == false)
+            {
                 found = new Mail(
                             MessageUtil.from(message), 
                             message.getSubject(), 
