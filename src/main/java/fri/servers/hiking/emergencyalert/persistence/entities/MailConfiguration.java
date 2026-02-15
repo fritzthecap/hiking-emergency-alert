@@ -6,15 +6,15 @@ import fri.servers.hiking.emergencyalert.mail.MailUtil;
 
 public class MailConfiguration
 {
-    private String mailUser; // mail.user, required
+    private String mailUser; // required, mail.user
     
-    private String receiveMailProtocol = "pop3"; // or "imap", mail.store.protocol
-    private String receiveMailHost; // mail.pop3.host, required
-    private int receiveMailPort = 110; // optional, 110 is POP3 default port, 143 is IMAP
+    private String receiveMailProtocol = "pop3"; // required, mail.store.protocol
+    private String receiveMailHost; // required, mail.pop.host
+    private int receiveMailPort = 110; // required, 110 is pop3, 143 is imap default
     
-    private String sendMailProtocol = "smtp"; // optional, mail.store.protocol
-    private String sendMailHost; // mail.smtp.host, required
-    private int sendMailPort = 25; // optional, 25 is SMTP default port
+    private String sendMailProtocol = "smtp"; // required, mail.transport.protocol
+    private String sendMailHost; // required, mail.smtp.host
+    private int sendMailPort = 25; // required, 25 is default
     private String sendMailFromAccount; // optional, mail.smtp.from, usually the same as mailUser
     
     private int maximumConnectionTestSeconds = 6;

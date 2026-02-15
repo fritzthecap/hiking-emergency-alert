@@ -29,10 +29,11 @@ public interface Mailer
     
     /**
      * This is for the user interface that wants to avoid repeated password dialogs.
+     * A Mailer's life-cycle is bound to a StateMachine's life-cycle.
      * @param authenticator a predefined tested authenticator to use instead of 
-     * calling <code>ensureMailConnection()</code>.
+     *      repeatedly calling <code>ensureMailConnection()</code>.
      */
-    public void setCheckedAuthentication(Authenticator authenticator);
+    public void setCheckedAuthenticator(Authenticator authenticator);
 
     /**
      * Sends a mail, built from given hike, to given contact.

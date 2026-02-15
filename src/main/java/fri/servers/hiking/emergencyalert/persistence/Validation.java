@@ -10,9 +10,13 @@ import fri.servers.hiking.emergencyalert.util.StringUtil;
  * Validation carried out by the StateMachine on ACTIVATION event.
  * Does not include MailConfiguration validation, as this is done
  * directly by trying to connect.
+ * <p/>
+ * TODO: validation logic has been duplicated in UI classes
+ *       on <code>validateFields()</code>!
  */
 public class Validation
 {
+    /** Ensures that the given hike can be dispatched successfully */
     public void assertHike(Hike hike) {
         Objects.requireNonNull(hike);
         
@@ -22,7 +26,7 @@ public class Validation
             
         if (hike.getPlannedHome().after(DateUtil.now()) == false)
             throw new IllegalArgumentException(
-                    "Planned end of hike is before current time!");
+                    "Planned end of hike is before current time: "+DateUtil.toString(hike.getPlannedHome()));
             
         if (hike.getPlannedBegin() != null && false == hike.getPlannedHome().after(hike.getPlannedBegin()))
             throw new IllegalArgumentException(

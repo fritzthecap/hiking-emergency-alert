@@ -142,7 +142,7 @@ public class ObservationPage extends AbstractWizardPage
                 // avoid another password dialog
                 final Authenticator authenticator = getTrolley().getAuthenticator();
                 if (authenticator != null)
-                    getStateMachine().getMailer().setCheckedAuthentication(authenticator);
+                    getStateMachine().getMailer().setCheckedAuthenticator(authenticator);
                 
                 // no more UI-exceptions possible here, redirect System outputs to UI now
                 Log.redirectOut(consoleOut);

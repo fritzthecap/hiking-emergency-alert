@@ -39,7 +39,7 @@ public class MailerImpl implements Mailer
     }
     
     @Override
-    public void setCheckedAuthentication(Authenticator authenticator) {
+    public void setCheckedAuthenticator(Authenticator authenticator) {
         this.authenticator = Objects.requireNonNull(authenticator);
     }
     

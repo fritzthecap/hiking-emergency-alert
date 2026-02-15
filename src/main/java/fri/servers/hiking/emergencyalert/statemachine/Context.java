@@ -103,6 +103,7 @@ public class Context
         System.out.println("Emergency alerts will start at "+DateUtil.toString(hike.getPlannedHome()));
         System.out.println("Do NOT terminate this application before you are back!");
         System.out.println("Wish you luck, please click 'Home Again' as soon as you are back.");
+        
         timer.start(
                 hike.getPlannedBegin(),
                 hike.getPlannedHome(), 

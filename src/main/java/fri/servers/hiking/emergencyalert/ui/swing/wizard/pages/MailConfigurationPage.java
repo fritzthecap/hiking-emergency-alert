@@ -131,7 +131,7 @@ public class MailConfigurationPage extends AbstractWizardPage
                 null);
         sendMailPortField = SwingUtil.buildNumberField(
                 "* "+i18n("Port"), 
-                i18n("SMTP uses 25 or 587 (secure)"),
+                i18n("SMTP uses 25 or 587 (secure)"), // translation also contains 465 !
                 25);
         sendMailFromAccountField = SwingUtil.buildTextField(
                 i18n("'From' Mail Address"), 

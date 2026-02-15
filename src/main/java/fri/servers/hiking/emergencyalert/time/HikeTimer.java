@@ -112,10 +112,6 @@ public class HikeTimer extends Scheduler
                     scheduler.schedule(createOverdueTask(), nextOverdueAlertTime);
                 });
             }
-            @Override
-            public String toString() {
-                return "OverdueTask";
-            }
         };
     }
 }

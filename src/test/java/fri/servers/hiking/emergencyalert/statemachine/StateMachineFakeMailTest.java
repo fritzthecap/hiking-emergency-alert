@@ -86,7 +86,7 @@ class StateMachineFakeMailTest
                 return true;
             }
             @Override
-            public void setCheckedAuthentication(Authenticator authenticator) {
+            public void setCheckedAuthenticator(Authenticator authenticator) {
             }
             @Override
             public void sendAlert(Contact contact, Hike hike) throws MailSendException {
