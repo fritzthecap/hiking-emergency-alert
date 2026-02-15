@@ -1,10 +1,10 @@
 package fri.servers.hiking.emergencyalert.mail.impl;
 
-import fri.servers.hiking.emergencyalert.mail.Mail;
 import fri.servers.hiking.emergencyalert.mail.MailException;
 import fri.servers.hiking.emergencyalert.mail.MailReceiveException;
 import fri.servers.hiking.emergencyalert.mail.MailSendException;
 import fri.servers.hiking.emergencyalert.mail.impl.SendConnection.SendResult;
+import fri.servers.hiking.emergencyalert.persistence.Mail;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.util.DateUtil;

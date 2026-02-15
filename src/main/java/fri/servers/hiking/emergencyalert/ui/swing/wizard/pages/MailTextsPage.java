@@ -1,12 +1,6 @@
 package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 
-import static fri.servers.hiking.emergencyalert.mail.MailBuilder.MACRO_ALL_CONTACTS;
-import static fri.servers.hiking.emergencyalert.mail.MailBuilder.MACRO_BEGIN_TIME;
-import static fri.servers.hiking.emergencyalert.mail.MailBuilder.MACRO_CONTACT;
-import static fri.servers.hiking.emergencyalert.mail.MailBuilder.MACRO_END_TIME;
-import static fri.servers.hiking.emergencyalert.mail.MailBuilder.MACRO_ME;
-import static fri.servers.hiking.emergencyalert.mail.MailBuilder.MACRO_MY_PHONE;
-import static fri.servers.hiking.emergencyalert.mail.MailBuilder.MACRO_NEXT_CONTACT;
+import static fri.servers.hiking.emergencyalert.persistence.MailBuilder.*;
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
 import java.awt.Component;

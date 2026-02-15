@@ -1,4 +1,4 @@
-package fri.servers.hiking.emergencyalert.mail;
+package fri.servers.hiking.emergencyalert.persistence;
 
 import java.io.File;
 import java.util.Date;

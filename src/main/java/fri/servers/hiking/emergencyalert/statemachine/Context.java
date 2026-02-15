@@ -2,10 +2,10 @@ package fri.servers.hiking.emergencyalert.statemachine;
 
 import java.util.List;
 import java.util.Objects;
-import fri.servers.hiking.emergencyalert.mail.Mail;
 import fri.servers.hiking.emergencyalert.mail.MailException;
 import fri.servers.hiking.emergencyalert.mail.MailSendException;
 import fri.servers.hiking.emergencyalert.mail.Mailer;
+import fri.servers.hiking.emergencyalert.persistence.Mail;
 import fri.servers.hiking.emergencyalert.persistence.Validation;
 import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;

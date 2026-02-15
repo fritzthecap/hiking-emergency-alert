@@ -1,4 +1,4 @@
-package fri.servers.hiking.emergencyalert.mail;
+package fri.servers.hiking.emergencyalert.persistence;
 
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.io.File;

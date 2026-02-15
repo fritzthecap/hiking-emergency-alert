@@ -5,7 +5,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
-import fri.servers.hiking.emergencyalert.mail.Mail;
+import fri.servers.hiking.emergencyalert.persistence.Mail;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 import jakarta.mail.Authenticator;
