@@ -1,8 +1,10 @@
 package fri.servers.hiking.emergencyalert.statemachine;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import fri.servers.hiking.emergencyalert.mail.MailException;
+import fri.servers.hiking.emergencyalert.mail.MailReceiveException;
 import fri.servers.hiking.emergencyalert.mail.MailSendException;
 import fri.servers.hiking.emergencyalert.mail.Mailer;
 import fri.servers.hiking.emergencyalert.persistence.Mail;
@@ -30,6 +32,7 @@ public class Context
     private Object eventParameter;
     
     private int contactIndex = 0;
+    private Date realSetOff;
     
     protected Context(Hike hike, StateMachine stateMachine, Mailer mailer, HikeTimer timer, UserInterface user) {
         this.hike = Objects.requireNonNull(hike);
@@ -104,6 +107,10 @@ public class Context
         System.out.println("Do NOT terminate this application before you are back!");
         System.out.println("Wish you luck, please click 'Home Again' as soon as you are back.");
         
+        sendSetOffMessage();
+        
+        realSetOff = DateUtil.now();
+        
         timer.start(
                 hike.getPlannedBegin(),
                 hike.getPlannedHome(), 
@@ -135,10 +142,11 @@ public class Context
      * </ol>
      */
     public void sendAlertMessage() {
-        final boolean isFirstCall = (contactIndex == 0);
         final List<Contact> alertContacts = hike.getAlert().getNonAbsentContacts();
+        final boolean isFirstCall = (contactIndex == 0);
+        final boolean alertsBlockedByHiker = (isFirstCall && findSetOffResponse());
         
-        if (alertContacts.size() > contactIndex) { // having a next non-absent contact
+        if (alertsBlockedByHiker == false && alertContacts.size() > contactIndex) { // having a next non-absent contact
             final Contact previousContact = (isFirstCall ? null : alertContacts.get(contactIndex - 1));
             final Contact currentContact = alertContacts.get(contactIndex);
             
@@ -158,9 +166,13 @@ public class Context
                 }
             }
         }
-        else { // 1 hour after last contact, it makes no sense to poll anymore
+        else { // here it is 1 hour after last contact, it makes no sense to poll anymore
             stop();
-            System.out.println("Having no more contacts to alert at "+DateUtil.nowString());
+            
+            if (alertsBlockedByHiker)
+                System.out.println("Hiker blocked alert mails by responding to the set-off mail, checked this at "+DateUtil.nowString());
+            else
+                System.out.println("Having no more contacts to alert at "+DateUtil.nowString());
         }
     }
 
@@ -183,38 +195,70 @@ public class Context
     }
 
     
-    private boolean sendAlertMessage(final Contact contact) {
-        return sendMail(true, contact);
+    private void sendSetOffMessage() {
+        System.out.println("Trying to send set-off mail at "+DateUtil.nowString());
+        try {
+            mailer.sendSetOff(hike);
+            
+            System.out.println("Sending succeeded!");
+        }
+        catch (MailSendException e) {
+            System.out.println("Sending set-off mail failed, error was "+e);
+            // as this is sent immediately after activating the hike, 
+            // it is assumed that the mail connection works and no send-repeat is needed
+        }
     }
     
-    private void sendPassingToNext(final Contact previousContact) {
-        sendMail(false, previousContact);
+    private boolean findSetOffResponse() {
+        try {
+            return mailer.findSetOffResponse(
+                    hike.getAlert().getMailConfiguration(),
+                    hike.uniqueMailId,
+                    realSetOff);
+        }
+        catch (MailReceiveException e) {
+            System.err.println("Finding set-off response failed at "+DateUtil.nowString()+", error: "+e.toString());
+            return false;
+        }
     }
 
-    private boolean sendMail(boolean isAlert, final Contact contact) {
-        final String mailType = (isAlert ? "alert" : "passing-to-next");
-        System.out.println("Trying to send "+mailType+" to "+contact.getMailAddress()+" at "+DateUtil.nowString());
+    private boolean sendAlertMessage(Contact contact) {
+        System.out.println("Trying to send alert mail to "+contact.getMailAddress()+" at "+DateUtil.nowString());
         try {
-            if (isAlert)
-                mailer.sendAlert(contact, hike);
-            else
-                mailer.sendPassingToNext(contact, hike);
+            mailer.sendAlert(contact, hike);
             
             System.out.println("Sending succeeded!");
             return true;
         }
         catch (MailSendException e) {
-            System.out.println("Sending "+mailType+" mail failed, error was "+e);
-            System.out.println("Repeating in "+FAILURE_REPEAT_MINUTES+" minutes.");
+            System.out.println("Sending alert mail failed, error was "+e);
             
-            final Runnable runnable = isAlert 
-                    ? () -> sendAlertMessage() // contactIndex needs to be increased! 
-                    : () -> sendPassingToNext(contact);
+            // repeat send attempt when delay is before next overdue alert time
+            final int minutesBeforeNextOverdue = FAILURE_REPEAT_MINUTES + 2; // 2 minutes safety offset
+            final Date repeatUntilDate = DateUtil.addMinutes(timer.getNextOverdueAlertTime(), -minutesBeforeNextOverdue);
             
-            timer.runInSeconds(runnable, FAILURE_REPEAT_MINUTES * 60);
-            // this will NOT repeat when scheduler has been stopped meanwhile!
+            if (DateUtil.now().before(repeatUntilDate)) {
+                System.out.println("Will repeat send attempt in "+FAILURE_REPEAT_MINUTES+" minutes.");
+                
+                final Runnable runnable = () -> sendAlertMessage(); // contactIndex needs to be increased! 
+                timer.runInSeconds(runnable, FAILURE_REPEAT_MINUTES * 60);
+                // this will NOT repeat when scheduler has been stopped meanwhile!
+            }
             
             return false;
+        }
+    }
+    
+    private void sendPassingToNext(Contact previousContact) {
+        System.out.println("Trying to send passing-to-next mail to "+previousContact.getMailAddress()+" at "+DateUtil.nowString());
+        try {
+            mailer.sendPassingToNext(previousContact, hike);
+            
+            System.out.println("Sending succeeded!");
+        }
+        catch (MailSendException e) {
+            System.out.println("Sending passing-to-next mail failed, error was "+e);
+            // as this is a follower mail in sendAlertMessage(), do not try to repeat sending! 
         }
     }
 }

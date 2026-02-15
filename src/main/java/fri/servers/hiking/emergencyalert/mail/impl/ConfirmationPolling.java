@@ -15,8 +15,7 @@ import fri.servers.hiking.emergencyalert.util.DateUtil;
 import jakarta.mail.Authenticator;
 
 /**
- * Polls on mail-connection for an alert-confirmation mail
- * coming from outside.
+ * Polls on mail-connection for an alert-confirmation mail coming from outside.
  */
 public class ConfirmationPolling extends Scheduler
 {

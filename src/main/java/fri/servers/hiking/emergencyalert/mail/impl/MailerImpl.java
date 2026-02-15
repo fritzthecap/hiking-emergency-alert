@@ -1,12 +1,13 @@
 package fri.servers.hiking.emergencyalert.mail.impl;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import fri.servers.hiking.emergencyalert.mail.MailException;
+import fri.servers.hiking.emergencyalert.mail.MailReceiveException;
 import fri.servers.hiking.emergencyalert.mail.MailSendException;
 import fri.servers.hiking.emergencyalert.mail.Mailer;
-import fri.servers.hiking.emergencyalert.mail.impl.SendConnection.SendResult;
 import fri.servers.hiking.emergencyalert.persistence.Mail;
 import fri.servers.hiking.emergencyalert.persistence.MailBuilder;
 import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
@@ -14,12 +15,13 @@ import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 import jakarta.mail.Authenticator;
+import jakarta.mail.Message;
 
 public class MailerImpl implements Mailer
 {
     private Authenticator authenticator; // reuse successful authenticator for all actions
     private ConfirmationPolling confirmationPolling;
-    private Set<SendResult> alertSendResults = new HashSet<>();
+    private Set<SendConnection.SendResult> alertSendResults = new HashSet<>();
     
     @Override
     public boolean ensureMailConnection(MailConfiguration mailConfiguration) throws MailException {
@@ -44,6 +46,15 @@ public class MailerImpl implements Mailer
     }
     
     @Override
+    public void sendSetOff(Hike hike) throws MailSendException {
+        final Contact hikerContact = new Contact();
+        hikerContact.setLastName(hike.getAlert().getNameOfHiker());
+        hikerContact.setMailAddress(hike.getAlert().getMailConfiguration().getMailFromAddress());
+        final Mail mail = new MailBuilder(hikerContact, hike).buildSetOffMail();
+        sendMail(mail, hike.getAlert().getMailConfiguration());
+    }
+    
+    @Override
     public void sendAlert(Contact contact, Hike hike) throws MailSendException {
         final Mail mail = new MailBuilder(contact, hike).buildAlertMail();
         sendMail(mail, hike.getAlert().getMailConfiguration());
@@ -55,6 +66,28 @@ public class MailerImpl implements Mailer
         sendMail(mail, hike.getAlert().getMailConfiguration());
     }
 
+    @Override
+    public boolean findSetOffResponse(
+            MailConfiguration mailConfiguration, 
+            String uniqueMailId, 
+            Date sentAfterDate) throws MailReceiveException
+    {
+        final InboxVisitorConnection receiveConnection = new InboxVisitorConnection(
+                mailConfiguration, 
+                authenticator,
+                uniqueMailId,
+                sentAfterDate,
+                alertSendResults)
+        {
+            @Override
+            protected void processFoundMessage(Message message) {
+                MessageUtil.deleteMessage(message);
+            }
+        };
+        final Mail setOffResponse = receiveConnection.searchAlertConfirmation();
+        return (setOffResponse != null);
+    }
+    
     @Override
     public void startConfirmationPolling(
             Mailer.EventDispatcher eventDispatcher,

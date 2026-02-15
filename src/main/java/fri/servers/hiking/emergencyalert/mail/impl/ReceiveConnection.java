@@ -9,6 +9,10 @@ import jakarta.mail.Store;
 
 public class ReceiveConnection extends MailSessionFactory
 {
+    /**
+     * Clients that want to loop through INBOX implement
+     * this interface and call <code>receive()</code>.
+     */
     public interface InboxVisitor
     {
         /** @return true when visitor also wants to visit mails in INBOX. */
@@ -28,7 +32,7 @@ public class ReceiveConnection extends MailSessionFactory
     
     /**
      * Tries to connect to the configured mail-store and loop through mails.
-     * @param inboxVisitor the obect to loop through INBOX.
+     * @param inboxVisitor the object to loop through INBOX.
      * @return the used mail session and its authenticator.
      * @throws MailReceiveException when connection fails.
      */
@@ -57,21 +61,7 @@ public class ReceiveConnection extends MailSessionFactory
             exception = e;
         }
         finally {
-            try {
-                if (inbox != null)
-                    inbox.close(true); // true: expunge DELETED messages
-            }
-            catch (Exception e) { // ignore
-                System.err.println("INBOX close failed: "+e.toString());
-            }
-            
-            try {
-                if (store != null)
-                    store.close();
-            }
-            catch (Exception e) { // ignore
-                System.err.println("Store close failed: "+e.toString());
-            }
+            closeInboxAndStore(store, inbox);
         }
         
         if (exception != null)
@@ -80,5 +70,23 @@ public class ReceiveConnection extends MailSessionFactory
             this.authenticator = sessionAndAuth.authenticator();
         
         return sessionAndAuth;
+    }
+
+    private void closeInboxAndStore(Store store, Folder inbox) {
+        try {
+            if (inbox != null)
+                inbox.close(true); // true: expunge DELETED messages
+        }
+        catch (Exception e) { // ignore
+            System.err.println("INBOX close failed: "+e.toString());
+        }
+        
+        try {
+            if (store != null)
+                store.close();
+        }
+        catch (Exception e) { // ignore
+            System.err.println("Store close failed: "+e.toString());
+        }
     }
 }

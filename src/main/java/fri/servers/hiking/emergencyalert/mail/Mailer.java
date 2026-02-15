@@ -1,5 +1,6 @@
 package fri.servers.hiking.emergencyalert.mail;
 
+import java.util.Date;
 import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
@@ -29,11 +30,25 @@ public interface Mailer
     
     /**
      * This is for the user interface that wants to avoid repeated password dialogs.
-     * A Mailer's life-cycle is bound to a StateMachine's life-cycle.
-     * @param authenticator a predefined tested authenticator to use instead of 
+     * A Mailer lives as long as its StateMachine lives.
+     * @param authenticator a predefined positively tested authenticator to use instead of 
      *      repeatedly calling <code>ensureMailConnection()</code>.
      */
     public void setCheckedAuthenticator(Authenticator authenticator);
+
+    /** Sends a set-off mail to the hiker, containing the MAIL-ID of the hike. */
+    public void sendSetOff(Hike hike) throws MailSendException;
+
+    /**
+     * Finds and deletes a response to the set-off mail.
+     * @param sentAfterDate the minimum "Sent"-time of the mail.
+     * @return true when a response to the set-off mail can be found in INBOX, 
+     *      containing the MAIL-ID of the hike.
+     */
+    public boolean findSetOffResponse(
+            MailConfiguration mailConfiguration, 
+            String uniqueMailId, 
+            Date sentAfterDate) throws MailReceiveException;
 
     /**
      * Sends a mail, built from given hike, to given contact.

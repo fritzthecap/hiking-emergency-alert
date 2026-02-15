@@ -2,9 +2,11 @@ package fri.servers.hiking.emergencyalert.statemachine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import fri.servers.hiking.emergencyalert.mail.MailException;
+import fri.servers.hiking.emergencyalert.mail.MailReceiveException;
 import fri.servers.hiking.emergencyalert.mail.MailSendException;
 import fri.servers.hiking.emergencyalert.mail.Mailer;
 import fri.servers.hiking.emergencyalert.persistence.Mail;
@@ -116,6 +118,16 @@ class StateMachineFakeMailTest
             @Override
             public boolean isPolling() {
                 return polling;
+            }
+            @Override
+            public void sendSetOff(Hike hike) throws MailSendException {
+            }
+            @Override
+            public boolean findSetOffResponse(
+                    MailConfiguration mailConfiguration, 
+                    String uniqueMailId, 
+                    Date sentAfterDate) throws MailReceiveException {
+                return false;
             }
         };
     }

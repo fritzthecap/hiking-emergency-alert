@@ -37,6 +37,16 @@ public final class MessageUtil
     public static String to(Message message) throws MessagingException {
         return join(message.getRecipients(RecipientType.TO));
     }
+
+    /** Sets the DELETED flag onto the message, which deletes it when <code>close(true)</code> is called on its folder. */
+    public static void deleteMessage(Message message) {
+        try {
+            message.setFlag(Flags.Flag.DELETED, true);
+        }
+        catch (MessagingException e) {
+            System.err.println(e.toString());
+        }
+    }
     
     /**
      * Loops through all parts of the given message in search of

@@ -33,6 +33,28 @@ public class MailBuilder
         this.contact = contact;
         this.hike = hike;
     }
+
+    
+    /** This is sent when hike is activated. */
+    public Mail buildSetOffMail() {
+        final String subject = i18n("Your hike started!");
+        
+        final StringBuilder textBuilder = new StringBuilder();
+        
+        textBuilder.append(getContactTitle(contact)+" !\n\n");
+        
+        final String overdueDate = DateUtil.toString(hike.getPlannedHome());
+        textBuilder.append(
+                i18n("You can block alert mails by responding to this mail before ")+overdueDate+".\n"+
+                i18n("The MAIL-ID below must be contained as text or attachment.")+"\n"+
+                i18n("Good luck!"));
+        textBuilder.append("\n\n");
+        textBuilder.append("MAIL-ID: "+hike.uniqueMailId);
+        textBuilder.append("\n");
+        footerBottom(textBuilder);
+        
+        return new Mail(from(), to(), subject, textBuilder.toString(), CONTENT_TYPE, null, null);
+    }
     
     /** This is sent when hike is overdue. */
     public Mail buildAlertMail() {
@@ -43,7 +65,7 @@ public class MailBuilder
         return new Mail(from(), to(), subject, text, CONTENT_TYPE, attachments, null);
     }
 
-    /** This is sent when overdue contact did not respond in time. */
+    /** This is sent when a contact did not respond in time. */
     public Mail buildPassingToNextMail() {
         final String subject = "FWD: "+subject();
         
@@ -113,17 +135,20 @@ public class MailBuilder
         return attachments;
     }
 
-    private void footer(Hike hike, final StringBuilder sb) {
-        sb.append("\n----------------------------------------\n");
-        sb.append(hike.getAlert().getNameOfHiker()+"\n"); // never null
+    private void footer(Hike hike, final StringBuilder textBuilder) {
+        textBuilder.append("\n----------------------------------------\n");
+        textBuilder.append(hike.getAlert().getNameOfHiker()+"\n"); // never null
         if (StringUtil.isNotEmpty(hike.getAlert().getAddressOfHiker()))
-            sb.append(hike.getAlert().getAddressOfHiker()+"\n");
+            textBuilder.append(hike.getAlert().getAddressOfHiker()+"\n");
         if (StringUtil.isNotEmpty(hike.getAlert().getMailConfiguration().getMailFromAddress()))
-            sb.append(hike.getAlert().getMailConfiguration().getMailFromAddress());
-        sb.append("\n----------------------------------------\n");
-        sb.append(i18n("Sent by Hiking-Emergency-Alert automation version ")+Version.get());
+            textBuilder.append(hike.getAlert().getMailConfiguration().getMailFromAddress());
+        footerBottom(textBuilder);
     }
     
+    private void footerBottom(StringBuilder textBuilder) {
+        textBuilder.append("\n----------------------------------------\n");
+        textBuilder.append(i18n("Sent by Hiking-Emergency-Alert automation ")+Version.get());
+    }
     
     private String substitute(String text) {
         final String phoneNumber = hike.getAlert().getPhoneNumberOfHiker();

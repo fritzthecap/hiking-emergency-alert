@@ -30,12 +30,13 @@
             <version>2.13.2</version>
         </dependency>
         
-        <!-- Mail send and receive (comes with jakarta.mail): -->
+        <!-- Mail send and receive provider (comes with jakarta.mail): -->
         <dependency>
             <groupId>org.eclipse.angus</groupId>
             <artifactId>angus-mail</artifactId>
             <version>2.0.5</version>
         </dependency>
+        <!-- Angus-mail extension to read delivery-status-notifications: -->
         <dependency>
             <groupId>org.eclipse.angus</groupId>
             <artifactId>dsn</artifactId>

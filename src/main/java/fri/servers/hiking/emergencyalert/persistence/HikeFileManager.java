@@ -135,7 +135,10 @@ public class HikeFileManager
             return true; // not existing, thus empty
         
         try (Stream<Path> fileStream = Files.list(path)) {
-            return (fileStream.count() <= 0L);
+            final long count = fileStream
+                .filter(p -> p.toFile().getName().equals(DEFAULT_JSON_FILE) == false)
+                .count();
+            return count <= 0;
         }
         catch (IOException e) {
             System.err.println("ERROR: Directory "+DEFAULT_JSON_PATH+" could not be listed, error was: "+e);

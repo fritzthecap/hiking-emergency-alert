@@ -15,7 +15,7 @@ import jakarta.mail.Message;
 public class InboxVisitorConnection extends ReceiveConnection implements InboxVisitor
 {
     protected final String uniqueMailId;
-    protected final Date pollingStartTime;
+    protected final Date minimumSentTime;
     private final Set<SendConnection.SendResult> sendResultsLive;
     
     private Mail found;
@@ -24,20 +24,20 @@ public class InboxVisitorConnection extends ReceiveConnection implements InboxVi
             MailConfiguration mailConfiguration, 
             Authenticator authenticator,
             String uniqueMailId,
-            Date pollingStartTime,
+            Date minimumSentTime,
             Set<SendConnection.SendResult> sendResultsLive)
     {
         super(mailConfiguration, authenticator);
         
         this.uniqueMailId = Objects.requireNonNull(uniqueMailId);
-        this.pollingStartTime = pollingStartTime;
+        this.minimumSentTime = minimumSentTime;
         this.sendResultsLive = sendResultsLive;
     }
 
     /**
-     * Searches in INBOX for the mail with uniqueMailId which was 
-     * sent after pollingStartTime and is none of the mails in sendResultsLive.
-     * @return mail information or null if no mail found.
+     * Searches in INBOX for a mail with MAIL-ID (<code>hike.uniqueMailId</code>) which was 
+     * sent after <code>minimumSentTime</code> and is none of the mails in <code>sendResultsLive</code>.
+     * @return mail-information, or null if no mail found.
      * @throws MailReceiveException when mail connection fails.
      */
     public Mail searchAlertConfirmation() throws MailReceiveException {
@@ -56,7 +56,7 @@ public class InboxVisitorConnection extends ReceiveConnection implements InboxVi
     public boolean visitMail(Message message) throws Exception {
         final Date sentDate = DateUtil.eraseMilliseconds(message.getSentDate());
         
-        if (sentDate.after(pollingStartTime)) { // must be a new mail
+        if (sentDate.after(minimumSentTime)) { // must be a new mail
             final String messageId = MessageUtil.messageId(message);
             final String text = MessageUtil.textContent(message); // fetches text also from attached mails
             
@@ -75,9 +75,9 @@ public class InboxVisitorConnection extends ReceiveConnection implements InboxVi
     }
 
     /**
-     * Does nothing, to be overridden.
-     * @param message the found message with uinqueMailId,
-     *      still being in receive-loop with open message store.
+     * Does nothing, to be overridden for optional deletion of the message.
+     * @param message the found message with uniqueMailId,
+     *      while still being in receive-loop with an open message store.
      */
     protected void processFoundMessage(Message message) {
     }

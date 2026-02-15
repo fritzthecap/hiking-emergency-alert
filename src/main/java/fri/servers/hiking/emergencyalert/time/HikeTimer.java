@@ -89,6 +89,10 @@ public class HikeTimer extends Scheduler
         });
     }
     
+    public Date getNextOverdueAlertTime() {
+        return nextOverdueAlertTime;
+    }
+    
     
     private void assertStart(Date plannedHome) {
         if (isRunning())

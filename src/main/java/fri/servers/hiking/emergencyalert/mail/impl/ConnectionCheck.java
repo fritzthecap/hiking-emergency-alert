@@ -10,10 +10,8 @@ import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
 import jakarta.mail.Authenticator;
-import jakarta.mail.Flags;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
 
 public class ConnectionCheck extends InboxVisitorConnection
 {
@@ -56,12 +54,7 @@ public class ConnectionCheck extends InboxVisitorConnection
     /** Delete the test-mail when found. */
     @Override
     protected void processFoundMessage(Message message) {
-        try {
-            message.setFlag(Flags.Flag.DELETED, true);
-        }
-        catch (MessagingException e) {
-            System.err.println(e.toString());
-        }
+        MessageUtil.deleteMessage(message);
     }
     
     /** Factory method for SendConnection, to be overridden by unit-tests. */

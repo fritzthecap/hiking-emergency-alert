@@ -19,7 +19,7 @@ public class Alert
     private String iso639Language = "en";
     
     private int alertIntervalMinutes = 60; // wait-time until alerting next contact
-    private float alertIntervalShrinking = 0.0f; // how the wait-time gets smaller with every alert
+    private float alertIntervalShrinking = 0.0f; // between 0.0 and 1.0, how the wait-time gets smaller with every alert
     private boolean useContactDetectionMinutes = false; // use minutes of contacts
     
     private int confirmationPollingMinutes = 2; // confirmation polling interval
