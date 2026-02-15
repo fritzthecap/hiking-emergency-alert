@@ -10,7 +10,6 @@ import fri.servers.hiking.emergencyalert.mail.GreenmailTestMailer;
 import fri.servers.hiking.emergencyalert.mail.Mailer;
 import fri.servers.hiking.emergencyalert.mail.impl.MessageUtil;
 import fri.servers.hiking.emergencyalert.persistence.Mail;
-import fri.servers.hiking.emergencyalert.persistence.MailBuilder;
 import fri.servers.hiking.emergencyalert.persistence.TestData;
 import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;

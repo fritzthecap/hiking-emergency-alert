@@ -55,7 +55,7 @@ public class DescriptionArea
 
         descriptionArea.setEditorKit(editorKit); // HTML-only view
         
-        descriptionArea.setPreferredSize(new Dimension(260, 260));
+        descriptionArea.setPreferredSize(new Dimension(300, 300));
     }
     
     public JComponent getAddablePanel() {

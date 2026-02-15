@@ -2,6 +2,7 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizard;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -14,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ToolTipManager;
 import javax.swing.event.MouseInputAdapter;
@@ -65,9 +67,12 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         
         this.frame = frame;
         this.stateMachine = stateMachine;
+        
         this.contentPanel = new JPanel(new BorderLayout());
         SwingUtil.makeComponentFocusable(contentPanel); // lets focus shift away from input fields
+        
         frame.setGlassPane(this.glassPane = buildGlassPane());
+        
         this.descriptionArea = new DescriptionArea();
         this.wizardOutline = new WizardOutline(pages.length);
         
@@ -153,9 +158,12 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setResizeWeight(0.3);
         splitPane.setOneTouchExpandable(true);
-        add(splitPane, BorderLayout.CENTER);
         splitPane.setLeftComponent(descriptionArea.getAddablePanel());
         splitPane.setRightComponent(contentPanel);
+        
+        contentPanel.setMinimumSize(new Dimension()); // bug #17: split-divider goes left but not right
+        
+        add(splitPane, BorderLayout.CENTER);
         
         this.backwardButton = new JButton(Trolley.buildPreviousButtonText());
         this.forwardButton = new JButton(Trolley.buildNextButtonText());
