@@ -10,10 +10,6 @@ import jakarta.mail.Authenticator;
 
 class ConnectionCheckTest
 {
-    record HostPortProtocol(String host, int port, String protocol)
-    {
-    }
-    
     @Test
     @Disabled("because needs password dialog")
     void mailConnectionShouldWork() {
@@ -26,6 +22,10 @@ class ConnectionCheckTest
         assertTrue(imapTest.success());
     }
     
+    
+    private record HostPortProtocol(String host, int port, String protocol)
+    {
+    }
     
     private record Result(Authenticator authenticator, boolean success)
     {
