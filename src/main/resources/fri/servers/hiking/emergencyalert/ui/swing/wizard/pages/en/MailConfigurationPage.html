@@ -6,8 +6,8 @@
     
     <body>
         <p>
-            <b>E-mail configuration</b> is not an easy task, but you need it. 
-            You can find it on Android phones in 
+            <b>E-mail configuration</b> is not an easy task. 
+            You can find your mail settings on Android phones in 
             <i>Settings -> Apps -> E-Mail ->
             E-Mail settings ->
             tap on the account (E-Mail Address) ->
@@ -15,26 +15,46 @@
             Incoming Server, Outgoing Server.</i>
         </p>
         <p>
-            You may want to use other ports than the secure ones, 
-            because the application has not been tested with secure mail. 
-            Use the "More Properties" button 
-            to add according connection settings (<i>jakarta email</i>).
+            Enter your mail user name, this is most likely your e-mail address. 
+            Then enter the host names for receiving and sending.
+            The "pop3" an "imap" protocols are for receiving mails,
+            the "smtp" protocol is for sending, we need both.
+            Push the "Test Connection" button to enter your password
+            and try a connection. When you get strange error messages,
+            you most likely need secure mail settings.
         </p>
         <p>
-            Both IMAP and POP3 protocols should work for receiving.
-            Mind that their port is adjusted automatically when you toggle the protocol.
+            Many mail providers do not allow insecure connections 
+            on "pop3" port 110, "imap" port 143 and "smtp" port 25 anymore. 
+            You need to activate custom properties to achieve that.
+        </p>
+        <p>
+            First, switch to "imaps" or "pop3s" (s for secure), but do not yet switch to "smtps". 
+            The receive-port gets adjusted when you toggle the protocol.
+            Port 993 should now be visible for "imaps", or 995 for "pop3s". 
+            In the "smtp" port field, write 465 (alternatives would be 587 or 2525). 
+        </p>
+        <p>
+            Now use the "More Properties" button to add custom properties, 
+            these reside in the lower part of the dialog that opens.
+            First activate the 
+        </p>
+            <p>&nbsp;&nbsp;<i>mail.smtp.socketFactory.class = javax.net.ssl.SSLSocketFactory</i></p>
+        <p>
+            property and save. Again try the "Test Connection" button. 
+            If this doesn't work, try some of the <i>"mail.xxx.ssl.enable"</i> properties. 
+            All the listed properties have non-default values, 
+            so that simply activating them would show if they make the connection work. 
+            You could also ask the Internet for help on <i>jakarta mail</i> properties.
         </p>
         <p>
             When navigating forward from here, the application tries to connect
             to your INBOX, then sends a mail to your own account, receives it and also deletes it. 
-            Your password will be requested through a dialog.
             No junk-mails will remain in your INBOX from this test, 
             and it should be finished in seconds.
-        </p>
-        <p>
             If your internet connection is slow, you may want to set the
             "Maximum Connection Wait" seconds to a higher value.
         </p>
-
+        
     </body>
 </html>

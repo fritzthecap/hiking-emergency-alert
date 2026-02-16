@@ -6,33 +6,53 @@
     
     <body>
         <p>
-            <b>La configurazione dell'e-mail</b> non è un'operazione facile, ma è necessaria. 
-            Sui telefoni Android è possibile trovarla in 
-            <i>Impostazioni -> App -> E-mail ->
+            <b>La configurazione dell'e-mail</b> non è un'operazione semplice. 
+            È possibile trovare le impostazioni della posta elettronica sui telefoni Android in 
+            <i>Impostazioni -> Applicazioni -> E-mail ->
             Impostazioni e-mail ->
             toccare l'account (indirizzo e-mail) ->
-            scorrere fino in fondo a Impostazioni server ->
-            Server in arrivo, Server in uscita.</i>
+            scorrere fino in fondo alla pagina fino a Impostazioni server ->
+            Server in entrata, Server in uscita. </i>
         </p>
         <p>
-            Potrebbe essere necessario utilizzare porte diverse da quelle sicure, 
-            poiché l'applicazione non è stata testata con la posta sicura. 
-            Utilizzare il pulsante “Altre proprietà” 
-            per aggiungere le impostazioni di connessione corrispondenti (<i>jakarta email</i>).
+            Inserisci il tuo nome utente e-mail, che molto probabilmente corrisponde al tuo indirizzo e-mail. 
+            Quindi inserisci i nomi host per la ricezione e l'invio.
+            I protocolli “pop3” e “imap” servono per ricevere le e-mail,
+            il protocollo “smtp” serve per inviarle, abbiamo bisogno di entrambi.
+            Premi il pulsante “Verifica connessione” per inserire la tua password
+            e provare una connessione. Se ricevi strani messaggi di errore,
+            probabilmente hai bisogno di impostazioni di posta sicure.
         </p>
         <p>
-            Entrambi i protocolli IMAP e POP3 dovrebbero funzionare per la ricezione.
-            Tieni presente che la loro porta viene regolata automaticamente quando si attiva il protocollo.
+            Molti provider di posta non consentono più connessioni non sicure 
+            sulla porta “pop3” 110, sulla porta ‘imap’ 143 e sulla porta “smtp” 25. 
+            Per farlo, devi attivare le proprietà personalizzate.
+        </p>
+        <p>
+            Per prima cosa, passa a “imaps” o ‘pop3s’ (s sta per sicuro), ma non passare ancora a “smtps”. 
+            La porta di ricezione viene regolata quando si cambia protocollo.
+            La porta 993 dovrebbe ora essere visibile per “imaps” o 995 per “pop3s”. 
+            Nel campo della porta “smtp”, scrivere 465 (le alternative sarebbero 587 o 2525). 
+        </p>
+        <p>
+            Ora usa il pulsante “Altre proprietà” per aggiungere proprietà personalizzate, 
+            che si trovano nella parte inferiore della finestra di dialogo che si apre.
+            Per prima cosa attiva la 
+        </p>
+            <p>&nbsp;&nbsp;<i>mail.smtp.socketFactory.class = javax.net.ssl.SSLSocketFactory</i></p>
+        <p>
+            e salva. Prova nuovamente il pulsante “Verifica connessione”. 
+            Se non funziona, prova alcune delle proprietà <i>“mail.xxx.ssl.enable”</i>. 
+            Tutte le proprietà elencate hanno valori non predefiniti, 
+            quindi semplicemente attivandole potrai vedere se consentono il funzionamento della connessione. 
+            È anche possibile chiedere aiuto su Internet sulle proprietà <i>jakarta mail</i>.
         </p>
         <p>
             Quando si naviga in avanti da qui, l'applicazione cerca di connettersi
             alla tua casella di posta in arrivo, quindi invia un'e-mail al tuo account, la riceve e la elimina. 
-            La tua password verrà richiesta tramite una finestra di dialogo.
-            Nessuna email indesiderata rimarrà nella tua casella di posta in arrivo dopo questo test, 
-            che dovrebbe terminare in pochi secondi.
-        </p>
-        <p>
-            Se la tua connessione Internet è lenta, potresti voler impostare il valore
+            Nessuna e-mail indesiderata rimarrà nella tua casella di posta in arrivo dopo questo test, 
+            che dovrebbe essere completato in pochi secondi.
+            Se la connessione Internet è lenta, è possibile impostare il valore
             “Tempo massimo di attesa connessione” su un valore più alto.
         </p>
 

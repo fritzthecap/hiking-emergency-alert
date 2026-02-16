@@ -6,36 +6,56 @@
     
     <body>
         <p>
-            <b>E-Mail-Konfiguration</b> ist keine leichte Aufgabe, aber du brauchst das. 
-            Auf Android-Handys findest du das unter 
+            <b>Die E-Mail-Konfiguration</b> ist keine leichte Aufgabe. 
+            Du findest deine E-Mail-Einstellungen auf Android-Handys unter 
             <i>Einstellungen -> Apps -> E-Mail ->
             E-Mail-Einstellungen ->
-            auf das Konto tippen (E-Mail-Adresse) ->
-            ganz nach unten scrollen zu "Servereinstellungen" ->
-            "Posteingangsserver", "Postausgangsserver".</i>
+            Tippe auf das Konto (E-Mail-Adresse) ->
+            Scrolle ganz nach unten zu Server-Einstellungen ->
+            Posteingangsserver, Postausgangsserver. </i>
         </p>
         <p>
-            Möglicherweise möchtest du andere als die sicheren Ports verwenden, 
-            da die Anwendung nicht mit sicherer E-Mail getestet wurde. 
-            Verwende die Schaltfläche "Weitere Eigenschaften",
-            um entsprechende Verbindungseinstellungen hinzuzufügen (<i>jakarta email</i>).
+            Gib deinen E-Mail-Benutzernamen ein, dies ist höchstwahrscheinlich deine E-Mail Adresse. 
+            Gib dann die Host-Namen für Empfangen und Senden ein.
+            Die Protokolle „pop3” und „imap” dienen zum Empfangen von E-Mails,
+            das Protokoll „smtp” dient zum Senden, wir benötigen beide.
+            Klick auf die Schaltfläche „Verbindung testen”, um dein Passwort einzugeben
+            und eine Verbindung herzustellen. Wenn du seltsame Fehlermeldungen siehst,
+            benötigst du wahrscheinlich sichere E-Mail Einstellungen.
         </p>
         <p>
-            Sowohl das IMAP- als auch das POP3-Protokoll sollten für den Empfang funktionieren.
-            Beachte dass der Port automatisch angepasst wird, wenn du das Protokoll umschaltest.
+            Viele E-Mail-Anbieter erlauben keine unsicheren Verbindungen 
+            über den „pop3”-Port 110, den „imap”-Port 143 und den „smtp”-Port 25 mehr. 
+            Du musst dazu benutzerdefinierte Eigenschaften aktivieren.
+        </p>
+        <p>
+            Wechsle zunächst zu „imaps” oder „pop3s” (s für sicher), aber noch nicht zu „smtps”. 
+            Der Empfangsport wird angepasst, wenn du das Protokoll umschaltest.
+            Port 993 sollte nun für „imaps” sichtbar sein, oder 995 für „pop3s”. 
+            Gib im „smtp” Port Feld 465 ein (Alternativen wären 587 oder 2525). 
+        </p>
+        <p>
+            Verwende nun die Schaltfläche „Weitere Eigenschaften”, um benutzerdefinierte Eigenschaften hinzuzufügen. 
+            Diese befinden sich im unteren Teil des sich öffnenden Dialogfelds.
+            Aktiviere zunächst die 
+        </p>
+        <p>&nbsp;&nbsp;<i>mail.smtp.socketFactory.class = javax.net.ssl.SSLSocketFactory</i></p>
+        <p>
+            Eigenschaft und speichere. Versuche erneut auf „Verbindung testen“ zu drücken. 
+            Wenn dies nicht funktioniert, probiere einige der Eigenschaften <i>„mail.xxx.ssl.enable”</i> aus. 
+            Alle aufgeführten Eigenschaften haben Nicht-Standardwerte, 
+            sodass durch einfaches Aktivieren angezeigt wird, ob sie die Verbindung beeinflussen. 
+            Du kannst auch im Internet nach Hilfe zu den Einstellungen für <i>jakarta mail</i> suchen.
         </p>
         <p>
             Wenn du von hier aus weiter navigierst, versucht die Anwendung, eine Verbindung
-            zu deinem Posteingang herzustellen, sendet dann eine E-Mail an dein Konto, 
-            empfängt sie und löscht sie auch. 
-            Dein Passwort wird in einem Dialogfeld abgefragt.
+            zu deinem Posteingang herzustellen, sendet dann eine E-Mail an dein eigenes Konto, 
+            empfängt sie und löscht sie auch wieder. 
             Durch diesen Test bleiben keine Junk-Mails in deinem Posteingang zurück, 
             und er sollte in wenigen Sekunden abgeschlossen sein.
-        </p>
-        <p>
             Wenn deine Internetverbindung langsam ist, solltest du möglicherweise die
-            "Maximale Verbindungswartezeit" in Sekunden auf einen höheren Wert einstellen.
+            „Maximale Verbindungswartezeit” in Sekunden auf einen höheren Wert einstellen.
         </p>
-
+        
     </body>
 </html>

@@ -6,34 +6,54 @@
     
     <body>
         <p>
-            La <b>configuration de la messagerie électronique</b> n'est pas une tâche facile, mais elle est indispensable. 
-            Sur les téléphones Android, vous la trouverez dans 
+            La <b>configuration de la messagerie électronique</b> n'est pas une tâche facile. 
+            Vous trouverez les paramètres de messagerie sur les téléphones Android dans 
             <i>Paramètres -> Applications -> Messagerie électronique ->
             Paramètres de messagerie électronique ->
-            appuyez sur le compte (adresse électronique) ->
-            faites défiler jusqu'en bas vers Paramètres du serveur ->
-            Serveur entrant, Serveur sortant.
+            appuyez sur le compte (adresse e-mail) ->
+            faites défiler jusqu'en bas jusqu'à Paramètres du serveur ->
+            Serveur entrant, Serveur sortant. </i>
         </p>
         <p>
-            Vous pouvez utiliser d'autres ports que ceux sécurisés, 
-            car l'application n'a pas été testée avec le courrier sécurisé. 
-            Utilisez le bouton « Plus de propriétés » 
-            pour ajouter les paramètres de connexion correspondants (<i>jakarta email</i>).
+            Entrez votre nom d'utilisateur de messagerie, qui est très probablement votre adresse e-mail. 
+            Entrez ensuite les noms d'hôte pour la réception et l'envoi.
+            Les protocoles « pop3 » et « imap » servent à recevoir des e-mails,
+            le protocole « smtp » sert à en envoyer, nous avons besoin des deux.
+            Appuyez sur le bouton « Tester la connexion » pour entrer votre mot de passe
+            et essayer une connexion. Si vous obtenez des messages d'erreur étranges,
+            vous aurez probablement besoin de paramètres de messagerie sécurisés.
         </p>
         <p>
-            Les protocoles IMAP et POP3 devraient tous deux fonctionner pour la réception.
-            Notez que leur port est ajusté automatiquement lorsque vous basculez entre les protocoles.
+            De nombreux fournisseurs de messagerie n'autorisent plus les connexions non sécurisées 
+            sur le port « pop3 » 110, le port « imap » 143 et le port « smtp » 25. 
+            Vous devez activer des propriétés personnalisées pour y parvenir.
         </p>
         <p>
-            Lorsque vous avancez à partir d'ici, l'application tente de se connecter
+            Commencez par passer à « imaps » ou « pop3s » (s pour sécurisé), mais ne passez pas encore à « smtps ». 
+            Le port de réception est ajusté lorsque vous changez de protocole.
+            Le port 993 devrait maintenant être visible pour « imaps », ou 995 pour « pop3s ». 
+            Dans le champ du port « smtp », inscrivez 465 (les alternatives seraient 587 ou 2525). 
+        </p>
+        <p>
+            Utilisez maintenant le bouton « Plus de propriétés » pour ajouter des propriétés personnalisées, 
+            qui se trouvent dans la partie inférieure de la boîte de dialogue qui s'ouvre.
+            Activez d'abord la 
+        </p>
+        <p>&nbsp;&nbsp;<i>mail.smtp.socketFactory.class = javax.net.ssl.SSLSocketFactory</i></p>
+        <p>
+            et enregistrez. Essayez à nouveau le bouton « Tester la connexion ». 
+            Si cela ne fonctionne pas, essayez certaines des propriétés <i>« mail.xxx.ssl.enable »</i>. 
+            Toutes les propriétés répertoriées ont des valeurs non par défaut, 
+            de sorte que le simple fait de les activer permet de voir si elles permettent d'établir la connexion. 
+            Vous pouvez également demander de l'aide sur Internet concernant les propriétés <i>jakarta mail</i>.
+        </p>
+        <p>
+            Lorsque vous naviguez à partir d'ici, l'application tente de se connecter
             à votre boîte de réception, puis envoie un e-mail à votre propre compte, le reçoit et le supprime. 
-            Votre mot de passe vous sera demandé dans une boîte de dialogue.
-            Ce test ne laissera aucun courrier indésirable dans votre boîte de réception 
-            et ne devrait prendre que quelques secondes.
-        </p>
-        <p>
-            Si votre connexion Internet est lente, vous pouvez définir la valeur
-            « Délai d'attente maximal de connexion » en secondes sur une valeur plus élevée.
+            Aucun courrier indésirable ne restera dans votre boîte de réception après ce test, 
+            qui devrait être terminé en quelques secondes.
+            Si votre connexion Internet est lente, vous pouvez définir la
+            « Durée maximale d'attente de connexion » en secondes sur une valeur plus élevée.
         </p>
 
     </body>
