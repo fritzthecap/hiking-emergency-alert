@@ -18,7 +18,7 @@
     "usePassingToNextMail": true,
     "nameOfHiker": "Peter Hiker",
     "addressOfHiker": "Hikerstreet 1, A-1234 Hikertown, Antarctica",
-    "phoneNumberOfHiker": "1234567889",
+    "phoneNumberOfHiker": "1234567890",
     "iso639Language": "en",
     "alertIntervalMinutes": 2,
     "alertIntervalShrinking": 0.0,
@@ -26,14 +26,14 @@
     "confirmationPollingMinutes": 1,
     "alertContacts": [
       {
-        "mailAddress": "example.user@provider.org",
+        "mailAddress": "example1.user@provider.org",
         "firstName": "First",
         "lastName": "Person",
         "absent": false,
         "detectionMinutes": 60
       },
       {
-        "mailAddress": "example.user@provider.org",
+        "mailAddress": "example2.user@provider.org",
         "firstName": "Second",
         "lastName": "Person",
         "absent": false,

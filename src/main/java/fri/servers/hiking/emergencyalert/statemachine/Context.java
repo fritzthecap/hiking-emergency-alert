@@ -101,15 +101,11 @@ public class Context
             throw new RuntimeException(e); // assuming user is still at the computer and sees the error
         }
         
-        if (hike.getPlannedBegin() != null)
-            System.out.println("Planned hike set-off is "+DateUtil.toString(hike.getPlannedBegin()));
-        System.out.println("Emergency alerts will start at "+DateUtil.toString(hike.getPlannedHome()));
-        System.out.println("Do NOT terminate this application before you are back!");
-        System.out.println("Wish you luck, please click 'Home Again' as soon as you are back.");
-        
-        sendSetOffMessage();
+        activationOutputs();
         
         activationTime = DateUtil.now();
+        
+        sendSetOffMessage();
         
         timer.start(
                 hike.getPlannedBegin(),
@@ -196,7 +192,7 @@ public class Context
                 ". Mail has been sent already to "+contactIndex+" contact(s).");
     }
 
-    
+
     private void sendSetOffMessage() {
         System.out.println("Trying to send set-off mail at "+DateUtil.nowString());
         try {
@@ -223,7 +219,7 @@ public class Context
             return false;
         }
     }
-
+    
     private boolean sendAlertMessage(Contact contact) {
         System.out.println("Trying to send alert mail to "+contact.getMailAddress()+" at "+DateUtil.nowString());
         try {
@@ -262,5 +258,13 @@ public class Context
             System.out.println("Sending passing-to-next mail failed, error was "+e);
             // as this is a follower mail in sendAlertMessage(), do not try to repeat sending! 
         }
+    }
+    
+    private void activationOutputs() {
+        if (hike.getPlannedBegin() != null)
+            System.out.println("Planned hike set-off is "+DateUtil.toString(hike.getPlannedBegin()));
+        System.out.println("Emergency alerts will start at "+DateUtil.toString(hike.getPlannedHome()));
+        System.out.println("Do NOT terminate this application before you are back!");
+        System.out.println("Wish you luck, please click 'Home Again' as soon as you are back.");
     }
 }
