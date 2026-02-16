@@ -103,7 +103,10 @@ public class Context
         
         activationOutputs(); // just once per hike
         
-        timerStart(hike.getPlannedBegin(), hike.getPlannedHome());
+        final Date begin = hike.getPlannedBegin();
+        timerStart(
+                (begin != null) ? begin : DateUtil.now(), // make sure SET_OFF event is fired
+                hike.getPlannedHome());
     }
 
     /** @return true when timer is running, i.e. ACTIVATION already took place. */
@@ -158,9 +161,15 @@ public class Context
             stop();
             
             if (alertsBlockedByHiker)
-                System.out.println("Hiker blocked alert mails by responding to the set-off mail, checked this at "+DateUtil.nowString());
+                System.out.println("Hiker blocked alerts by replying to the set-off mail, detected this at "+DateUtil.nowString());
             else
                 System.out.println("Having no more contacts to alert at "+DateUtil.nowString());
+            
+            // TODO: issue #1, check for further hike days 
+            // if (nextDay != null) {
+            //     contactIndex = 0;
+            //     timerStart(null, nextDay.getPlannedHome());
+            // }
         }
     }
 

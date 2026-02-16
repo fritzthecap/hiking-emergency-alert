@@ -31,40 +31,45 @@ public class HikeTimer extends Scheduler
     /**
      * Prepares this timer with hike-data and starts it.
      * This can be called just once!
-     * @param plannedBegin the planned start date/time from Hike.
-     * @param plannedHome the planned end date/time from Hike
-     * @param alertIntervalMinutes the amount of minutes that
-     *      should be waited until the next contact gets messaged.
-     * @param alertIntervalShrinking between 0.3 and 1.0,
-     *      after every alert this will be applied on alertIntervalMinutes.
+     * @param plannedBegin optional, the planned start date/time of Hike,
+     *      no set-off event would be fired when null.
+     * @param plannedHome required, the planned end date/time from Hike.
+     * @param intervalModel source for the amount of minutes that should
+     *      be waited until the next contact gets alerted about overdue.
      */
     public void start(
-            Date plannedBegin, 
+            final Date plannedBegin, 
             final Date plannedHome, 
             IntervalModel intervalModel,
             EventDispatcher eventDispatcher)
     {
         assertStart(plannedHome);
         
-        final Date begin = (plannedBegin != null) ? plannedBegin : DateUtil.now();
-        
-        this.nextOverdueAlertTime = plannedHome;
+        this.nextOverdueAlertTime = Objects.requireNonNull(plannedHome);
         this.intervalModel = intervalModel;
         this.dispatcher = Objects.requireNonNull(eventDispatcher);
         
-        final TimerTask settingOff = new TimerTask() {
-            @Override
-            public void run() {
-                dispatcher.dispatchEvent(Event.SETTING_OFF);
-            }
-            @Override
-            public String toString() {
-                return "SettingOffTask";
-            }
-        };
+        final TimerTask settingOff;
+        if (plannedBegin != null) {
+            settingOff = new TimerTask() {
+                @Override
+                public void run() {
+                    dispatcher.dispatchEvent(Event.SETTING_OFF);
+                }
+                @Override
+                public String toString() {
+                    return "SettingOffTask";
+                }
+            };
+        }
+        else {
+            settingOff = null;
+        }
         
         super.start(scheduler -> {
-            scheduler.schedule(settingOff, begin);
+            if (settingOff != null)
+                scheduler.schedule(settingOff, plannedBegin);
+            
             scheduler.schedule(createOverdueTask(), plannedHome);
         });
     }
