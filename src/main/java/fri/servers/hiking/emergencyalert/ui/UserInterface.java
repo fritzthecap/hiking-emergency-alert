@@ -13,7 +13,7 @@ import jakarta.mail.Authenticator;
 public abstract class UserInterface
 {
     /** Make sure that always a new authenticator gets delivered, to avoid cached wrong passwords! */
-    protected static interface InteractiveAuthenticatorFactory
+    protected interface InteractiveAuthenticatorFactory
     {
         Authenticator newAuthenticator();
     }

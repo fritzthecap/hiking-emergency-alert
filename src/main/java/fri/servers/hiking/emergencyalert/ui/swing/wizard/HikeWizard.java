@@ -116,11 +116,11 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
     /**
      * UserInterface received the alert confirmation mail notification.
      * ObservationPage must change its state now.
-     * A dialog rendering the mail will be shown afterwards by calling class.
      */
     public void alertConfirmed() {
-        if (page() instanceof ObservationPage)
-            ((ObservationPage) page()).alertConfirmed();
+        for (AbstractWizardPage page : pages)
+            if (page instanceof ObservationPage)
+                ((ObservationPage) page()).alertConfirmed();
     }
 
     

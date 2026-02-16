@@ -125,8 +125,7 @@ public final class MessageUtil
             }
         }
         else if (contentType.startsWith("message/delivery-status")) {
-            final DeliveryStatus deliveryStatus = (DeliveryStatus) part.getContent();
-            return deliveryStatus;
+            return (DeliveryStatus) part.getContent();
         }
         return null;
     }

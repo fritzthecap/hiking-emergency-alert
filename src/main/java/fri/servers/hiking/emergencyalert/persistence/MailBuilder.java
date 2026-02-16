@@ -45,7 +45,7 @@ public class MailBuilder
         
         final String overdueDate = DateUtil.toString(hike.getPlannedHome());
         textBuilder.append(
-                i18n("You can block alert mails by responding to this mail before ")+overdueDate+".\n"+
+                i18n("You can block alert mails by responding to this mail before")+" "+overdueDate+".\n"+
                 i18n("The MAIL-ID below must be contained as text or attachment.")+"\n"+
                 i18n("Good luck!"));
         textBuilder.append("\n\n");

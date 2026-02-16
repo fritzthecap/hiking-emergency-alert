@@ -32,7 +32,7 @@ public class Context
     private Object eventParameter;
     
     private int contactIndex = 0;
-    private Date realSetOff;
+    private Date activationTime;
     
     protected Context(Hike hike, StateMachine stateMachine, Mailer mailer, HikeTimer timer, UserInterface user) {
         this.hike = Objects.requireNonNull(hike);
@@ -109,7 +109,7 @@ public class Context
         
         sendSetOffMessage();
         
-        realSetOff = DateUtil.now();
+        activationTime = DateUtil.now();
         
         timer.start(
                 hike.getPlannedBegin(),
@@ -214,7 +214,7 @@ public class Context
             return mailer.findSetOffResponse(
                     hike.getAlert().getMailConfiguration(),
                     hike.uniqueMailId,
-                    realSetOff);
+                    activationTime);
         }
         catch (MailReceiveException e) {
             System.err.println("Finding set-off response failed at "+DateUtil.nowString()+", error: "+e.toString());

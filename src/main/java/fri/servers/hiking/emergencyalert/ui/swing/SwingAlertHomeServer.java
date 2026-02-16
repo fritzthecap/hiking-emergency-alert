@@ -12,7 +12,7 @@ import fri.servers.hiking.emergencyalert.ui.swing.util.FontSizer;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.HikeWizard;
 
 /**
- * The Swing UI for starting a hike observation.
+ * The main Swing-UI with wizard pages for starting a hike observation.
  */
 public class SwingAlertHomeServer extends SwingUserInterface
 {
@@ -55,7 +55,6 @@ public class SwingAlertHomeServer extends SwingUserInterface
             final HikeWizard wizard = (HikeWizard) frame.getContentPane().getComponent(0);
             wizard.alertConfirmed();
         });
-        
         super.showConfirmMail(alertConfirmationMail);
     }
 }
