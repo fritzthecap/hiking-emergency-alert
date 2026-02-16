@@ -3,6 +3,7 @@ package fri.servers.hiking.emergencyalert.persistence;
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import fri.servers.hiking.emergencyalert.Version;
 import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
@@ -36,14 +37,14 @@ public class MailBuilder
 
     
     /** This is sent when hike is activated. */
-    public Mail buildSetOffMail() {
+    public Mail buildSetOffMail(Date plannedHome) {
         final String subject = i18n("Your hike started!");
         
         final StringBuilder textBuilder = new StringBuilder();
         
         textBuilder.append(getContactTitle(contact)+" !\n\n");
         
-        final String overdueDate = DateUtil.toString(hike.getPlannedHome());
+        final String overdueDate = DateUtil.toString(plannedHome);
         textBuilder.append(
                 i18n("You can block alert mails by responding to this mail before")+" "+overdueDate+".\n"+
                 i18n("The MAIL-ID below must be contained as text or attachment.")+"\n"+

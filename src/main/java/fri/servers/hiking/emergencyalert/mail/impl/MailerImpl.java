@@ -45,11 +45,11 @@ public class MailerImpl implements Mailer
     }
     
     @Override
-    public void sendSetOff(Hike hike) throws MailSendException {
+    public void sendSetOff(Hike hike, Date plannedHome) throws MailSendException {
         final Contact hikerContact = new Contact();
         hikerContact.setLastName(hike.getAlert().getNameOfHiker());
         hikerContact.setMailAddress(hike.getAlert().getMailConfiguration().getMailFromAddress());
-        final Mail mail = new MailBuilder(hikerContact, hike).buildSetOffMail();
+        final Mail mail = new MailBuilder(hikerContact, hike).buildSetOffMail(plannedHome);
         sendMail(mail, hike.getAlert().getMailConfiguration());
     }
     

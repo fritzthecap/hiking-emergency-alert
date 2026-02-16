@@ -197,7 +197,7 @@ public class Context
     private void timerStart(Date plannedBegin, Date plannedHome) {
         activationTime = DateUtil.now();
         
-        sendSetOffMessage();
+        sendSetOffMessage(plannedHome);
         
         timer.start(
                 plannedBegin,
@@ -206,10 +206,10 @@ public class Context
                 stateMachine);
     }
     
-    private void sendSetOffMessage() {
+    private void sendSetOffMessage(Date plannedHome) {
         System.out.println("Trying to send set-off mail at "+DateUtil.nowString());
         try {
-            mailer.sendSetOff(hike);
+            mailer.sendSetOff(hike, plannedHome);
             
             System.out.println("Sending succeeded!");
         }

@@ -120,7 +120,7 @@ class StateMachineFakeMailTest
                 return polling;
             }
             @Override
-            public void sendSetOff(Hike hike) throws MailSendException {
+            public void sendSetOff(Hike hike, Date plannedHome) throws MailSendException {
             }
             @Override
             public boolean findSetOffResponse(
