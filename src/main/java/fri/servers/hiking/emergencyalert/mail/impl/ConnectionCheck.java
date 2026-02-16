@@ -10,7 +10,6 @@ import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
 import jakarta.mail.Authenticator;
-import jakarta.mail.Folder;
 import jakarta.mail.Message;
 
 public class ConnectionCheck extends InboxVisitorConnection
@@ -62,7 +61,7 @@ public class ConnectionCheck extends InboxVisitorConnection
         
         final InboxVisitor visitor = new InboxVisitor() {
             @Override
-            public boolean visitInbox(Folder inbox) throws Exception {
+            public boolean visitInbox() throws Exception {
                 System.out.println("... connecting to mail store succeeded!");
                 return false; // do not visit mails
             }

@@ -15,10 +15,14 @@ public class ReceiveConnection extends MailSessionFactory
      */
     public interface InboxVisitor
     {
-        /** @return true when visitor also wants to visit mails in INBOX. */
-        boolean visitInbox(Folder inbox) throws Exception;
+        /** @return true when visitor wants to visit mails in INBOX. */
+        boolean visitInbox() throws Exception;
         
-        /** @return true when visitor wants to visit the next mail in INBOX. */
+        /**
+         * For each mail in INBOX, this method is called with
+         * mails sorted by age, newest first, oldest last.
+         * @return true when visitor wants to visit the next mail in INBOX.
+         */
         boolean visitMail(Message mail) throws Exception;
     }
     
@@ -50,7 +54,7 @@ public class ReceiveConnection extends MailSessionFactory
             inbox = store.getFolder("INBOX");
             inbox.open(Folder.READ_WRITE);
             
-            if (inboxVisitor.visitInbox(inbox)) {
+            if (inboxVisitor.visitInbox()) {
                 final int messageCount = inbox.getMessageCount();
                 boolean nextPlease = true;
                 
@@ -81,7 +85,7 @@ public class ReceiveConnection extends MailSessionFactory
                 inbox.close(true); // true: expunge DELETED messages
         }
         catch (Exception e) { // ignore
-            System.err.println("INBOX close failed: "+e.toString());
+            System.err.println("ERROR: INBOX close failed with "+e.toString());
         }
         
         try {
@@ -89,7 +93,7 @@ public class ReceiveConnection extends MailSessionFactory
                 store.close();
         }
         catch (Exception e) { // ignore
-            System.err.println("Store close failed: "+e.toString());
+            System.err.println("ERROR: Store close failed with "+e.toString());
         }
     }
 }

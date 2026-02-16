@@ -191,7 +191,9 @@ public class Context
     /** 'Home Again' button pushed in OnTheWay state. */
     public void comingHomeTooLate() {
         stop();
-        System.out.println("You are back too late, it is "+DateUtil.nowString()+". Mail has been sent to contact(s).");
+        System.out.println(
+                "You are back too late, it is "+DateUtil.nowString()+
+                ". Mail has been sent already to "+contactIndex+" contact(s).");
     }
 
     
@@ -217,7 +219,7 @@ public class Context
                     activationTime);
         }
         catch (MailReceiveException e) {
-            System.err.println("Finding set-off response failed at "+DateUtil.nowString()+", error: "+e.toString());
+            System.err.println("ERROR: failed to find set-off response, at "+DateUtil.nowString()+", error: "+e.toString());
             return false;
         }
     }

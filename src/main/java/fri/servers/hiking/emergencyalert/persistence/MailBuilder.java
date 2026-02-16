@@ -138,10 +138,15 @@ public class MailBuilder
     private void footer(Hike hike, final StringBuilder textBuilder) {
         textBuilder.append("\n----------------------------------------\n");
         textBuilder.append(hike.getAlert().getNameOfHiker()+"\n"); // never null
-        if (StringUtil.isNotEmpty(hike.getAlert().getAddressOfHiker()))
-            textBuilder.append(hike.getAlert().getAddressOfHiker()+"\n");
-        if (StringUtil.isNotEmpty(hike.getAlert().getMailConfiguration().getMailFromAddress()))
-            textBuilder.append(hike.getAlert().getMailConfiguration().getMailFromAddress());
+        
+        final String addressOfHiker = hike.getAlert().getAddressOfHiker();
+        if (StringUtil.isNotEmpty(addressOfHiker))
+            textBuilder.append(addressOfHiker+"\n");
+        
+        final String mailFromAddress = hike.getAlert().getMailConfiguration().getMailFromAddress();
+        if (StringUtil.isNotEmpty(mailFromAddress))
+            textBuilder.append(mailFromAddress);
+        
         footerBottom(textBuilder);
     }
     

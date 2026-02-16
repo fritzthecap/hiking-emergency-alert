@@ -9,7 +9,6 @@ import fri.servers.hiking.emergencyalert.persistence.Mail;
 import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 import jakarta.mail.Authenticator;
-import jakarta.mail.Folder;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 
@@ -46,22 +45,23 @@ public class InboxVisitorConnection extends ReceiveConnection implements InboxVi
         return found;
     }
     
-    // visitor
-    
+    /** Implements InboxVisitor and always returns true. */
     @Override
-    public boolean visitInbox(Folder inbox) throws Exception {
-        return true;// continue to mail messages
+    public boolean visitInbox() throws Exception {
+        return true; // continue to mail messages
     }
     
+    /** Implements InboxVisitor to search for an alert-confirmation mail. */
     @Override
     public boolean visitMail(Message message) throws Exception {
         final Date sentDate = DateUtil.eraseMilliseconds(message.getSentDate());
+        final boolean interesting = sentDate.after(minimumSentTime);
         
-        if (sentDate.after(minimumSentTime)) { // must be a new mail
+        if (interesting) { // must be a new mail
             final String messageId = MessageUtil.messageId(message);
             final String text = MessageUtil.textContent(message); // fetches text also from attached mails
             
-            if (isAlertConfirmation(sentDate, messageId, text) && 
+            if (containsMailIdAndWasNotSelfSent(sentDate, messageId, text) && 
                     MessageUtil.isDeliveryFailedMail(message) == false)
             {
                 found = new Mail(
@@ -69,31 +69,16 @@ public class InboxVisitorConnection extends ReceiveConnection implements InboxVi
                             message.getSubject(), 
                             sentDate);
                 processFoundMessage(message);
+                
                 return false; // breaks mail loop
             }
         }
-        return true; // continues mail loop
+        
+        return interesting; // true continues mail loop, false breaks it
     }
 
-    /**
-     * Deletes given message when its "From" is the hiker's "From", else does nothing.
-     * @param message the found message with uniqueMailId,
-     *      while still being in receive-loop with an open message store.
-     */
-    protected void processFoundMessage(Message message) {
-        try {
-            final String messageFrom = MessageUtil.from(message);
-            final String hikerFrom = mailConfiguration.getMailFromAddress();
-            if (hikerFrom.equalsIgnoreCase(messageFrom))
-                MessageUtil.deleteMessage(message);
-        }
-        catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    
-    private boolean isAlertConfirmation(Date sentDate, String messageId, String text) {
+    private boolean containsMailIdAndWasNotSelfSent(Date sentDate, String messageId, String text) {
         if (text.contains(uniqueMailId) == false)
             return false; // uniqueMailId is NOT in text
         
@@ -107,5 +92,22 @@ public class InboxVisitorConnection extends ReceiveConnection implements InboxVi
             }
         
         return true; // found alert-confirmation
+    }
+    
+    /**
+     * Deletes given message when its "From" is the hiker's "From", else does nothing.
+     * @param message the found message with uniqueMailId,
+     *      while still being in receive-loop with an open message store.
+     */
+    private void processFoundMessage(Message message) {
+        try {
+            final String messageFrom = MessageUtil.from(message);
+            final String hikerFrom = mailConfiguration.getMailFromAddress();
+            if (hikerFrom.equalsIgnoreCase(messageFrom))
+                MessageUtil.deleteMessage(message);
+        }
+        catch (MessagingException e) {
+            System.err.println("ERROR: Could not delete message, error was "+e.toString());
+        }
     }
 }
