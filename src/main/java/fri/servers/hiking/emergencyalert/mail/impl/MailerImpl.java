@@ -15,7 +15,6 @@ import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 import jakarta.mail.Authenticator;
-import jakarta.mail.Message;
 
 public class MailerImpl implements Mailer
 {
@@ -77,14 +76,8 @@ public class MailerImpl implements Mailer
                 authenticator,
                 uniqueMailId,
                 sentAfterDate,
-                alertSendResults)
-        {
-            @Override
-            protected void processFoundMessage(Message message) {
-                MessageUtil.deleteMessage(message);
-            }
-        };
-        final Mail setOffResponse = receiveConnection.searchAlertConfirmation();
+                alertSendResults);
+        final Mail setOffResponse = receiveConnection.searchExternalMailHavingMailId();
         return (setOffResponse != null);
     }
     

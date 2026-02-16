@@ -53,15 +53,18 @@ public class ReceiveConnection extends MailSessionFactory
             if (inboxVisitor.visitInbox(inbox)) {
                 final int messageCount = inbox.getMessageCount();
                 boolean nextPlease = true;
-                for (int i = 0; nextPlease && i < messageCount; i++) // use indexes to avoid bulk mail loading
-                    nextPlease = inboxVisitor.visitMail(inbox.getMessage(i + 1)); // messages start at index 1
+                
+                // use indexes to avoid bulk mail loading
+                // mails are counted from 1 to n, 1 is oldest, n is newest
+                for (int i = messageCount; nextPlease && i > 0; i--)
+                    nextPlease = inboxVisitor.visitMail(inbox.getMessage(i));
             }
         }
         catch (Exception e) {
             exception = e;
         }
         finally {
-            closeInboxAndStore(store, inbox);
+            closeInboxAndStore(inbox, store);
         }
         
         if (exception != null)
@@ -72,7 +75,7 @@ public class ReceiveConnection extends MailSessionFactory
         return sessionAndAuth;
     }
 
-    private void closeInboxAndStore(Store store, Folder inbox) {
+    private void closeInboxAndStore(Folder inbox, Store store) {
         try {
             if (inbox != null)
                 inbox.close(true); // true: expunge DELETED messages

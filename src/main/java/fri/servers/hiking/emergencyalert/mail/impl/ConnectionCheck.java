@@ -40,7 +40,7 @@ public class ConnectionCheck extends InboxVisitorConnection
     public boolean trySendAndReceive() throws MailException {
         this.authenticator = checkInbox();
         
-        sendTestMail(authenticator);
+        sendTestMail();
         
         return receiveAndDeleteTestMail();
     }
@@ -50,12 +50,6 @@ public class ConnectionCheck extends InboxVisitorConnection
         return authenticator;
     }
     
-    
-    /** Delete the test-mail when found. */
-    @Override
-    protected void processFoundMessage(Message message) {
-        MessageUtil.deleteMessage(message);
-    }
     
     /** Factory method for SendConnection, to be overridden by unit-tests. */
     protected SendConnection newSendConnection(MailConfiguration mailConfiguration, Authenticator authenticator) {
@@ -84,7 +78,7 @@ public class ConnectionCheck extends InboxVisitorConnection
         return sessionAndAuth.authenticator();    
     }
 
-    private SendResult sendTestMail(Authenticator authenticator) throws MailSendException {
+    private SendResult sendTestMail() throws MailSendException {
         System.out.println("Now sending a test-mail ...");
         
         final String from = mailConfiguration.getMailFromAddress();
@@ -111,7 +105,7 @@ public class ConnectionCheck extends InboxVisitorConnection
         for (int done = 0; success == false && done <= maximumSeconds; done += sleepSeconds) {
             System.out.println("    ... Receive attempt at "+DateUtil.nowString(true));
             
-            success = (searchAlertConfirmation() != null); // searches for mail text containing uniqueMailId
+            success = (searchExternalMailHavingMailId() != null); // searches for mail text containing uniqueMailId
             
             if (success == false)
                 try { Thread.sleep(sleepSeconds * 1000); } catch (InterruptedException e) {}

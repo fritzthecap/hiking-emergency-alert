@@ -11,6 +11,7 @@ import fri.servers.hiking.emergencyalert.util.DateUtil;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
 
 public class InboxVisitorConnection extends ReceiveConnection implements InboxVisitor
 {
@@ -40,7 +41,7 @@ public class InboxVisitorConnection extends ReceiveConnection implements InboxVi
      * @return mail-information, or null if no mail found.
      * @throws MailReceiveException when mail connection fails.
      */
-    public Mail searchAlertConfirmation() throws MailReceiveException {
+    public Mail searchExternalMailHavingMailId() throws MailReceiveException {
         receive(this);
         return found;
     }
@@ -75,11 +76,20 @@ public class InboxVisitorConnection extends ReceiveConnection implements InboxVi
     }
 
     /**
-     * Does nothing, to be overridden for optional deletion of the message.
+     * Deletes given message when its "From" is the hiker's "From", else does nothing.
      * @param message the found message with uniqueMailId,
      *      while still being in receive-loop with an open message store.
      */
     protected void processFoundMessage(Message message) {
+        try {
+            final String messageFrom = MessageUtil.from(message);
+            final String hikerFrom = mailConfiguration.getMailFromAddress();
+            if (hikerFrom.equalsIgnoreCase(messageFrom))
+                MessageUtil.deleteMessage(message);
+        }
+        catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     
