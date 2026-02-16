@@ -281,6 +281,7 @@ public abstract class AbstractWizardPage
      */
     private boolean saveHikeToFile(boolean letChooseTargetFile) {
         final File hikeFile = trolley.getHikeFile();
+        final boolean alreadyChosenFile = (hikeFile != null);
         final HikeFileManager hikeFileManager = new HikeFileManager();
         final File targetFile;
         
@@ -290,15 +291,22 @@ public abstract class AbstractWizardPage
                 return false;
         }
         else {
-            targetFile = (hikeFile != null) ? hikeFile : null;
+            targetFile = alreadyChosenFile ? hikeFile : null;
         }
         
         try {
+            setWaitCursor();
             final File actualFile = trolley.save(hikeFileManager, targetFile, getHike());
-            return showSaveSuccessDialog(actualFile, hikeFileManager);
+            if (alreadyChosenFile == false) // show chosen file name and path
+                showSaveSuccessDialog(actualFile, hikeFileManager);
+            return true;
         }
         catch (Exception e) {
-            return showSaveErrorDialog(e);
+            showSaveErrorDialog(e);
+            return false;
+        }
+        finally {
+            setDefaultCursor();
         }
     }
 
@@ -324,7 +332,7 @@ public abstract class AbstractWizardPage
         return new File(directory, customName);
     }
 
-    private boolean showSaveSuccessDialog(File saveFile, HikeFileManager hikeFileManager) {
+    private void showSaveSuccessDialog(File saveFile, HikeFileManager hikeFileManager) {
         final JTextField fileNameField = SwingUtil.buildTextField(i18n("File Name"), null, saveFile.getName());
         fileNameField.setEditable(false);
         final JTextField pathField = SwingUtil.buildTextField(i18n("Path"), null, saveFile.getParent());
@@ -339,16 +347,14 @@ public abstract class AbstractWizardPage
                 panel,
                 i18n("Success"),
                 JOptionPane.INFORMATION_MESSAGE);
-        return true;
     }
     
-    private boolean showSaveErrorDialog(Exception e) {
+    private void showSaveErrorDialog(Exception e) {
         JOptionPane.showMessageDialog(
                 getFrame(),
                 e.toString(),
                 i18n("Error"),
                 JOptionPane.ERROR_MESSAGE);
-        return false;
     }
     
     private void ensureSaveButton() { /// called from enter()
