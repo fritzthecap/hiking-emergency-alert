@@ -5,7 +5,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
@@ -21,7 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
@@ -296,9 +294,7 @@ public abstract class AbstractWizardPage
         
         try {
             setWaitCursor();
-            final File actualFile = trolley.save(hikeFileManager, targetFile, getHike());
-            if (alreadyChosenFile == false) // show chosen file name and path
-                showSaveSuccessDialog(actualFile, hikeFileManager);
+            trolley.save(hikeFileManager, targetFile, getHike());
             return true;
         }
         catch (Exception e) {
@@ -332,23 +328,6 @@ public abstract class AbstractWizardPage
         return new File(directory, customName);
     }
 
-    private void showSaveSuccessDialog(File saveFile, HikeFileManager hikeFileManager) {
-        final JTextField fileNameField = SwingUtil.buildTextField(i18n("File Name"), null, saveFile.getName());
-        fileNameField.setEditable(false);
-        final JTextField pathField = SwingUtil.buildTextField(i18n("Path"), null, saveFile.getParent());
-        pathField.setEditable(false);
-        
-        final JPanel panel = new JPanel(new GridLayout(2, 1));
-        panel.add(fileNameField);
-        panel.add(pathField);
-        
-        JOptionPane.showMessageDialog(
-                getFrame(),
-                panel,
-                i18n("Success"),
-                JOptionPane.INFORMATION_MESSAGE);
-    }
-    
     private void showSaveErrorDialog(Exception e) {
         JOptionPane.showMessageDialog(
                 getFrame(),

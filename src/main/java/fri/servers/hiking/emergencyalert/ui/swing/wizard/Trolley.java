@@ -115,22 +115,18 @@ public class Trolley
      * @param hike the hike to save as JSON.
      * @return the file where hike was written to.
      */
-    public File save(HikeFileManager hikeFileManager, File targetFile, Hike hike) throws Exception {
+    public void save(HikeFileManager hikeFileManager, File targetFile, Hike hike) throws Exception {
         final String json = hikeToJsonString(hike);
-        final File actualFile;
         
         if (targetFile != null) { // user explicitly chose a file
             hikeFileManager.save(targetFile.getAbsolutePath(), json);
-            setHikeFile(actualFile = targetFile); // make the explicitly chosen file the file for future saves
+            setHikeFile(targetFile); // make the explicitly chosen file the file for future saves
         }
         else {
-            hikeFileManager.save(json);
-            actualFile = new File(hikeFileManager.getSavePathFile());
+            hikeFileManager.save(json); // to default file
         }
         
         refreshHikeCopy(); // refresh change-detection with current persistence-state
-        
-        return actualFile;
     }
     
     private String hikeToJsonString(Hike hike) {
