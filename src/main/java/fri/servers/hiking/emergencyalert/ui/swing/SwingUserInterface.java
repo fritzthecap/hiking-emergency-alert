@@ -1,15 +1,15 @@
 package fri.servers.hiking.emergencyalert.ui.swing;
 
-import java.awt.Font;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.persistence.Mail;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 import jakarta.mail.Authenticator;
 
+/**
+ * Basic user-interface providing an interactive mail <code>Authenticator</code>
+ * but nothing else.
+ */
 public class SwingUserInterface extends UserInterface
 {
     protected final JFrame frame;
@@ -35,23 +35,12 @@ public class SwingUserInterface extends UserInterface
         return null;
     }
 
-    /** Called by StateMachine, shows a possible contact confirmation mail in a dialog. */
+    /** Called by StateMachine, renders the contact confirmation mail. */
     @Override
     public void showConfirmMail(final Mail alertConfirmationMail) {
-        SwingUtilities.invokeLater(() -> {
-            final String mailInfoText = 
-                    alertConfirmationMail.from()+"\n"+
-                    DateUtil.toString(alertConfirmationMail.sent(), true);
-            
-            final JTextArea mailInfoComponent = new JTextArea(mailInfoText);
-            mailInfoComponent.setEditable(false);
-            mailInfoComponent.setFont(new Font(Font.MONOSPACED, Font.BOLD, 15));
-            
-            JOptionPane.showMessageDialog(
-                    frame, 
-                    mailInfoComponent, 
-                    "Alert Confirmation Arrived", 
-                    JOptionPane.INFORMATION_MESSAGE);
-             });
+        System.out.println(
+                "Alert Confirmation Mail:\n"+
+                "    "+alertConfirmationMail.from()+"\n"+
+                "    "+DateUtil.toString(alertConfirmationMail.sent(), true));
    }
 }
