@@ -21,10 +21,10 @@ public class Hike
     private final transient Date suggestedEnd = DateUtil.addHours(suggestedStart, 12);
     
     // properties visible in JSON
-    private String route; // description text
-    private List<String> routeImages = new ArrayList<>(); // paths of image files
     private Date plannedBegin = suggestedStart;
     private Date plannedHome = suggestedEnd; // timer begins alerting here
+    private String route; // description text
+    private List<String> routeImages = new ArrayList<>(); // paths of image files
     private Alert alert = new Alert();
     
     public String getRoute() {

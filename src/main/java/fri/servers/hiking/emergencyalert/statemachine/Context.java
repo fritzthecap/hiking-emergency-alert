@@ -101,17 +101,9 @@ public class Context
             throw new RuntimeException(e); // assuming user is still at the computer and sees the error
         }
         
-        activationOutputs();
+        activationOutputs(); // just once per hike
         
-        activationTime = DateUtil.now();
-        
-        sendSetOffMessage();
-        
-        timer.start(
-                hike.getPlannedBegin(),
-                hike.getPlannedHome(), 
-                new IntervalModel(hike),
-                stateMachine);
+        timerStart(hike.getPlannedBegin(), hike.getPlannedHome());
     }
 
     /** @return true when timer is running, i.e. ACTIVATION already took place. */
@@ -192,7 +184,19 @@ public class Context
                 ". Mail has been sent already to "+contactIndex+" contact(s).");
     }
 
-
+    
+    private void timerStart(Date plannedBegin, Date plannedHome) {
+        activationTime = DateUtil.now();
+        
+        sendSetOffMessage();
+        
+        timer.start(
+                plannedBegin,
+                plannedHome,
+                new IntervalModel(hike),
+                stateMachine);
+    }
+    
     private void sendSetOffMessage() {
         System.out.println("Trying to send set-off mail at "+DateUtil.nowString());
         try {

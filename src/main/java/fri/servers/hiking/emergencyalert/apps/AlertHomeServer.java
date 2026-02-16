@@ -91,8 +91,8 @@ public class AlertHomeServer
             new SwingAlertHomeServer().show(title);
             // complete UserInterface to edit and run Hike
         else
-            run(hikeJson, new SwingUserInterface());
-            // minimal UserInterface with interactive password dialog
+            runWithMinimalUi(hikeJson, new SwingUserInterface());
+            // minimal = interactive password dialog
     }
 
     /**
@@ -101,7 +101,7 @@ public class AlertHomeServer
      *      serve as password authenticator and alert-confirmation notifier.
      * @throws IOException when JSON is invalid.
      */
-    private void run(String hikeJson, UserInterface user) throws IOException {
+    private void runWithMinimalUi(String hikeJson, UserInterface user) throws IOException {
         // read hike data
         final Hike hike = new JsonGsonSerializer<Hike>().fromJson(hikeJson, Hike.class);
         
