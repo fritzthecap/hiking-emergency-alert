@@ -71,7 +71,7 @@ public class MailerImpl implements Mailer
             String uniqueMailId, 
             Date sentAfterDate) throws MailReceiveException
     {
-        final InboxVisitorConnection receiveConnection = new InboxVisitorConnection(
+        final InboxVisitorConnection receiveConnection = newInboxVisitorConnection(
                 mailConfiguration, 
                 authenticator,
                 uniqueMailId,
@@ -128,6 +128,23 @@ public class MailerImpl implements Mailer
     protected SendConnection newSendConnection(MailConfiguration mailConfiguration, Authenticator authenticator) {
         return new SendConnection(mailConfiguration, authenticator);
     }
+    
+    /** Factory method for InboxVisitorConnection, to be overridden by unit-tests. */
+    protected InboxVisitorConnection newInboxVisitorConnection(
+            MailConfiguration mailConfiguration,
+            Authenticator authenticator, 
+            String uniqueMailId, 
+            Date sentAfterDate, 
+            Set<SendConnection.SendResult> sendResultsLive)
+    {
+        return new InboxVisitorConnection(
+                mailConfiguration,
+                authenticator, 
+                uniqueMailId, 
+                sentAfterDate, 
+                sendResultsLive);
+    }
+
     
     /**
      * Responsibility of <code>alertSendResults</code> in polling:

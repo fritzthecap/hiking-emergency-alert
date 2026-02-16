@@ -63,21 +63,12 @@ public class GreenmailTestMailer extends MailerImpl
                     Date pollingStartTime,
                     Set<SendResult> sendResultsLive)
             {
-                return new InboxVisitorConnection(
+                return GreenmailTestMailer.this.newInboxVisitorConnection(
                         mailConfiguration,
                         authenticator, 
                         uniqueMailId,
                         pollingStartTime,
-                        sendResultsLive)
-                {
-                    @Override
-                    protected SessionWithAuthenticator newSession(
-                            MailConfiguration mailConfiguration, 
-                            Authenticator authenticatorOrNull,
-                            boolean send) {
-                        return newReceiveSession();
-                    }
-                };
+                        sendResultsLive);
             }
             
             @Override
@@ -100,6 +91,32 @@ public class GreenmailTestMailer extends MailerImpl
             }
         };
     }
+    
+    @Override
+    protected InboxVisitorConnection newInboxVisitorConnection(
+            MailConfiguration mailConfiguration,
+            Authenticator authenticator, 
+            String uniqueMailId, 
+            Date sentAfterDate, 
+            Set<SendResult> sendResultsLive)
+    {
+        return new InboxVisitorConnection(
+                mailConfiguration,
+                authenticator, 
+                uniqueMailId,
+                sentAfterDate,
+                sendResultsLive)
+        {
+            @Override
+            protected SessionWithAuthenticator newSession(
+                    MailConfiguration mailConfiguration, 
+                    Authenticator authenticatorOrNull,
+                    boolean send) {
+                return newReceiveSession();
+            }
+        };
+    }
+    
     
     private SessionWithAuthenticator newSendSession() {
         return authenticatedSession(ServerSetupTest.SMTP.configureJavaMailSessionProperties(null, false));
