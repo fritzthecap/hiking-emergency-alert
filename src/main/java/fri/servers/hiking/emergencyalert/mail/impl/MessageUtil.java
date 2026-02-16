@@ -64,10 +64,11 @@ public final class MessageUtil
             for (int i = 0; i < deliveryStatus.getRecipientDSNCount(); i++) {
                 final InternetHeaders recipientDSN = deliveryStatus.getRecipientDSN(i);
                 final String[] actionValues = recipientDSN.getHeader("Action");
-                if (actionValues.length > 0 && 
-                        actionValues[0] != null && 
-                        "failed".equals(actionValues[0].toLowerCase()))
-                    return true;
+                if (actionValues.length > 0 && actionValues[0] != null) {
+                    final String value = actionValues[0].toLowerCase();
+                    if ("failed".equals(value) || "delayed".equals(value))
+                        return true;
+                }
             }
         }
         return false;
