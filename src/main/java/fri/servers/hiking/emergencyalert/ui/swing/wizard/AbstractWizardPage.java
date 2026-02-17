@@ -11,6 +11,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.io.File;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Consumer;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -22,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
+import fri.servers.hiking.emergencyalert.persistence.entities.Day;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.ui.swing.util.FileChooser;
@@ -216,17 +218,19 @@ public abstract class AbstractWizardPage
     }
 
     /** Reused logic to verify hike times. */
-    protected String validateHikeTimes(Date beginDateTime, Date homeDateTime) {
+    protected String validateHikeTimes(Date beginDateTime, List<Day> days) {
         final Date now = DateUtil.now();
         
-        final long millisInFuture = homeDateTime.getTime() - now.getTime();
-        if (millisInFuture / 60000 < 1) // home must be at least one minute after now
-            return i18n("The planned end time must be in future!");
-        
-        if (beginDateTime != null) {
-            final long durationMillis = homeDateTime.getTime() - beginDateTime.getTime();
-            if (durationMillis / 60000 < 1) // duration must be at least one minute 
-                return i18n("The planned end time must be after begin!");
+        for (Day day : days) {
+            final long millisInFuture = day.getPlannedHome().getTime() - now.getTime();
+            if (millisInFuture / 60000 < 1) // home must be at least one minute after now
+                return i18n("The planned end time must be in future!");
+            
+            if (beginDateTime != null) {
+                final long durationMillis = day.getPlannedHome().getTime() - beginDateTime.getTime();
+                if (durationMillis / 60000 < 1) // duration must be at least one minute 
+                    return i18n("The planned end time must be after begin!");
+            }
         }
         
         return null;
@@ -322,7 +326,9 @@ public abstract class AbstractWizardPage
 
     private File createFilenameFromHike(String directory, String saveFilename) {
         final String baseName = saveFilename.substring(0, saveFilename.lastIndexOf("."));
-        final Date day = (getHike().getPlannedBegin() != null) ? getHike().getPlannedBegin() : getHike().getPlannedHome();
+        final Date day = (getHike().getPlannedBegin() != null) 
+                ? getHike().getPlannedBegin()
+                : getHike().currentDay().getPlannedHome();
         final String beginDay = DateUtil.toDateString(day);
         final String customName = baseName+"_"+beginDay+".json";
         return new File(directory, customName);

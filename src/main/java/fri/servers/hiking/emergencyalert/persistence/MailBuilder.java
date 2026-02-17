@@ -61,7 +61,7 @@ public class MailBuilder
     public Mail buildAlertMail() {
         final String subject = subject();
         final String text = buildAlertMailText(hike, contact);
-        final List<File> attachments = buildAttachments(hike.getRouteImages());
+        final List<File> attachments = buildAttachments(hike.currentDay().getRouteImages());
         
         return new Mail(from(), to(), subject, text, CONTENT_TYPE, attachments, null);
     }
@@ -108,8 +108,8 @@ public class MailBuilder
             textBuilder.append("\n");
         }
         
-        if (hike.getRoute() != null)
-            textBuilder.append("Route:\n"+hike.getRoute()+"\n");
+        if (hike.currentDay().getRoute() != null)
+            textBuilder.append("Route:\n"+hike.currentDay().getRoute()+"\n");
         
         footer(hike, textBuilder);
         
@@ -166,7 +166,7 @@ public class MailBuilder
                 .replace(MACRO_ME, hike.getAlert().getNameOfHiker()) // never null
                 .replace(MACRO_MY_PHONE, StringUtil.isNotEmpty(phoneNumber) ? phoneNumber : "")
                 .replace(MACRO_BEGIN_TIME, plannedBegin)
-                .replace(MACRO_END_TIME, DateUtil.toString(hike.getPlannedHome())); // never null
+                .replace(MACRO_END_TIME, DateUtil.toString(hike.currentDay().getPlannedHome())); // never null
     }
 
     private String getContactName(Contact contact) {

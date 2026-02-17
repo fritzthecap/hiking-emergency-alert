@@ -1,10 +1,14 @@
 {
-  "route": "From Mount Everest to Kilimanjaro via Antarctica.",
-  "routeImages": [
-    "/media/images/planned-routes/everest-to-kilimanjaro.png"
-  ],
   "plannedBegin": "2026-01-13 08:00",
-  "plannedHome": "2026-01-13 08:01",
+  "days": [
+    {
+      "plannedHome": "2026-01-13 08:01",
+      "route": "From Mount Everest to Kilimanjaro via Antarctica.",
+      "routeImages": [
+        "/media/images/planned-routes/everest-to-kilimanjaro.png"
+      ]
+    }
+  ],
   "alert": {
     "helpRequestSubject": "Hiking emergency - I need help!",
     "helpRequestIntroduction": "I had an accident while hiking and need help. Below you find a description of my planned route.",

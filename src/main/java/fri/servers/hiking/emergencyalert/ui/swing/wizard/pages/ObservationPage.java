@@ -17,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import fri.servers.hiking.emergencyalert.persistence.HikeFactory;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.ui.swing.Log;
@@ -115,7 +116,7 @@ public class ObservationPage extends AbstractWizardPage
     @Override
     protected void populateUi(Hike hike) {
         final String plannedBegin = (hike.getPlannedBegin() != null) ? DateUtil.toString(hike.getPlannedBegin()) : "";
-        final String plannedHome = DateUtil.toString(hike.getPlannedHome());
+        final String plannedHome = DateUtil.toString(hike.lastDay().getPlannedHome());
         
         final String instructions = 
                 i18n("This window can be closed only by the 'Home Again' button.")+"\n"+
@@ -231,13 +232,11 @@ public class ObservationPage extends AbstractWizardPage
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE))
         {
-            final Hike oldHike = getHike();
-            final Hike newHike = new Hike(); // new Hike contains no route yet!
-            newHike.setAlert(oldHike.getAlert());
+            final Hike newHike = new HikeFactory().newHike(getHike());
             
             getStateMachine().getUserInterface().registerHike(newHike);
             
-            getTrolley().gotoPage(RouteAndTimesPage.class); // go back to "Route" page
+            getTrolley().gotoPage(RouteAndTimesPage.class); // go back to RouteAndTimesPage
             getTrolley().setHikeFile(null); // forget old file name
         }
     }

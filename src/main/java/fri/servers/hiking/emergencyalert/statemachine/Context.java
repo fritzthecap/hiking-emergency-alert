@@ -106,7 +106,7 @@ public class Context
         final Date begin = hike.getPlannedBegin();
         timerStart(
                 (begin != null) ? begin : DateUtil.now(), // make sure SET_OFF event is fired
-                hike.getPlannedHome());
+                hike.currentDay().getPlannedHome());
     }
 
     /** @return true when timer is running, i.e. ACTIVATION already took place. */
@@ -276,7 +276,7 @@ public class Context
     private void activationOutputs() {
         if (hike.getPlannedBegin() != null)
             System.out.println("Planned hike set-off is "+DateUtil.toString(hike.getPlannedBegin()));
-        System.out.println("Emergency alerts will start at "+DateUtil.toString(hike.getPlannedHome()));
+        System.out.println("Emergency alerts would start at "+DateUtil.toString(hike.currentDay().getPlannedHome()));
         System.out.println("Do NOT terminate this application before you are back!");
         System.out.println("Wish you luck, please click 'Home Again' as soon as you are back.");
     }

@@ -23,8 +23,8 @@ public class TestData
     private Hike buildHike() {
         final Hike hike = new Hike();
         
-        hike.setRoute("From Mount Everest to Kilimanjaro via Antarctica");
-        hike.setRouteImages(List.of("C:\\hikes\\maps\\everest-to-kilimanjaro.png"));
+        hike.currentDay().setRoute("From Mount Everest to Kilimanjaro via Antarctica");
+        hike.currentDay().setRouteImages(List.of("C:\\hikes\\maps\\everest-to-kilimanjaro.png"));
         
         hike.getAlert().setAlertIntervalMinutes(60);
         hike.getAlert().setConfirmationPollingMinutes(2);
@@ -34,7 +34,7 @@ public class TestData
                     DateUtil.addMinutes(DateUtil.now(), 1)); // begin must be at least 1 minute in future
         final Date plannedHome = DateUtil.addMinutes(plannedBegin, 1);
         hike.setPlannedBegin(plannedBegin);
-        hike.setPlannedHome(plannedHome);
+        hike.currentDay().setPlannedHome(plannedHome);
         
         hike.setAlert(buildAlert());
         

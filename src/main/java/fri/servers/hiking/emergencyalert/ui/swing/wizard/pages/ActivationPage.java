@@ -131,7 +131,7 @@ public class ActivationPage extends AbstractWizardPage
     @Override
     protected void populateUi(Hike hike) {
         final String plannedBegin  = (hike.getPlannedBegin() != null) ? DateUtil.toString(hike.getPlannedBegin()) : "";
-        final String plannedEnd = DateUtil.toString(hike.getPlannedHome());
+        final String plannedEnd = DateUtil.toString(hike.lastDay().getPlannedHome());
         
         hikeTimes.setText(plannedBegin+"  \u2192  "+plannedEnd);
         
@@ -166,7 +166,7 @@ public class ActivationPage extends AbstractWizardPage
     @Override
     protected String validateFields() {
         final Hike hike = getHike();
-        return validateHikeTimes(hike.getPlannedBegin(), hike.getPlannedHome());
+        return validateHikeTimes(hike.getPlannedBegin(), hike.getDays());
     }
     
     @Override
@@ -206,7 +206,7 @@ public class ActivationPage extends AbstractWizardPage
     
     private String buildContactsAndTimesInfos(Hike hike) {
         final List<Contact> contacts = hike.getAlert().getNonAbsentContacts();
-        Date alertDate = hike.getPlannedHome();
+        Date alertDate = hike.currentDay().getPlannedHome();
         String currentDay = DateUtil.toDateString(alertDate);
         final StringBuilder contactsText = new StringBuilder(currentDay+"\n"); // first day header
         final IntervalModel intervalModel = new IntervalModel(hike);

@@ -16,38 +16,48 @@ public class HikeFactory
     {
     }
     
+    /** @return a new hike without route and times, created with Alert from given old hike. */
+    public Hike newHike(Hike oldHike) {
+        final Hike newHike = new Hike(); // new Hike contains no route yet!
+        newHike.setAlert(oldHike.getAlert());
+        return newHike;
+    }
+    
+    /** @return a new hike without route and times, either read from persistence or created in memory. */
     public Result newHike() {
         final Result constructResult = constructHike();
         
-        final Hike hike = constructResult.hike();
-        final MailConfiguration mailConfiguration = hike.getAlert().getMailConfiguration();
-        final List<List<String>> customProperties = mailConfiguration.getCustomProperties();
-        
-        // load mail property defaults from System.getProperties()
-        final Properties systemProperties = System.getProperties();
-        for (Object key : systemProperties.keySet()) {
-            if (key instanceof String && ((String) key).startsWith("mail.")) {
-                final String name = (String) key;
-                final String value = systemProperties.getProperty(name);
-                
-                if (name.equals("mail.user"))
-                    mailConfiguration.setMailUser(value);
-                else if (name.equals("mail.transport.protocol"))
-                    mailConfiguration.setSendMailProtocol(value);
-                else if (name.equals("mail.store.protocol"))
-                    mailConfiguration.setReceiveMailProtocol(value);
-                else if (name.equals("mail.smtp.from") || name.equals("mail.smtps.from"))
-                    mailConfiguration.setSendMailFromAccount(value);
-                else if (name.startsWith("mail.smtp") && name.endsWith(".host"))
-                    mailConfiguration.setSendMailHost(value);
-                else if (name.startsWith("mail.smtp") && name.endsWith(".port"))
-                    toInt(value, (Integer port) -> mailConfiguration.setSendMailPort(port));
-                else if ((name.startsWith("mail.imap") || name.startsWith("mail.pop3")) && name.endsWith(".host"))
-                    mailConfiguration.setReceiveMailHost(value);
-                else if ((name.startsWith("mail.imap") || name.startsWith("mail.pop3")) && name.endsWith(".port"))
-                    toInt(value, (Integer port) -> mailConfiguration.setReceiveMailPort(port));
-                else
-                    customProperties.add(List.of(name, value));
+        if (constructResult.fileLoaded() == false) {
+            final Hike hike = constructResult.hike();
+            final MailConfiguration mailConfiguration = hike.getAlert().getMailConfiguration();
+            final List<List<String>> customProperties = mailConfiguration.getCustomProperties();
+            
+            // load mail property defaults from -D options on command-line
+            final Properties systemProperties = System.getProperties();
+            for (Object key : systemProperties.keySet()) {
+                if (key instanceof String && ((String) key).startsWith("mail.")) {
+                    final String name = (String) key;
+                    final String value = systemProperties.getProperty(name);
+                    
+                    if (name.equals("mail.user"))
+                        mailConfiguration.setMailUser(value);
+                    else if (name.equals("mail.transport.protocol"))
+                        mailConfiguration.setSendMailProtocol(value);
+                    else if (name.equals("mail.store.protocol"))
+                        mailConfiguration.setReceiveMailProtocol(value);
+                    else if (name.equals("mail.smtp.from") || name.equals("mail.smtps.from"))
+                        mailConfiguration.setSendMailFromAccount(value);
+                    else if (name.startsWith("mail.smtp") && name.endsWith(".host"))
+                        mailConfiguration.setSendMailHost(value);
+                    else if (name.startsWith("mail.smtp") && name.endsWith(".port"))
+                        toInteger(value, (Integer port) -> mailConfiguration.setSendMailPort(port));
+                    else if ((name.startsWith("mail.imap") || name.startsWith("mail.pop3")) && name.endsWith(".host"))
+                        mailConfiguration.setReceiveMailHost(value);
+                    else if ((name.startsWith("mail.imap") || name.startsWith("mail.pop3")) && name.endsWith(".port"))
+                        toInteger(value, (Integer port) -> mailConfiguration.setReceiveMailPort(port));
+                    else
+                        customProperties.add(List.of(name, value));
+                }
             }
         }
         
@@ -80,7 +90,7 @@ public class HikeFactory
         }
     }
     
-    private void toInt(String intValue, Consumer<Integer> consumer) {
+    private void toInteger(String intValue, Consumer<Integer> consumer) {
         try {
             consumer.accept(Integer.valueOf(intValue));
         }

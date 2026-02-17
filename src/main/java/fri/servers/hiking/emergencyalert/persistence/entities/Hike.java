@@ -22,34 +22,23 @@ public class Hike
     
     // properties visible in JSON
     private Date plannedBegin = suggestedStart;
-    private Date plannedHome = suggestedEnd; // timer begins alerting here
-    private String route; // description text
-    private List<String> routeImages = new ArrayList<>(); // paths of image files
+    
+    private transient int dayIndex; // transient would not get persisted
+    private List<Day> days = new ArrayList<>();
+    
+    {   // make sure there is at least one day in list
+        final Day day = new Day();
+        day.setPlannedHome(suggestedEnd);
+        days.add(day);
+    }
+    
     private Alert alert = new Alert();
     
-    public String getRoute() {
-        return route;
-    }
-    public void setRoute(String route) {
-        this.route = route;
-    }
-    public List<String> getRouteImages() {
-        return routeImages;
-    }
-    public void setRouteImages(List<String> routeImages) {
-        this.routeImages = routeImages;
-    }
     public Date getPlannedBegin() {
         return plannedBegin;
     }
     public void setPlannedBegin(Date plannedBegin) {
         this.plannedBegin = plannedBegin;
-    }
-    public Date getPlannedHome() {
-        return plannedHome;
-    }
-    public void setPlannedHome(Date plannedHome) {
-        this.plannedHome = plannedHome;
     }
     
     public Alert getAlert() {
@@ -57,5 +46,30 @@ public class Hike
     }
     public void setAlert(Alert alert) {
         this.alert = alert;
+    }
+    
+    public List<Day> getDays() {
+        return days;
+    }
+    public void setDays(List<Day> days) {
+        this.days = days;
+    }
+    
+    /** @return true when current day is not the last. */
+    public boolean hasMoreDays() {
+        return dayIndex < days.size() - 1;
+    }
+    /** @return the day at index <code>dayIndex</code>. */
+    public Day currentDay() {
+        return days.get(dayIndex);
+    }
+    /** @return the last day in list. */
+    public Day lastDay() {
+        return days.get(days.size() - 1);
+    }
+    /** Skips current to the next day if there is any. */
+    public void skipDay() {
+        if (hasMoreDays())
+            dayIndex++;
     }
 }

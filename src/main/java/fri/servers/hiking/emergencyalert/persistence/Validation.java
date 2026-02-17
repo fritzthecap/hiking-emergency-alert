@@ -1,7 +1,9 @@
 package fri.servers.hiking.emergencyalert.persistence;
 
 import java.io.File;
+import java.util.Date;
 import java.util.Objects;
+import fri.servers.hiking.emergencyalert.persistence.entities.Day;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
@@ -20,18 +22,31 @@ public class Validation
     public void assertHike(Hike hike) {
         Objects.requireNonNull(hike);
         
-        if (hike.getPlannedHome() == null)
-            throw new IllegalArgumentException(
-                    "Planned end of hike is missing!");
+        for (Day day : hike.getDays()) {
+            final Date plannedHome = day.getPlannedHome();
+            if (plannedHome == null)
+                throw new IllegalArgumentException(
+                        "Planned end of hike is missing!");
+                
+            if (plannedHome.after(DateUtil.now()) == false)
+                throw new IllegalArgumentException(
+                        "Planned end of hike is before current time: "+DateUtil.toString(plannedHome));
+                
+            if (hike.getPlannedBegin() != null && false == plannedHome.after(hike.getPlannedBegin()))
+                throw new IllegalArgumentException(
+                        "The hike's planned begin at "+DateUtil.toString(hike.getPlannedBegin())+
+                        " is not before end at "+DateUtil.toString(plannedHome));
             
-        if (hike.getPlannedHome().after(DateUtil.now()) == false)
-            throw new IllegalArgumentException(
-                    "Planned end of hike is before current time: "+DateUtil.toString(hike.getPlannedHome()));
-            
-        if (hike.getPlannedBegin() != null && false == hike.getPlannedHome().after(hike.getPlannedBegin()))
-            throw new IllegalArgumentException(
-                    "The hike's planned begin at "+DateUtil.toString(hike.getPlannedBegin())+
-                    " is not before end at "+DateUtil.toString(hike.getPlannedHome()));
+            if (StringUtil.isEmpty(day.getRoute()) && day.getRouteImages() == null)
+                throw new IllegalArgumentException(
+                        "The hiking route must be described either as text or by image!");
+                    
+            if (day.getRouteImages() != null)
+                for (String routeImage : day.getRouteImages())
+                    if (new File(routeImage).isFile() == false)
+                        throw new IllegalArgumentException(
+                                "Attachment file not found: "+routeImage);
+        }
             
         if (hike.getAlert().getNonAbsentContacts().size() <= 0)
             throw new IllegalArgumentException(
@@ -52,10 +67,6 @@ public class Validation
                     hike.getAlert().getAlertIntervalMinutes()+" <= "+
                     hike.getAlert().getConfirmationPollingMinutes());
         
-        if (StringUtil.isEmpty(hike.getRoute()) && hike.getRouteImages() == null)
-            throw new IllegalArgumentException(
-                    "The hiking route must be described either as text or by image!");
-                
         if (StringUtil.isEmpty(hike.getAlert().getHelpRequestSubject()))
             throw new IllegalArgumentException(
                     "The subject for the overdue alert must not be empty!");
@@ -68,11 +79,5 @@ public class Validation
         if (hike.getAlert().isUsePassingToNextMail() && StringUtil.isEmpty(hike.getAlert().getPassingToNextText()))
             throw new IllegalArgumentException(
                     "The passing-to-next text must not be empty!");
-                
-        if (hike.getRouteImages() != null)
-            for (String routeImage : hike.getRouteImages())
-                if (new File(routeImage).isFile() == false)
-                    throw new IllegalArgumentException(
-                            "Attachment file not found: "+routeImage);
     }
 }

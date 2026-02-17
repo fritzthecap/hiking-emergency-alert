@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -25,6 +26,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import fri.servers.hiking.emergencyalert.persistence.entities.Day;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.ui.swing.util.FileChooser;
 import fri.servers.hiking.emergencyalert.ui.swing.util.ImageViewer;
@@ -124,13 +126,13 @@ public class RouteAndTimesPage extends AbstractWizardPage
 
     @Override
     protected void populateUi(Hike hike) {
-        if (StringUtil.isNotEmpty(hike.getRoute()))
-            routeField.setText(hike.getRoute());
+        if (StringUtil.isNotEmpty(hike.currentDay().getRoute()))
+            routeField.setText(hike.currentDay().getRoute());
         
         routeImagesField.setModel(buildTableModel()); // remove all rows
         
-        if (hike.getRouteImages() != null)
-            for (String imageFile : hike.getRouteImages())
+        if (hike.currentDay().getRouteImages() != null)
+            for (String imageFile : hike.currentDay().getRouteImages())
                 addRouteImageToTable(imageFile);
         
         if (hike.getPlannedBegin() != null) {
@@ -138,9 +140,9 @@ public class RouteAndTimesPage extends AbstractWizardPage
             plannedBeginTimeField.setDateValue(hike.getPlannedBegin());
         }
         
-        if (hike.getPlannedHome() != null) {
-            plannedHomeDateField.setDateValue(hike.getPlannedHome());
-            plannedHomeTimeField.setDateValue(hike.getPlannedHome());
+        if (hike.currentDay().getPlannedHome() != null) {
+            plannedHomeDateField.setDateValue(hike.currentDay().getPlannedHome());
+            plannedHomeTimeField.setDateValue(hike.currentDay().getPlannedHome());
         }
         else {
             final Date now = DateUtil.now();
@@ -172,7 +174,9 @@ public class RouteAndTimesPage extends AbstractWizardPage
         else
             beginDateTime = null;
         
-        return validateHikeTimes(beginDateTime, homeDateTime);
+        Day day = new Day();
+        day.setPlannedHome(homeDateTime);
+        return validateHikeTimes(beginDateTime, List.of(day));
     }
 
     @Override
@@ -181,13 +185,13 @@ public class RouteAndTimesPage extends AbstractWizardPage
         final Hike hike = getHike();
         
         if (StringUtil.isNotEmpty(routeField.getText()))
-            hike.setRoute(routeField.getText());
+            hike.currentDay().setRoute(routeField.getText());
         
         final Vector<Vector> dataVector = getImagesFromTable();
-        if (hike.getRouteImages() == null)
-            hike.setRouteImages(new ArrayList<>());
+        if (hike.currentDay().getRouteImages() == null)
+            hike.currentDay().setRouteImages(new ArrayList<>());
         else
-            hike.getRouteImages().clear();
+            hike.currentDay().getRouteImages().clear();
         
         for (int row = 0; row < dataVector.size(); row++) {
             final String imageFileName = (String) dataVector.get(row).get(0);
@@ -196,7 +200,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
                     imagePath+
                     (imagePath.endsWith(File.separator) ? "" : File.separator)+
                     imageFileName;
-            hike.getRouteImages().add(filePath);
+            hike.currentDay().getRouteImages().add(filePath);
         }
         
         final Date beginDate = plannedBeginDateField.getDateValue();
@@ -209,7 +213,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
         final Date homeDate = plannedHomeDateField.getDateValue();
         final Date homeTime = plannedHomeTimeField.getDateValue();
         if (homeDate != null && homeTime != null)
-            hike.setPlannedHome(DateUtil.mergeDateAndTime(homeDate, homeTime));
+            hike.currentDay().setPlannedHome(DateUtil.mergeDateAndTime(homeDate, homeTime));
         
         return true;
     }

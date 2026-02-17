@@ -24,7 +24,7 @@ class HikeExampleTest
         final JsonGsonSerializer<Hike> serializer = new JsonGsonSerializer<>();
         final Hike hike = serializer.fromJson(json1, Hike.class);
         
-        assertEquals("From Mount Everest to Kilimanjaro via Antarctica.", hike.getRoute());
+        assertEquals("From Mount Everest to Kilimanjaro via Antarctica.", hike.currentDay().getRoute());
         
         final String json2 = serializer.toJson(hike);
         assertEquals(json1, json2);

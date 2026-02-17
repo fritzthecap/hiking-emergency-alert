@@ -34,7 +34,7 @@ class StateMachineGreenmailTest extends AbstractGreenmailTest
     @Test
     void hikeObservationWithMailsShouldWork() throws Exception {
         final Hike hike = new TestData().newHike();
-        hike.setRouteImages(null); // attachment file would not be found
+        hike.currentDay().setRouteImages(null); // attachment file would not be found
         
         final Mailer mailer = new GreenmailTestMailer(
                 MAIL_USER, 

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import fri.servers.hiking.emergencyalert.persistence.entities.Alert;
 import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
+import fri.servers.hiking.emergencyalert.persistence.entities.Day;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 
 /**
@@ -17,9 +18,15 @@ class AbstractJsonSerializationTest extends TestData
         
         assertEquals(hike.getAlert().getAlertIntervalMinutes(), hikeFromJson.getAlert().getAlertIntervalMinutes());
         assertEquals(hike.getPlannedBegin(), hikeFromJson.getPlannedBegin());
-        assertEquals(hike.getPlannedHome(), hikeFromJson.getPlannedHome());
-        assertEquals(hike.getRoute(), hikeFromJson.getRoute());
-        assertEquals(hike.getRouteImages(), hikeFromJson.getRouteImages());
+        
+        assertEquals(hike.getDays().size(), hikeFromJson.getDays().size());
+        for (int i = 0; i < hike.getDays().size(); i++) {
+            final Day day = hike.getDays().get(i);
+            final Day jsonDay = hikeFromJson.getDays().get(i);
+            assertEquals(day.getPlannedHome(), jsonDay.getPlannedHome());
+            assertEquals(day.getRoute(), jsonDay.getRoute());
+            assertEquals(day.getRouteImages(), jsonDay.getRouteImages());
+        }
         
         assertTestAlert(hike.getAlert(), hikeFromJson.getAlert());
     }

@@ -26,7 +26,7 @@ class StateMachineFakeMailTest
     @Test
     void numberAndContentOfSentMails() throws Exception {
         final Hike hike = new TestData().newHike();
-        hike.setRouteImages(null); // attachment file would not be found
+        hike.currentDay().setRouteImages(null); // attachment file would not be found
         final List<Contact> contacts = hike.getAlert().getAlertContacts();
         final int numberOfContacts = contacts.size();
         
@@ -46,13 +46,13 @@ class StateMachineFakeMailTest
         
         // simulate user-changes during running state-machine
         final Hike changedHike = new TestData().newHike();
-        changedHike.setRouteImages(null); // attachment file would not be found
+        changedHike.currentDay().setRouteImages(null); // attachment file would not be found
         
         // do not change number of contacts, see numberOfContacts above!
         changedHike.getAlert().setAddressOfHiker("Walkerstreet 1, D-1234 Walkertown, Germany");
         user.registerHike(changedHike); // publish alert change
         
-        changedHike.setRoute("From Kilimanjaro to Mount Everest via Greenland");
+        changedHike.currentDay().setRoute("From Kilimanjaro to Mount Everest via Greenland");
         user.activateHike(changedHike); // publish hike change
         
         // from here on timer should spool further events, wait for it to terminate
@@ -65,11 +65,11 @@ class StateMachineFakeMailTest
         
         // assert mail to first contact
         assertEquals(
-                new Mail(contacts.get(0).getMailAddress(), "Alert", changedHike.getRoute()), 
+                new Mail(contacts.get(0).getMailAddress(), "Alert", changedHike.currentDay().getRoute()), 
                 sentMails.get(0));
         // assert mail to second contact
         assertEquals(
-                new Mail(contacts.get(1).getMailAddress(), "Alert", changedHike.getRoute()), 
+                new Mail(contacts.get(1).getMailAddress(), "Alert", changedHike.currentDay().getRoute()), 
                 sentMails.get(1));
         // assert passing-to-next mail to first contact after alert to second contact
         assertEquals(
@@ -93,7 +93,7 @@ class StateMachineFakeMailTest
             @Override
             public void sendAlert(Contact contact, Hike hike) throws MailSendException {
                 sentMails.add(new Mail(
-                        contact.getMailAddress(), "Alert", hike.getRoute()));
+                        contact.getMailAddress(), "Alert", hike.currentDay().getRoute()));
             }
             @Override
             public void sendPassingToNext(Contact previousContact, Hike hike) throws MailSendException {
