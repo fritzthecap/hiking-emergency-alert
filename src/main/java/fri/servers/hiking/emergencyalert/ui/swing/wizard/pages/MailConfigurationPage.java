@@ -193,6 +193,10 @@ public class MailConfigurationPage extends AbstractWizardPage
         sendMailFromAccountField.setText(mailConfiguration.getSendMailFromAccount());
         
         maximumConnectionTestSecondsField.setValue(mailConfiguration.getMaximumConnectionTestSeconds());
+        
+        final boolean valid = (validateFields() == null);
+        mailTestButton.setEnabled(valid);
+        mailPropertiesButton.setEnabled(valid);
     }
     
     @Override
