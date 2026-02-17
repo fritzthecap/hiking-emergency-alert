@@ -1,16 +1,19 @@
 package fri.servers.hiking.emergencyalert.ui.swing;
 
-import java.awt.BorderLayout;
+import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.Component;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import jakarta.mail.Authenticator;
 import jakarta.mail.PasswordAuthentication;
 
@@ -43,7 +46,7 @@ public class InteractiveAuthenticator extends Authenticator
             throw new IllegalArgumentException("Invalid mail host name, or host not reachable!");
         
         // getting interactive ...
-        final String title = "Connecting to "+getRequestingSite().getHostName();
+        final String title = getRequestingSite().getHostName();
         final UI dialog = new UI(getDefaultUserName());
         
         if (dialog.display(parentWindow, title)) {
@@ -66,24 +69,43 @@ public class InteractiveAuthenticator extends Authenticator
         private final JPanel panel;
         
         public UI(String user) {
-            final JPanel left = new JPanel(new GridLayout(2, 1));
-            left.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 4));
-            final JPanel right = new JPanel(new GridLayout(2, 1));
-            final JPanel leftAndRight = new JPanel(new BorderLayout());
-            leftAndRight.add(left, BorderLayout.WEST);
-            leftAndRight.add(right, BorderLayout.CENTER);
-
-            left.add(new JLabel("User"));
             this.usernameField = new JTextField(user);
-            right.add(usernameField);
-
-            left.add(new JLabel("Password"));
-            this.passwordField = new JPasswordField();
-            right.add(passwordField);
-
+            usernameField.setBorder(BorderFactory.createTitledBorder(i18n("User")));
             
-            this.panel = leftAndRight;
-            this.panel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 70));
+            this.passwordField = new JPasswordField();
+            passwordField.setBorder(BorderFactory.createTitledBorder(i18n("Password")));
+
+            final JToggleButton viewPassword = new JToggleButton("\u23FF");
+            viewPassword.setToolTipText(i18n("View"));
+            viewPassword.setBorderPainted(false);
+            
+            viewPassword.addActionListener(new ActionListener() {
+                private int originalEchoChar = -1;
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (originalEchoChar == -1)
+                        originalEchoChar = passwordField.getEchoChar();
+                    
+                    passwordField.setEchoChar((char) 
+                            ((passwordField.getEchoChar() == 0) ? originalEchoChar : 0));
+                }
+            });
+
+            final JPanel panel = new JPanel(new GridBagLayout());
+            final GridBagConstraints cell = new GridBagConstraints();
+            cell.fill = GridBagConstraints.HORIZONTAL;
+            
+            cell.gridx = 0; cell.gridy = 0; cell.gridwidth = 1;
+            panel.add(usernameField, cell);
+
+            cell.gridx = 0; cell.gridy = 1; cell.gridwidth = 1;
+            panel.add(passwordField, cell);
+
+            cell.gridx = 1; cell.gridy = 1; cell.gridwidth = 1;
+            panel.add(viewPassword, cell);
+            
+            this.panel = panel;
         }
 
         public boolean display(Component parent, String title) {
