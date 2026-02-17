@@ -399,7 +399,8 @@ public class MailConfigurationPage extends AbstractWizardPage
             }
         }
         catch (MailException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            System.err.println("Connection failed, error: "+e);
             error = e.getMessage();
         }
         

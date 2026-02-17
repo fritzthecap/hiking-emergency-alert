@@ -45,7 +45,8 @@ public class MailSessionFactory
     }
 
     private void dumpProperties(Properties mailProperties, boolean send) {
-        System.err.println("======================= START MailProperties =======================");
+        final String type = (send ? "Send" : "Receive");
+        System.err.println("======================= START "+type+" MailProperties =======================");
         for (Map.Entry<Object,Object> entry : mailProperties.entrySet()) {
             final String key = (String) entry.getKey();
             
@@ -61,6 +62,6 @@ public class MailSessionFactory
             if (isTimeout == false && (unspecificKey || shouldPrint))
                 System.err.println(key+" = "+entry.getValue());
         }
-        System.err.println("======================= END MailProperties =======================");
+        System.err.println("======================= END "+type+" MailProperties =======================");
     }
 }
