@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,9 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.ToolTipManager;
 import javax.swing.event.MouseInputAdapter;
-import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
-import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
-import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
+import fri.servers.hiking.emergencyalert.persistence.HikeFactory;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingLanguage;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
@@ -109,7 +106,7 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
             }
         });
         
-        // show tooltips for 25 seconds
+        // globally show tooltips for 25 seconds
         ToolTipManager.sharedInstance().setDismissDelay(25000);
     }
 
@@ -125,32 +122,14 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
 
     
     private boolean loadDefaultHike() {
-        final String defaultHikeJson = readDefaultHikeJson();
-        boolean fileLoaded = false;
-        if (defaultHikeJson != null) {
-            try {
-                final Hike recentHike = new JsonGsonSerializer<Hike>().fromJson(defaultHikeJson, Hike.class);
-                final Hike newHike = new Hike(); // do not use recent route and times
-                newHike.setAlert(recentHike.getAlert()); // but reuse contacts and mail configuration
-                
-                stateMachine.getUserInterface().registerHike(newHike);
-                fileLoaded = true;
-            }
-            catch (Exception e) {
-                JOptionPane.showMessageDialog(frame, e.toString());
-            }
-        }
-        return fileLoaded;
-    }
-    
-    private String readDefaultHikeJson() {
-        try {
-            return new HikeFileManager().load();
-        }
-        catch (IOException e) { // ignore missing default file
-            System.err.println(e.getMessage());
-            return null;
-        }
+        final HikeFactory.Result newHikeResult = new HikeFactory().newHike();
+        
+        stateMachine.getUserInterface().registerHike(newHikeResult.hike());
+        
+        if (newHikeResult.jsonException() != null)
+            JOptionPane.showMessageDialog(frame, newHikeResult.jsonException().toString());
+
+        return newHikeResult.fileLoaded();
     }
     
     private void buildUi() {
@@ -251,7 +230,6 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         for (int i = 0; i < pages.length; i++)
             if (pages[i].getClass().equals(requestedPage))
                 return i;
-        
         throw new IllegalArgumentException("Unknown page class: "+requestedPage);
     }
 
