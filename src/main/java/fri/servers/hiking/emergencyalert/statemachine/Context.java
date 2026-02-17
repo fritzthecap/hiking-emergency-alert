@@ -103,10 +103,11 @@ public class Context
         
         activationOutputs(); // just once per hike
         
-        final Date begin = hike.getPlannedBegin();
-        timerStart(
-                (begin != null) ? begin : DateUtil.now(), // make sure SET_OFF event is fired
-                hike.currentDay().getPlannedHome());
+        final Date begin = (hike.getPlannedBegin() != null) 
+                ? hike.getPlannedBegin()
+                : DateUtil.now(); // make sure SET_OFF event is fired
+        final Date home = hike.currentDay().getPlannedHome();
+        timerStart(begin, home);
     }
 
     /** @return true when timer is running, i.e. ACTIVATION already took place. */
@@ -119,6 +120,20 @@ public class Context
         System.out.println("Timer stopped at "+DateUtil.nowString());
         timer.stop();
         mailer.stopConfirmationPolling();
+    }
+    
+    /**
+     * ON_THE_WAY, checks whether hiker has stopped overdue alerts by a set-off response.
+     * Mind that this can be called just once per hike day, because the set-off mail will
+     * be deleted when found.
+     */
+    public boolean alertsStoppedByHiker() {
+        if (findSetOffResponse()) {
+            timerContinue();
+            System.out.println("Hiker stopped alerts by replying to the set-off mail, detected this at "+DateUtil.nowString());
+            return true;
+        }
+        return false;
     }
     
     /**
@@ -135,9 +150,8 @@ public class Context
     public void sendAlertMessage() {
         final List<Contact> alertContacts = hike.getAlert().getNonAbsentContacts();
         final boolean isFirstCall = (contactIndex == 0);
-        final boolean alertsBlockedByHiker = (isFirstCall && findSetOffResponse());
         
-        if (alertsBlockedByHiker == false && alertContacts.size() > contactIndex) { // having a next non-absent contact
+        if (contactIndex < alertContacts.size()) { // having a next non-absent contact
             final Contact previousContact = (isFirstCall ? null : alertContacts.get(contactIndex - 1));
             final Contact currentContact = alertContacts.get(contactIndex);
             
@@ -159,33 +173,28 @@ public class Context
         }
         else { // here it is 1 hour after last contact, it makes no sense to poll anymore
             stop();
-            
-            if (alertsBlockedByHiker)
-                System.out.println("Hiker blocked alerts by replying to the set-off mail, detected this at "+DateUtil.nowString());
-            else
-                System.out.println("Having no more contacts to alert at "+DateUtil.nowString());
-            
-            // TODO: issue #1, check for further hike days 
-            // if (nextDay != null) {
-            //     contactIndex = 0;
-            //     timerStart(null, nextDay.getPlannedHome());
-            // }
+            System.out.println("Having no more contacts to alert at "+DateUtil.nowString());
         }
     }
 
     /** ALERT_CONFIRMED, alert-confirmation mail arrived from polling. */
     public void alertConfirmed() {
         stop();
-        userInterface.showConfirmMail((Mail) eventParameter);
+        
+        final Mail confirmation = (Mail) eventParameter;
+        userInterface.showConfirmMail(confirmation);
+        
+        if (confirmation.from().equalsIgnoreCase(hike.getAlert().getMailConfiguration().getMailFromAddress()))
+            timerContinue(); // was sent by hiker himself, so skip to next day when existing
     }
 
-    /** 'Home Again' button pushed in OverdueAlert state. */
+    /** 'Home Again' button pushed in OnTheWay state. */
     public void comingHomeInTime() {
         stop();
         System.out.println("You are back in time, congratulations! It is "+DateUtil.nowString());
     }
 
-    /** 'Home Again' button pushed in OnTheWay state. */
+    /** 'Home Again' button pushed in OverdueAlert state. */
     public void comingHomeTooLate() {
         stop();
         System.out.println(
@@ -197,7 +206,7 @@ public class Context
     private void timerStart(Date plannedBegin, Date plannedHome) {
         activationTime = DateUtil.now();
         
-        sendSetOffMessage(plannedHome);
+        sendSetOffMessage(plannedHome); // give the hiker a chance to stop alerts before overdue time
         
         timer.start(
                 plannedBegin,
@@ -206,6 +215,17 @@ public class Context
                 stateMachine);
     }
     
+    private void timerContinue() {
+        if (hike.hasMoreDays()) { // check for further hike days, see issue #1 
+            System.out.println("Skipping to next hike day at "+DateUtil.nowString());
+            
+            contactIndex = 0; // reset contact list to head
+            hike.skipDay(); // switch to next hike day
+            
+            timerStart(null, hike.currentDay().getPlannedHome());
+        }
+    }
+
     private void sendSetOffMessage(Date plannedHome) {
         System.out.println("Trying to send set-off mail at "+DateUtil.nowString());
         try {

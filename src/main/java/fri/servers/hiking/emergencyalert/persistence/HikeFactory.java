@@ -18,7 +18,7 @@ public class HikeFactory
     
     /** @return a new hike without route and times, created with Alert from given old hike. */
     public Hike newHike(Hike oldHike) {
-        final Hike newHike = new Hike(); // new Hike contains no route yet!
+        final Hike newHike = new Hike();
         newHike.setAlert(oldHike.getAlert());
         return newHike;
     }
