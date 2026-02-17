@@ -101,7 +101,7 @@ public class MailProperties extends Properties
     private static final List<List<String>> sortedCustomProperties = List.of(
             List.of("mail.debug", "true"),
             
-            List.of("mail.smtp.user", "your name"), // would override "mail.user"
+            List.of("mail.smtp.user", "Your user name for sending"), // would override "mail.user"
             List.of("mail.smtp.auth", "true"), // default is false
             List.of("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory"),
             List.of("mail.smtp.socketFactory.fallback", "false"), // default is true
