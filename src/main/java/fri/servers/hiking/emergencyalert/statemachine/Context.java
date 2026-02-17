@@ -177,15 +177,22 @@ public class Context
         }
     }
 
-    /** ALERT_CONFIRMED, alert-confirmation mail arrived from polling. */
-    public void alertConfirmed() {
+    /**
+     * ALERT_CONFIRMED, alert-confirmation mail arrived from polling.
+     * @return false when mail came from hiker himself and timer continues when more days,
+     *      true when mail came from a contact.
+     */
+    public boolean alertConfirmedByContact() {
         stop();
         
         final Mail confirmation = (Mail) eventParameter;
         userInterface.showConfirmMail(confirmation);
         
-        if (confirmation.from().equalsIgnoreCase(hike.getAlert().getMailConfiguration().getMailFromAddress()))
-            timerContinue(); // was sent by hiker himself, so skip to next day when existing
+        if (confirmation.from().equalsIgnoreCase(hike.getAlert().getMailConfiguration().getMailFromAddress())) {
+            timerContinue(); // was replied by hiker himself, so skip to next day when existing
+            return false;
+        }
+        return true; // one of the contacts replied
     }
 
     /** 'Home Again' button pushed in OnTheWay state. */

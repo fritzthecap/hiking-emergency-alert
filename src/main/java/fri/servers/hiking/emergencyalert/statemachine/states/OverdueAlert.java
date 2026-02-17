@@ -22,7 +22,9 @@ public class OverdueAlert extends AbstractState
     /** The first alert confirmation arrived. */
     @Override
     public AbstractState alertConfirmed(Context context) {
-        context.alertConfirmed();
-        return new AlertConfirmed();
+        if (context.alertConfirmedByContact())
+            return new AlertConfirmed();
+        
+        return new OnTheWay(); // TODO: this is not in state/transition diagram!
     }
 }
