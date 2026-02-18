@@ -1,1 +1,10 @@
-java -jar hiking-emergency-alert.jar
+java \
+ -Dmail.user=your.name@provider \
+ -Dmail.transport.protocol=smtp \
+ -Dmail.store.protocol=imaps \
+ -Dmail.smtp.host=smtp.outgoing.server \
+ -Dmail.smtp.port=465 \
+ -Dmail.imaps.host=imap.incoming.server \
+ -Dmail.imaps.port=993 \
+ -Dmail.smtp.socketFactory.class=javax.net.ssl.SSLSocketFactory \
+ -jar hiking-emergency-alert.jar
