@@ -195,10 +195,9 @@ public class RouteAndTimesPage extends AbstractWizardPage
     }
 
     private boolean confirmDayRemove(String title) {
-        final String message = i18n("Do you really want to remove")+" "+title+" ?";
         return JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
                 getFrame(),
-                message,
+                i18n("Do you really want to remove")+" "+title+" ?",
                 i18n("Confirm Removal"),
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE);
@@ -215,9 +214,6 @@ public class RouteAndTimesPage extends AbstractWizardPage
     }
     
     private void installFocusValidation() {
-        if (daysTabbedPane == null)
-            return; // initializing
-        
         final List<JComponent> focusValidationFields = new ArrayList<>();
         for (JComponent tab : daysTabbedPane.getTabs()) {
             final DayPanel dayPanel = (DayPanel) tab;
