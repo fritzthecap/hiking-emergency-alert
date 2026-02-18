@@ -20,7 +20,7 @@ import javax.swing.UIManager;
  * A TabbedPane that shows a "Add" button to add tabs,
  * and a "Remove" button on each tab that closes the tab.
  */
-public class CloseableTabbedPane extends JTabbedPane
+public class EditableTabbedPane extends JTabbedPane
 {
     /** Overriders create this when adding a new tab. */
     public record NewTab(String title, JComponent component)
@@ -31,11 +31,11 @@ public class CloseableTabbedPane extends JTabbedPane
     
     private String removeButtonTooltip;
     
-    public CloseableTabbedPane() {
+    public EditableTabbedPane() {
         this("Add Tab", "Remove Tab");
     }
     
-    public CloseableTabbedPane(String addButtonTooltip, String removeButtonTooltip) {
+    public EditableTabbedPane(String addButtonTooltip, String removeButtonTooltip) {
         this.removeButtonTooltip = removeButtonTooltip;
         
         addTab("", null); // first tab will be "+"
@@ -168,7 +168,7 @@ public class CloseableTabbedPane extends JTabbedPane
     
     /** Test main. */
     public static void main(String [] args) {
-        CloseableTabbedPane tabbedPane = new CloseableTabbedPane();
+        EditableTabbedPane tabbedPane = new EditableTabbedPane();
         for (int i = 0; i < 2; i++)
             tabbedPane.addTab("Tab "+i, new JLabel("Tab "+i, JLabel.CENTER));
 

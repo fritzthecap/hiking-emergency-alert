@@ -14,7 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import fri.servers.hiking.emergencyalert.persistence.entities.Day;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
-import fri.servers.hiking.emergencyalert.ui.swing.util.CloseableTabbedPane;
+import fri.servers.hiking.emergencyalert.ui.swing.util.EditableTabbedPane;
 import fri.servers.hiking.emergencyalert.ui.swing.util.FileChooser;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
@@ -30,7 +30,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
     
     private SwingUtil.DateField plannedBeginDateField;
     private SwingUtil.DateField plannedBeginTimeField;
-    private CloseableTabbedPane daysTabbedPane;
+    private EditableTabbedPane daysTabbedPane;
     private FileChooser fileChooser;
 
     @Override
@@ -52,7 +52,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
                 i18n("24-hour time when your hike will start, and the time observation will begin"),
                 null);
         
-        daysTabbedPane = new CloseableTabbedPane(i18n("Add Day"), i18n("Remove Day")) {
+        daysTabbedPane = new EditableTabbedPane(i18n("Add Day"), i18n("Remove Day")) {
             /** Overridden to renew focus listeners. */
             @Override
             public void addTab(String title, Component component) {
