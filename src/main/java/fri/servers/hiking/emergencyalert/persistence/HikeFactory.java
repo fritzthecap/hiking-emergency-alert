@@ -65,19 +65,23 @@ public class HikeFactory
     }
     
     private Result constructHike() {
-        final String defaultHikeJson = readDefaultHikeJson();
         final Hike hike = new Hike();
-        if (defaultHikeJson != null) {
-            try {
-                final Hike recentHike = new JsonGsonSerializer<Hike>().fromJson(defaultHikeJson, Hike.class);
-                hike.setAlert(recentHike.getAlert()); // reuse stored contacts, texts and mail-configuration
-            }
-            catch (IOException e) {
-                System.err.println("Failed to unpack persistent hike: "+e.toString());
-                return new Result(hike, e, true);
-            }
+        
+        final String defaultHikeJson = readDefaultHikeJson();
+        if (defaultHikeJson == null) // no file could be loaded
+            return new Result(hike, null, false);
+        
+        IOException exception = null;
+        try {
+            final Hike defaultHike = new JsonGsonSerializer<Hike>().fromJson(defaultHikeJson, Hike.class);
+            // reuse contacts, texts and mail-configuration, but not MAIL-ID, route and times
+            hike.setAlert(defaultHike.getAlert());
         }
-        return new Result(hike, null, false);
+        catch (IOException e) {
+            System.err.println("Failed to unpack persistent hike: "+e.toString());
+            exception = e;
+        }
+        return new Result(hike, exception, true);
     }
     
     private String readDefaultHikeJson() {

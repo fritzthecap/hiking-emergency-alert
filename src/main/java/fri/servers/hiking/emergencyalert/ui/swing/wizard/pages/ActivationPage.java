@@ -174,14 +174,13 @@ public class ActivationPage extends AbstractWizardPage
         if (goingForward) {
             final String message = 
                     i18n("Are you sure that you want to start the hike now?");
-            final int response = JOptionPane.showConfirmDialog(
+            
+            if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(
                     getFrame(),
                     message,
                     i18n("Confirm Hike Begin"),
                     JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE);
-            
-            if (response != JOptionPane.YES_OPTION)
+                    JOptionPane.QUESTION_MESSAGE))
                 return false;
             
             return askForSaveWhenChanged(i18n("Data were changed"), true);

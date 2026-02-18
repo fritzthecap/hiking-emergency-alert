@@ -145,6 +145,7 @@ public abstract class AbstractWizardPage
 
     /**
      * Installs a validating focus-listeners onto all given components.
+     * Any already existing focus-listener will be released.
      * @param afterValidate something to be executed after validation, argument will be <code>valid</code>.
      */
     protected void installFocusListener(JComponent[] components, Consumer<Boolean> afterValidate) {
