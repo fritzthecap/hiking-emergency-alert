@@ -2,52 +2,35 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Vector;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import fri.servers.hiking.emergencyalert.persistence.entities.Day;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
+import fri.servers.hiking.emergencyalert.ui.swing.util.CloseableTabbedPane;
 import fri.servers.hiking.emergencyalert.ui.swing.util.FileChooser;
-import fri.servers.hiking.emergencyalert.ui.swing.util.ImageViewer;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
-import fri.servers.hiking.emergencyalert.util.StringUtil;
 
 /**
- * Route description text and image file chooser,
- * begin- and end-date/time of hike.
+ * Begin-date/time of hike.
+ * Multiple days with end-date/time, route description and image files.
  */
 public class RouteAndTimesPage extends AbstractWizardPage
 {
-    private JTextArea routeField;
-    private JTable routeImagesField;
+    static final Dimension labelSize = new Dimension(120, 24);
+    
     private SwingUtil.DateField plannedBeginDateField;
     private SwingUtil.DateField plannedBeginTimeField;
-    private SwingUtil.DateField plannedHomeDateField;
-    private SwingUtil.DateField plannedHomeTimeField;
-    
+    private CloseableTabbedPane daysTabbedPane;
     private FileChooser fileChooser;
 
     @Override
@@ -57,15 +40,9 @@ public class RouteAndTimesPage extends AbstractWizardPage
     
     @Override
     protected void buildUi() {
-        fileChooser = new FileChooser(getContentPanel(), null);
+        if (fileChooser == null)
+            fileChooser = new FileChooser(getContentPanel(), null);
 
-        routeField = SwingUtil.buildTextArea(
-                i18n("A description of your hike path rescuers should be able to understand"), 
-                true);
-        routeField.setRows(6);
-        
-        final JComponent imageTable = buildImagesTable();
-        
         plannedBeginDateField = SwingUtil.buildDateField(
                 i18n("Begin Day"),
                 i18n("Date when your hike will start, given numerically as YEAR-MONTH-DAY"),
@@ -75,21 +52,41 @@ public class RouteAndTimesPage extends AbstractWizardPage
                 i18n("24-hour time when your hike will start, and the time observation will begin"),
                 null);
         
-        plannedHomeDateField = SwingUtil.buildDateField(
-                "* "+i18n("End Day"),
-                i18n("Date when you will be home again"),
-                null);
-        plannedHomeTimeField = SwingUtil.buildTimeField(
-                "* "+i18n("Time"),
-                i18n("24-hour time when you will be home again, the first alert mail would be sent then"),
-                null);
+        daysTabbedPane = new CloseableTabbedPane(i18n("Add Day"), i18n("Remove Day")) {
+            /** Overridden to renew focus listeners. */
+            @Override
+            public void addTab(String title, Component component) {
+                super.addTab(title, component);
+                if (getTabCount() > 1) // not only the "+" tab is present
+                    installFocusValidation();
+            }
+            /** @return a new DayPanel. */
+            @Override
+            protected NewTab newTab(int tabIndex) {
+                final DayPanel dayPanel = new DayPanel(fileChooser);
+                dayPanel.populateUi(buildDay(tabIndex));
+                return new NewTab(buildTabTitle(tabIndex), dayPanel);
+            }
+            /** Do not let remove first tab. */
+            @Override
+            protected boolean shouldAddCloseButtonAt(int index) {
+                return (index != 0);
+            }
+            /** Ask user if removal is OK. */
+            @Override
+            protected void closeTab(String title, Component component) {
+                if (confirmDayRemove(title)) {
+                    super.closeTab(title, component);
+                    reorganizeTabTitles();
+                    installFocusValidation();
+                }
+            }
+        };
         
         // layout
         
-        final JPanel timesPanel = new JPanel();
-        timesPanel.setLayout(new BoxLayout(timesPanel, BoxLayout.Y_AXIS));
-        
-        final Dimension labelSize = new Dimension(120, 24);
+        final JPanel hikeBeginPanel = new JPanel();
+        hikeBeginPanel.setLayout(new BoxLayout(hikeBeginPanel, BoxLayout.Y_AXIS));
         
         final JPanel beginPanel = new JPanel();
         final JLabel beginLabel = new JLabel(i18n("Hike Begin"));
@@ -97,74 +94,51 @@ public class RouteAndTimesPage extends AbstractWizardPage
         beginPanel.add(plannedBeginDateField);
         beginPanel.add(plannedBeginTimeField);
         
-        final JPanel homePanel = new JPanel();
-        final JLabel endLabel = new JLabel(i18n("Hike End"));
-        homePanel.add(SwingUtil.increaseFontSize(SwingUtil.forceSize(endLabel, labelSize), 140, true, false));
-        homePanel.add(plannedHomeDateField);
-        homePanel.add(plannedHomeTimeField);
+        hikeBeginPanel.add(beginPanel);
         
-        timesPanel.add(beginPanel);
-        timesPanel.add(homePanel);
+        final JPanel beginTimeAndDays = new JPanel();
+        beginTimeAndDays.setLayout(new BoxLayout(beginTimeAndDays, BoxLayout.Y_AXIS));
+        beginTimeAndDays.add(hikeBeginPanel);
+        beginTimeAndDays.add(daysTabbedPane);
         
-        final JSplitPane routePanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        routePanel.setResizeWeight(0.5);
-        routePanel.setTopComponent(SwingUtil.buildScrollPane("* "+i18n("Route Description"), routeField));
-        routePanel.setBottomComponent(imageTable);
-        final JPanel splitPanel = new JPanel(new BorderLayout());
-        splitPanel.add(routePanel, BorderLayout.CENTER);
-        
-        final JPanel all = new JPanel();
-        all.setLayout(new BoxLayout(all, BoxLayout.Y_AXIS));
-        all.add(timesPanel);
-        all.add(Box.createRigidArea(new Dimension(1, 20)));
-        all.add(splitPanel);
-        
-        getContentPanel().add(all, BorderLayout.CENTER);
-        
-        installFocusValidation();
+        getContentPanel().add(beginTimeAndDays, BorderLayout.CENTER);
     }
 
     @Override
     protected void populateUi(Hike hike) {
-        if (StringUtil.isNotEmpty(hike.currentDay().getRoute()))
-            routeField.setText(hike.currentDay().getRoute());
-        
-        routeImagesField.setModel(buildTableModel()); // remove all rows
-        
-        if (hike.currentDay().getRouteImages() != null)
-            for (String imageFile : hike.currentDay().getRouteImages())
-                addRouteImageToTable(imageFile);
-        
         if (hike.getPlannedBegin() != null) {
             plannedBeginDateField.setDateValue(hike.getPlannedBegin());
             plannedBeginTimeField.setDateValue(hike.getPlannedBegin());
         }
         
-        if (hike.currentDay().getPlannedHome() != null) {
-            plannedHomeDateField.setDateValue(hike.currentDay().getPlannedHome());
-            plannedHomeTimeField.setDateValue(hike.currentDay().getPlannedHome());
-        }
-        else {
-            final Date now = DateUtil.now();
-            plannedHomeDateField.setDateValue(now);
-            plannedHomeTimeField.setDateValue(DateUtil.addHours(now, 12));
+        daysTabbedPane.removeAll();
+
+        final List<Day> days = hike.getDays();
+        for (int i = 0; i < days.size(); i++) {
+            final DayPanel dayPanel = new DayPanel(fileChooser);
+            daysTabbedPane.addTab(buildTabTitle(i), dayPanel);
+            final Day day = days.get(i);
+            dayPanel.populateUi(day);
         }
     }
     
     @Override
     protected String validateFields() {
-        if (StringUtil.isEmpty(routeField.getText()))
-            return i18n("The Route description must not be empty!");
+        final List<Day> validationDays = new ArrayList<>();
         
-        final Date homeDate = plannedHomeDateField.getDateValue();
-        final Date homeTime = plannedHomeTimeField.getDateValue();
-        
-        if (homeDate == null)
-            return i18n("The planned end date must be given!");
-        if (homeTime == null)
-            return i18n("The planned end time must be given!");
-        
-        final Date homeDateTime = DateUtil.mergeDateAndTime(homeDate, homeTime);
+        for (JComponent tab : daysTabbedPane.getTabs()) {
+            final DayPanel dayPanel = (DayPanel) tab;
+            
+            final String error = dayPanel.validateFields();
+            if (error != null) {
+                daysTabbedPane.setSelectedComponent(dayPanel);
+                return error;
+            }
+            
+            final Day day = new Day();
+            day.setPlannedHome(dayPanel.homeDateTime());
+            validationDays.add(day); 
+        }
         
         final Date beginDate = plannedBeginDateField.getDateValue();
         final Date beginTime = plannedBeginTimeField.getDateValue();
@@ -174,191 +148,86 @@ public class RouteAndTimesPage extends AbstractWizardPage
         else
             beginDateTime = null;
         
-        Day day = new Day();
-        day.setPlannedHome(homeDateTime);
-        return validateHikeTimes(beginDateTime, List.of(day));
+        return validateHikeTimes(beginDateTime, validationDays);
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
     protected boolean commit(boolean goingForward) {
         final Hike hike = getHike();
         
-        if (StringUtil.isNotEmpty(routeField.getText()))
-            hike.currentDay().setRoute(routeField.getText());
+        final List<JComponent> tabs = daysTabbedPane.getTabs();
+        final List<Day> days = hike.getDays();
         
-        final Vector<Vector> dataVector = getImagesFromTable();
-        if (hike.currentDay().getRouteImages() == null)
-            hike.currentDay().setRouteImages(new ArrayList<>());
-        else
-            hike.currentDay().getRouteImages().clear();
+        while (days.size() > tabs.size())
+            days.remove(days.size() - 1);
         
-        for (int row = 0; row < dataVector.size(); row++) {
-            final String imageFileName = (String) dataVector.get(row).get(0);
-            final String imagePath = (String) dataVector.get(row).get(1);
-            final String filePath =
-                    imagePath+
-                    (imagePath.endsWith(File.separator) ? "" : File.separator)+
-                    imageFileName;
-            hike.currentDay().getRouteImages().add(filePath);
+        while (days.size() < tabs.size())
+            days.add(new Day());
+        
+        for (int i = 0; i < days.size(); i++) {
+            final Day day = days.get(i);
+            final DayPanel dayPanel = (DayPanel) tabs.get(i);
+            
+            dayPanel.commit(goingForward, day);
         }
         
-        final Date beginDate = plannedBeginDateField.getDateValue();
+        Date beginDate = plannedBeginDateField.getDateValue();
         final Date beginTime = plannedBeginTimeField.getDateValue();
+        if (beginTime != null && beginDate == null) // take today as default
+            beginDate = DateUtil.now();
+        
         if (beginDate != null && beginTime != null)
             hike.setPlannedBegin(DateUtil.mergeDateAndTime(beginDate, beginTime));
         else
             hike.setPlannedBegin(null);
         
-        final Date homeDate = plannedHomeDateField.getDateValue();
-        final Date homeTime = plannedHomeTimeField.getDateValue();
-        if (homeDate != null && homeTime != null)
-            hike.currentDay().setPlannedHome(DateUtil.mergeDateAndTime(homeDate, homeTime));
-        
         return true;
     }
     
-    
-    @SuppressWarnings("rawtypes")
-    private Vector<Vector> getImagesFromTable() {
-        final DefaultTableModel model = (DefaultTableModel) routeImagesField.getModel();
-        return model.getDataVector();
-    }
-    
-    private void addRouteImageToTable(String imageFile) {
-        final DefaultTableModel model = (DefaultTableModel) routeImagesField.getModel();
-        final File file = new File(imageFile);
-        final Vector<Object> newRow = new Vector<>();
-        newRow.addElement(file.getName());
-        newRow.addElement(file.getParent());
-        model.addRow(newRow);
-    }
-    
-    private JComponent buildImagesTable() {
-        routeImagesField = new JTable(buildTableModel());
-        
-        routeImagesField.getTableHeader().setReorderingAllowed(false);
-        routeImagesField.setToolTipText(i18n("Attachments for any Alert Mail"));
-        
-        final JScrollPane scrollTable = new JScrollPane(routeImagesField);
-        
-        final JButton add = SwingUtil.getAddOrRemoveButton(
-                true, // "+"
-                i18n("Add an image file"),
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        chooseImageFile();
-                    }
-                });
-        
-        final JButton remove = SwingUtil.getAddOrRemoveButton(
-                false, // "-"
-                i18n("Remove an image file"),
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        removeSelectedImage();
-                    }
-                });
-        remove.setEnabled(false);
-        
-        final JButton view = SwingUtil.getSmallButton(
-                "\u2315", // magnifying glass
-                i18n("View image file"),
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        viewSelectedImage();
-                    }
-                });
-        view.setEnabled(false);
-        
-        routeImagesField.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        routeImagesField.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                final boolean selectionExists = (e.getFirstIndex() >= 0 && e.getLastIndex() >= 0);
-                remove.setEnabled(selectionExists);
-                view.setEnabled(selectionExists);
-            }
-        });
-        
-        SwingUtil.makeComponentFocusable(routeImagesField);
-        
-        // layout
-        
-        final JPanel buttonsPanel = new JPanel();
-        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
-        buttonsPanel.add(add);
-        buttonsPanel.add(remove);
-        buttonsPanel.add(view);
-        
-        final JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createTitledBorder(i18n("Route-Images")));
-        panel.add(scrollTable, BorderLayout.CENTER);
-        panel.add(buttonsPanel, BorderLayout.EAST);
-        
-        return panel;
-    }
-    
-    private TableModel buildTableModel() {
-        final Vector<Object> columnNames = new Vector<>();
-        columnNames.add(i18n("File Name"));
-        columnNames.add(i18n("Path"));
-        
-        final Vector<Vector<Object>> data = new Vector<>();
-        
-        return new DefaultTableModel(data, columnNames) {
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                return String.class;
-            }
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // no cell editing
-            }
-        };
-    }
-    private void chooseImageFile() {
-        final File[] files = fileChooser.open(false, null);
-        if (files != null)
-            for (File file : files)
-                addRouteImageToTable(file.getAbsolutePath());
+
+    private Day buildDay(int tabIndex) {
+        final DayPanel firstDayPanel = (DayPanel) daysTabbedPane.getComponentAt(0); // there is always a first tab
+        final Date firstDate = firstDayPanel.homeDateTime();
+        final Date tabDate = DateUtil.addDays(firstDate, tabIndex);
+        final Day day = new Day();
+        day.setPlannedHome(tabDate);
+        return day;
     }
 
-    private void removeSelectedImage() {
-        final int[] selectedIndexes = routeImagesField.getSelectedRows();
-        if (selectedIndexes.length > 0) {
-            final DefaultTableModel model = (DefaultTableModel) routeImagesField.getModel();
-            for (int i = selectedIndexes.length - 1; i >= 0; i--)
-                model.removeRow(selectedIndexes[i]);
-        }
+    private boolean confirmDayRemove(String title) {
+        final String message = i18n("Do you really want to remove")+" "+title+" ?";
+        return JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+                getFrame(),
+                message,
+                i18n("Confirm Removal"),
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
     }
-
-    private void viewSelectedImage() {
-        final int[] selectedIndexes = routeImagesField.getSelectedRows();
-        if (selectedIndexes.length >= 0) {
-            final DefaultTableModel model = (DefaultTableModel) routeImagesField.getModel();
-            final File[] files = new File[selectedIndexes.length];
-            for (int i = 0; i < selectedIndexes.length; i++) {
-                final String fileName = (String) model.getValueAt(selectedIndexes[i], 0);
-                final String parentPath = (String) model.getValueAt(selectedIndexes[i], 1);
-                files[i] = new File(parentPath, fileName);
-            }
-            ImageViewer.showImages(getFrame(), files);
-        }
+    
+    private String buildTabTitle(int tabIndex) {
+        return i18n("Day")+" "+(tabIndex + 1);
     }
-
+    
+    private void reorganizeTabTitles() {
+        final List<JComponent> tabs = daysTabbedPane.getTabs();
+        for (int i = 1; i < tabs.size(); i++)
+            daysTabbedPane.setTitleAt(i, buildTabTitle(i));
+    }
     
     private void installFocusValidation() {
-        final JComponent[] focusComponents = new JComponent[] {
-                routeField,
-                plannedBeginDateField,
-                plannedBeginTimeField,
-                plannedHomeDateField,
-                plannedHomeTimeField,
-        };
-        installFocusListener(focusComponents, null);
+        if (daysTabbedPane == null)
+            return; // initializing
+        
+        final List<JComponent> focusValidationFields = new ArrayList<>();
+        for (JComponent tab : daysTabbedPane.getTabs()) {
+            final DayPanel dayPanel = (DayPanel) tab;
+            focusValidationFields.addAll(dayPanel.getFocusValidationFields());
+        }
+        focusValidationFields.add(plannedBeginDateField);
+        focusValidationFields.add(plannedBeginTimeField);
+        
+        installFocusListener(
+                focusValidationFields.toArray(new JComponent[focusValidationFields.size()]), 
+                null);
     }
 }

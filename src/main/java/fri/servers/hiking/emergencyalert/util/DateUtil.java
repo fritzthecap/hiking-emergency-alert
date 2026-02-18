@@ -46,19 +46,23 @@ public final class DateUtil
         
         return dateCalendar.getTime();
     }
+
+    public static Date addDays(Date date, int days) {
+        return addHours(date, days * 24);
+    }
     
     public static Date addHours(Date date, int hours) {
         return addMinutes(date, hours * 60);
     }
    
     /** @return a date with given minutes added to given date. */
-    public static Date addMinutes(Date date, int minutes) {
-        return addSeconds(date, minutes * 60);
+    public static Date addMinutes(Date date, long minutes) {
+        return addSeconds(date, minutes * 60L);
     }
     
     /** @return a date with given seconds added to given date. */
-    public static Date addSeconds(Date date, int seconds) {
-        final long nextMillis = date.getTime() + ((long) seconds * 1000L);
+    public static Date addSeconds(Date date, long seconds) {
+        final long nextMillis = date.getTime() + (seconds * 1000L);
         return new Date(nextMillis);
     }
 
