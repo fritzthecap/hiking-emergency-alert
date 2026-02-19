@@ -75,7 +75,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
             /** Ask user if removal is OK. */
             @Override
             protected void closeTab(String title, Component component) {
-                if (confirmDayRemove(title)) {
+                if (confirmDayRemove(title, (DayPanel) component)) {
                     super.closeTab(title, component);
                     reorganizeTabTitles();
                     installFocusValidation();
@@ -120,6 +120,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
             final Day day = days.get(i);
             dayPanel.populateUi(day);
         }
+        daysTabbedPane.setSelectedIndex(0); // without this, pane would show empty "+" tab
     }
     
     @Override
@@ -194,7 +195,10 @@ public class RouteAndTimesPage extends AbstractWizardPage
         return day;
     }
 
-    private boolean confirmDayRemove(String title) {
+    private boolean confirmDayRemove(String title, DayPanel dayPanel) {
+        if (dayPanel.noRouteNoImages())
+            return true; // let close an invalid panel without warning
+        
         return JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
                 getFrame(),
                 i18n("Do you really want to remove")+" "+title+" ?",
