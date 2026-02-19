@@ -250,7 +250,8 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
         try {
             final String hikeJson = new HikeFileManager().load(hikeFile.getAbsolutePath());
             final Hike hike = new JsonGsonSerializer<Hike>().fromJson(hikeJson, Hike.class);
-            getStateMachine().getUserInterface().registerHike(hike); // getHike() will return new hike now
+            
+            getStateMachine().getUserInterface().registerHike(hike); // getHike() will return loaded hike now
             
             final Locale newLocale = isUiLanguageChanged(hike);
             if (newLocale != null) // the language of the loaded hike is different from current one
