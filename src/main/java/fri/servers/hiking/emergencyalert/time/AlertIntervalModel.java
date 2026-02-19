@@ -8,7 +8,7 @@ import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 /**
  * Calculation of alert times from a Hike.
  */
-public class IntervalModel
+public class AlertIntervalModel
 {
     private int alertIntervalMinutes;
     private final float alertIntervalShrinking;
@@ -17,7 +17,7 @@ public class IntervalModel
     
     private int index = 0;
 
-    public IntervalModel(Hike hike) {
+    public AlertIntervalModel(Hike hike) {
         this.alertIntervalMinutes = hike.getAlert().getAlertIntervalMinutes();
         this.alertIntervalShrinking = hike.getAlert().getAlertIntervalShrinking();
         this.contactDetectionMinutes = new ArrayList<>();

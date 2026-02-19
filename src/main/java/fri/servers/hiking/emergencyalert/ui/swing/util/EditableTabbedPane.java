@@ -18,7 +18,7 @@ import javax.swing.UIManager;
 
 /**
  * A TabbedPane that shows a "Add" button to add tabs,
- * and a "Remove" button on each tab that closes the tab.
+ * and a "Remove" button on each tab that closes it.
  */
 public class EditableTabbedPane extends JTabbedPane
 {

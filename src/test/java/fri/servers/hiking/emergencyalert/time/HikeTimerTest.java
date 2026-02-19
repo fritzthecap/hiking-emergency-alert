@@ -55,7 +55,7 @@ class HikeTimerTest
         hike.getAlert().setUseContactDetectionMinutes(Boolean.FALSE);
         
         System.err.println("This is a test lasting "+TEST_MINUTES+" minutes! Starting timer at "+DateUtil.now());
-        timer.start(plannedBegin, plannedHome, new IntervalModel(hike), dispatcher);
+        timer.start(plannedBegin, plannedHome, new AlertIntervalModel(hike), dispatcher);
         
         while (timer.isRunning()) // wait for timer background thread to be stopped
             Thread.sleep(1000);

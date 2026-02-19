@@ -59,6 +59,11 @@ public class Hike
     public boolean hasMoreDays() {
         return dayIndex < days.size() - 1;
     }
+    /** Skips current to the next day if there is any. */
+    public void skipDay() {
+        if (hasMoreDays())
+            dayIndex++;
+    }
     /** @return the day at index <code>dayIndex</code>. */
     public Day currentDay() {
         return days.get(dayIndex);
@@ -66,10 +71,5 @@ public class Hike
     /** @return the last day in list. */
     public Day lastDay() {
         return days.get(days.size() - 1);
-    }
-    /** Skips current to the next day if there is any. */
-    public void skipDay() {
-        if (hasMoreDays())
-            dayIndex++;
     }
 }

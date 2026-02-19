@@ -24,7 +24,7 @@ public class HikeTimer extends Scheduler
     }
     
     private EventDispatcher dispatcher;
-    private IntervalModel intervalModel;
+    private AlertIntervalModel intervalModel;
     
     private Date nextOverdueAlertTime;
     
@@ -40,7 +40,7 @@ public class HikeTimer extends Scheduler
     public void start(
             final Date plannedBegin, 
             final Date plannedHome, 
-            IntervalModel intervalModel,
+            AlertIntervalModel intervalModel,
             EventDispatcher eventDispatcher)
     {
         assertStart(plannedHome);

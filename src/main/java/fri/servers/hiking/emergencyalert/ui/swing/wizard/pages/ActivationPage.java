@@ -19,8 +19,9 @@ import fri.servers.hiking.emergencyalert.persistence.Mail;
 import fri.servers.hiking.emergencyalert.persistence.MailBuilder;
 import fri.servers.hiking.emergencyalert.persistence.entities.Alert;
 import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
+import fri.servers.hiking.emergencyalert.persistence.entities.Day;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
-import fri.servers.hiking.emergencyalert.time.IntervalModel;
+import fri.servers.hiking.emergencyalert.time.AlertIntervalModel;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
@@ -205,23 +206,26 @@ public class ActivationPage extends AbstractWizardPage
     
     private String buildContactsAndTimesInfos(Hike hike) {
         final List<Contact> contacts = hike.getAlert().getNonAbsentContacts();
-        Date alertDate = hike.currentDay().getPlannedHome();
-        String currentDay = DateUtil.toDateString(alertDate);
-        final StringBuilder contactsText = new StringBuilder(currentDay+"\n"); // first day header
-        final IntervalModel intervalModel = new IntervalModel(hike);
+        final StringBuilder contactsText = new StringBuilder();
         
-        for (Contact contact : contacts) {
-            final String alertDay = DateUtil.toDateString(alertDate);
-            if (currentDay.equals(alertDay) == false) { // write subsequent day header
-                currentDay = alertDay;
-                contactsText.append(alertDay+"\n");
+        for (Day day : hike.getDays()) {
+            Date alertDateTime = day.getPlannedHome();
+            String currentDay = null;
+            
+            final AlertIntervalModel intervalModel = new AlertIntervalModel(hike);
+            
+            for (Contact contact : contacts) {
+                final String alertDay = DateUtil.toDateString(alertDateTime);
+                if (alertDay.equals(currentDay) == false) // write day header
+                    contactsText.append((currentDay = alertDay)+"\n");
+                
+                final String time = DateUtil.toTimeString(alertDateTime);
+                contactsText.append("    "+time+"    "+contact.getMailAddress()+"\n");
+                
+                alertDateTime = DateUtil.addMinutes(alertDateTime, intervalModel.nextIntervalMinutes());
             }
-            
-            final String time = DateUtil.toTimeString(alertDate);
-            contactsText.append("    "+time+"    "+contact.getMailAddress()+"\n");
-            
-            alertDate = DateUtil.addMinutes(alertDate, intervalModel.nextIntervalMinutes());
         }
+        
         return contactsText.toString();
     }
     

@@ -220,18 +220,21 @@ public abstract class AbstractWizardPage
 
     /** Reused logic to verify hike times. */
     protected String validateHikeTimes(Date beginDateTime, List<Day> days) {
-        final Date now = DateUtil.now();
+        if (beginDateTime != null) { // begin is optional!
+            // when given, hike duration must be at least one minute
+            if (isOneMinuteAfter(beginDateTime, days.get(0).getPlannedHome()) == false)
+                return i18n("The planned end time must be after begin!");
+        }
         
-        for (Day day : days) {
-            final long millisInFuture = day.getPlannedHome().getTime() - now.getTime();
-            if (millisInFuture / 60000 < 1) // home must be at least one minute after now
-                return i18n("The planned end time must be in future!");
+        Date previousHomeTime = DateUtil.now();
+        int dayNumber = 1;
+        for (Day day : days) { // check whether days are sorted by home-time
+            // each day's home-time must be at least one minute after previous day's home-time
+            if (isOneMinuteAfter(previousHomeTime, day.getPlannedHome()) == false)
+                return i18n("Day")+" "+dayNumber+": "+i18n("The planned end time must be in future!");
             
-            if (beginDateTime != null) {
-                final long durationMillis = day.getPlannedHome().getTime() - beginDateTime.getTime();
-                if (durationMillis / 60000 < 1) // duration must be at least one minute 
-                    return i18n("The planned end time must be after begin!");
-            }
+            previousHomeTime = day.getPlannedHome();
+            dayNumber++;
         }
         
         return null;
@@ -275,6 +278,11 @@ public abstract class AbstractWizardPage
             getFrame().getContentPane().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
     
+
+    private boolean isOneMinuteAfter(Date beforeDate, Date afterDate) {
+        final long millisInFuture = afterDate.getTime() - beforeDate.getTime();
+        return (millisInFuture / 60000 >= 1);
+    }
     
     /**
      * Called by windowClose() on any page, and from ActivationPage.commit().

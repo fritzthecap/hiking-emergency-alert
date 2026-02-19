@@ -12,7 +12,7 @@ import fri.servers.hiking.emergencyalert.persistence.Validation;
 import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.time.HikeTimer;
-import fri.servers.hiking.emergencyalert.time.IntervalModel;
+import fri.servers.hiking.emergencyalert.time.AlertIntervalModel;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 
@@ -218,7 +218,7 @@ public class Context
         timer.start(
                 plannedBegin,
                 plannedHome,
-                new IntervalModel(hike),
+                new AlertIntervalModel(hike),
                 stateMachine);
     }
     
