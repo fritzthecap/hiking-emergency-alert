@@ -100,6 +100,13 @@ public class EditableTabbedPane extends JTabbedPane
             ((CloseableTabHeader) tabComponent).titleLabel.setText(title);
     }
     
+    @Override
+    public void setSelectedIndex(int index) {
+        System.err.println("EditableTabbedPane setSelectedIndex index = "+index);
+        if (index < getTabCount() - 1)
+            super.setSelectedIndex(index);
+    }
+    
     /** Override this to create a new tab. */
     protected NewTab newTab(int tabIndex) {
         return new NewTab("Tab "+tabIndex, new JLabel("Component at "+tabIndex, JLabel.CENTER));
