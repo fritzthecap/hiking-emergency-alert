@@ -102,7 +102,6 @@ public class EditableTabbedPane extends JTabbedPane
     
     @Override
     public void setSelectedIndex(int index) {
-        System.err.println("EditableTabbedPane setSelectedIndex index = "+index);
         if (index < getTabCount() - 1)
             super.setSelectedIndex(index);
     }
