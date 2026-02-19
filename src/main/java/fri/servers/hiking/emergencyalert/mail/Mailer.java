@@ -37,7 +37,7 @@ public interface Mailer
     public void setCheckedAuthenticator(Authenticator authenticator);
 
     /** Sends a set-off mail to the hiker, containing the MAIL-ID of the hike. */
-    public void sendSetOff(Hike hike, Date plannedHome) throws MailSendException;
+    public void sendSetOff(Hike hike, Date plannedHome, int dayIndex) throws MailSendException;
 
     /**
      * Finds and deletes a response to the set-off mail.

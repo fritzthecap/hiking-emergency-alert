@@ -169,9 +169,7 @@ public class ActivationPage extends AbstractWizardPage
     @Override
     protected boolean commit(boolean goingForward) {
         if (goingForward) {
-            final String message = 
-                    i18n("Are you sure that you want to start the hike now?");
-            
+            final String message = i18n("Are you sure that you want to start the hike now?");
             if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(
                     getFrame(),
                     message,
@@ -179,8 +177,6 @@ public class ActivationPage extends AbstractWizardPage
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE))
                 return false;
-            
-            return askForSaveWhenChanged(i18n("Data were changed"), true);
         }
         return true; // nothing else to commit here
     }

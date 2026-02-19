@@ -25,6 +25,6 @@ public class OverdueAlert extends AbstractState
         if (context.alertConfirmedByContact())
             return new AlertConfirmed();
         
-        return new OnTheWay(); // TODO: this is not in state/transition diagram!
+        return new OnTheWay(); // TODO: this is not yet in state/transition diagram!
     }
 }

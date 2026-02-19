@@ -109,11 +109,10 @@ public class Trolley
     }
     
     /**
-     * Saves hike to persistence.
+     * Saves hike to persistence. This always also writes to the default file.
      * @param hikeFileManager the file-manager that saves JSON files.
-     * @param targetFile null for default file, or an explicitly chosen file.
+     * @param targetFile null or an explicitly chosen file.
      * @param hike the hike to save as JSON.
-     * @return the file where hike was written to.
      */
     public void save(HikeFileManager hikeFileManager, File targetFile, Hike hike) throws Exception {
         final String json = hikeToJsonString(hike);
@@ -122,9 +121,8 @@ public class Trolley
             hikeFileManager.save(targetFile.getAbsolutePath(), json);
             setHikeFile(targetFile); // make the explicitly chosen file the file for future saves
         }
-        else {
-            hikeFileManager.save(json); // to default file
-        }
+        
+        hikeFileManager.save(json); // always also save to default file
         
         refreshHikeCopy(); // refresh change-detection with current persistence-state
     }

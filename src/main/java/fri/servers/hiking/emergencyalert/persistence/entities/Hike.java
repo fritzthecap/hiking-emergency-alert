@@ -59,10 +59,14 @@ public class Hike
     public boolean hasMoreDays() {
         return dayIndex < days.size() - 1;
     }
-    /** Skips current to the next day if there is any. */
-    public void skipDay() {
+    /** 
+     * Skips current to the next day if there is any.
+     * @return the new index 0-n, or the old when no more days.
+     */
+    public int skipDay() {
         if (hasMoreDays())
             dayIndex++;
+        return dayIndex;
     }
     /** @return the day at index <code>dayIndex</code>. */
     public Day currentDay() {

@@ -107,7 +107,8 @@ public class Context
                 ? hike.getPlannedBegin()
                 : DateUtil.now(); // make sure SET_OFF event is fired
         final Date home = hike.currentDay().getPlannedHome();
-        timerStart(begin, home);
+        
+        timerStart(begin, home, 0); // 0 is first day
     }
 
     /** @return true when timer is running, i.e. ACTIVATION already took place. */
@@ -117,7 +118,6 @@ public class Context
     
     /** COMING_HOME or ALERT_CONFIRMED, stops all timers and thus all observations. */
     public void stop() {
-        System.out.println("Timer stopped at "+DateUtil.nowString());
         timer.stop();
         mailer.stopConfirmationPolling();
     }
@@ -126,11 +126,13 @@ public class Context
      * ON_THE_WAY, checks whether hiker has stopped overdue alerts by a set-off response.
      * Mind that this can be called just once per hike day, because the set-off mail will
      * be deleted when found.
+     * @return true when alert confirmation mail was from hiker, else false.
      */
     public boolean alertsStoppedByHiker() {
         if (findSetOffResponse()) {
+            System.out.println("Hiker stopped alerts by replying to set-off mail, detected at "+DateUtil.nowString());
+            
             timerContinue();
-            System.out.println("Hiker stopped alerts by replying to the set-off mail, detected this at "+DateUtil.nowString());
             return true;
         }
         return false;
@@ -186,13 +188,16 @@ public class Context
         stop();
         
         final Mail confirmation = (Mail) eventParameter;
-        userInterface.showConfirmMail(confirmation);
-        
-        if (confirmation.from().equalsIgnoreCase(hike.getAlert().getMailConfiguration().getMailFromAddress())) {
+        if (hike.hasMoreDays() &&
+                confirmation.from().equalsIgnoreCase( // mail comes from hiker
+                        hike.getAlert().getMailConfiguration().getMailFromAddress()))
+        {
             timerContinue(); // was replied by hiker himself, so skip to next day when existing
             return false;
         }
-        return true; // one of the contacts replied
+        
+        userInterface.showConfirmMail(confirmation);
+        return true; // no more hike days, or one of the contacts replied
     }
 
     /** 'Home Again' button pushed in OnTheWay state. */
@@ -210,10 +215,10 @@ public class Context
     }
 
     
-    private void timerStart(Date plannedBegin, Date plannedHome) {
+    private void timerStart(Date plannedBegin, Date plannedHome, int dayIndex) {
         activationTime = DateUtil.now();
         
-        sendSetOffMessage(plannedHome); // give the hiker a chance to stop alerts before overdue time
+        sendSetOffMessage(plannedHome, dayIndex); // give the hiker a chance to stop alerts before overdue time
         
         timer.start(
                 plannedBegin,
@@ -224,19 +229,23 @@ public class Context
     
     private void timerContinue() {
         if (hike.hasMoreDays()) { // check for further hike days, see issue #1 
-            System.out.println("Skipping to next hike day at "+DateUtil.nowString());
-            
             contactIndex = 0; // reset contact list to head
-            hike.skipDay(); // switch to next hike day
+            final int dayIndex = hike.skipDay(); // switch to next hike day
             
-            timerStart(null, hike.currentDay().getPlannedHome());
+            if (isRunning())
+                stop();
+            
+            final Date plannedHome = hike.currentDay().getPlannedHome();
+            System.out.println("Skipping to next hike day that ends at "+DateUtil.toString(plannedHome));
+            
+            timerStart(null, plannedHome, dayIndex);
         }
     }
 
-    private void sendSetOffMessage(Date plannedHome) {
+    private void sendSetOffMessage(Date plannedHome, int dayIndex) {
         System.out.println("Trying to send set-off mail at "+DateUtil.nowString());
         try {
-            mailer.sendSetOff(hike, plannedHome);
+            mailer.sendSetOff(hike, plannedHome, dayIndex);
             
             System.out.println("Sending succeeded!");
         }

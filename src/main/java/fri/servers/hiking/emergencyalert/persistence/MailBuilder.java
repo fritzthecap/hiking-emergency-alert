@@ -38,13 +38,16 @@ public class MailBuilder
 
     
     /** This is sent when hike is activated. */
-    public Mail buildSetOffMail(Date plannedHome) {
+    public Mail buildSetOffMail(Date plannedHome, int dayIndex) {
         final String subject = i18n("Your hike started!");
         
         final StringBuilder textBuilder = new StringBuilder();
         
         textBuilder.append(getContactTitle(contact)+" !\n\n");
         
+        if (dayIndex > 0)
+            textBuilder.append(i18n("Day")+" "+(dayIndex + 1)+".\n");
+            
         final String overdueDate = DateUtil.toString(plannedHome);
         textBuilder.append(
                 i18n("You can block alert mails by responding to this mail before")+" "+overdueDate+".\n"+

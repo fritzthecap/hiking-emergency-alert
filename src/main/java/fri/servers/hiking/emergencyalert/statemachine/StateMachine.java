@@ -107,10 +107,10 @@ public class StateMachine implements
     public boolean notYetOnTheWay() {
         return getState().getClass().equals(HikeActivated.class);
     }
-    public boolean inTime() {
+    public boolean onTheWay() {
         return getState().getClass().equals(OnTheWay.class);
     }
-    public boolean tooLate() {
+    public boolean overdueAlert() {
         return getState().getClass().equals(OverdueAlert.class);
     }
 }

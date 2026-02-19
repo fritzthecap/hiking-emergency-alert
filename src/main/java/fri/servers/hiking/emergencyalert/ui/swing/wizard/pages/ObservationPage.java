@@ -18,6 +18,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import fri.servers.hiking.emergencyalert.persistence.HikeFactory;
+import fri.servers.hiking.emergencyalert.persistence.entities.Day;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.ui.swing.Log;
@@ -75,6 +76,8 @@ public class ObservationPage extends AbstractWizardPage
         instructionsArea.setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER, BORDER));
         instructionsArea.setEditable(false);
         instructionsArea.setOpaque(false);
+        instructionsArea.setLineWrap(true);
+        instructionsArea.setWrapStyleWord(true);
         timePanel = (JLabel) SwingUtil.increaseFontSize(new JLabel("", JLabel.CENTER), 160, true, false);
         
         // center
@@ -116,15 +119,21 @@ public class ObservationPage extends AbstractWizardPage
     @Override
     protected void populateUi(Hike hike) {
         final String plannedBegin = (hike.getPlannedBegin() != null) ? DateUtil.toString(hike.getPlannedBegin()) : "";
-        final String plannedHome = DateUtil.toString(hike.lastDay().getPlannedHome());
+        final String lastHome = DateUtil.toString(hike.lastDay().getPlannedHome());
+        final String firstHome = DateUtil.toString(hike.currentDay().getPlannedHome());
+        final StringBuilder allHomes = new StringBuilder();
+        for (Day day : hike.getDays())
+            allHomes.append(DateUtil.toString(day.getPlannedHome())+", ");
+        allHomes.delete(allHomes.length() - 2, allHomes.length()); // remove trailing ", "
         
         final String instructions = 
-                i18n("This window can be closed only by the 'Home Again' button.")+"\n"+
-                i18n("Click it as soon as you return.")+"\n"+
-                i18n("Emergency alert mails will be sent starting from")+" "+plannedHome+".\n"+
-                i18n("If you kill this window, the running observation will end!");
+                i18n("This window can be closed only by the 'Home Again' button.")+" "+
+                i18n("Click it as soon as you return.")+" "+
+                i18n("Emergency alert mails will be sent starting from")+" "+allHomes+". "+
+                i18n("Number of contacts")+": "+hike.getAlert().getAlertContacts().size()+".";
         instructionsArea.setText(instructions);
-        timePanel.setText(plannedBegin+"   \u2192   "+plannedHome); // arrow right
+        
+        timePanel.setText(plannedBegin+"   \u2192   "+lastHome); // arrow right
         
         consoleOut.setText("");
         consoleErr.setText("");
@@ -136,7 +145,7 @@ public class ObservationPage extends AbstractWizardPage
         homeAgain.setEnabled(true);
         homeAgain.addActionListener(homeAgainListener);
         homeAgain.setToolTipText(
-                i18n("Click to stop alert mails from being sent after")+" "+plannedHome);
+                i18n("Click to stop alert mails from being sent after")+" "+firstHome);
         
         SwingUtilities.invokeLater(() -> { // call the StateMachine
             try {
@@ -185,33 +194,44 @@ public class ObservationPage extends AbstractWizardPage
 
     private void homeAgain() {
         final StateMachine stateMachine = getStateMachine();
-        String message = null;
         
-        if (stateMachine.notYetOnTheWay()) // hike has not even started
-            message = i18n("You want to cancel the hike?");
-        else if (stateMachine.inTime()) // home before planned end
-            message = i18n("Welcome back, you are in time!");
-        else if (stateMachine.tooLate()) // home after first alert mail
-            message = i18n("Welcome back, you are late!");
+        final boolean onTheWay = stateMachine.onTheWay();
+        final boolean inTime = getHike().lastDay().getPlannedHome().after(DateUtil.now());
         
-        if (message != null) {
-            message += "\n\n"+
-                i18n("Press 'Yes' if that is you, ")+getHike().getAlert().getNameOfHiker()+",\n"+
-                i18n("or 'No' to continue the running observation.")+"\n";
+        if (stateMachine.isRunning()) { // not in time, or StateMachine crash
+            String message = null;
+            if (stateMachine.notYetOnTheWay()) // hike has not even started
+                message = i18n("You want to cancel the hike?");
+            else if (onTheWay && inTime) // home before planned end
+                message = i18n("Welcome back, you are in time!");
+            else if (stateMachine.overdueAlert()) // home after first alert mail
+                message = i18n("Welcome back, you are late!");
             
-            if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
-                    getFrame(),
-                    message,
-                    i18n("Confirm Termination"),
-                    JOptionPane.YES_NO_OPTION,
-                    stateMachine.notYetOnTheWay() ? JOptionPane.WARNING_MESSAGE : JOptionPane.QUESTION_MESSAGE))
-            {
-                // START keep order of statements
-                final boolean inTime = stateMachine.inTime();
-                getStateMachine().getUserInterface().comingHome();
-                endState(inTime);
-                // END keep order of statements
+            if (message != null) {
+                message += "\n\n"+
+                    i18n("Press 'Yes' if that is you, ")+getHike().getAlert().getNameOfHiker()+",\n"+
+                    i18n("or 'No' to continue the running observation.")+"\n";
+                
+                if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+                        getFrame(),
+                        message,
+                        i18n("Confirm Termination"),
+                        JOptionPane.YES_NO_OPTION,
+                        stateMachine.notYetOnTheWay() ? JOptionPane.WARNING_MESSAGE : JOptionPane.QUESTION_MESSAGE))
+                {
+                    // START keep order of statements
+                    getStateMachine().getUserInterface().comingHome();
+                    endState(onTheWay);
+                    // END keep order of statements
+                }
             }
+            else { // can only be onTheWay and not inTime, happens when hiker stops alert mails remotely
+                getStateMachine().getUserInterface().comingHome();
+                endState(false);
+            }
+        }
+        else {
+            endState(false);
         }
     }
     

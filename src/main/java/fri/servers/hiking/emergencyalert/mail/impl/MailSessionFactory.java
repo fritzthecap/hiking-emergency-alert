@@ -45,6 +45,9 @@ public class MailSessionFactory
     }
 
     private void dumpProperties(Properties mailProperties, boolean send) {
+        if ("true".equals(mailProperties.getProperty("mail.debug")) == false)
+            return;
+        
         final String type = (send ? "Send" : "Receive");
         System.err.println("======================= START "+type+" MailProperties =======================");
         for (Map.Entry<Object,Object> entry : mailProperties.entrySet()) {

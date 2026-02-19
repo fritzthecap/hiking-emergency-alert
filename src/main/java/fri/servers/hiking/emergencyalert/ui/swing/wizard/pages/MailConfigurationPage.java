@@ -250,7 +250,7 @@ public class MailConfigurationPage extends AbstractWizardPage
         customPropertiesToCommit = null; // no uncommitted data any more
         
         if (goingForward) {
-            try { // silently save before going to route/times page
+            try { // silently save precious mail configurations to file before next page
                 getTrolley().save(getHike());
             }
             catch (Exception e) {
