@@ -6,6 +6,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -213,6 +214,7 @@ public class MailTextsPage extends AbstractWizardPage
         listModel.addElement(i18n("IMPORTANT: when you could organize help, please send a response-mail. The MAIL-ID above must be contained in it. That prevents further contacts to be distressed."));
         
         procedureTodosField = new JList<>(listModel); // list of 1-n multiline text-areas
+        procedureTodosField.setFont(procedureTodosField.getFont().deriveFont(Font.PLAIN)); // default font is BOLD
         procedureTodosField.setToolTipText(i18n("Tell the contact what to do when receiving this mail"));
         procedureTodosField.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         procedureTodosField.setCellRenderer(new DefaultListCellRenderer() {
