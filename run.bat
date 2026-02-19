@@ -1,4 +1,5 @@
 java^
+ -DfontPercent=120^
  -Dmail.user=your.name@provider^
  -Dmail.transport.protocol=smtp^
  -Dmail.store.protocol=imaps^
