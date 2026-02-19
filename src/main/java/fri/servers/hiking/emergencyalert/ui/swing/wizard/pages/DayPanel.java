@@ -114,7 +114,7 @@ class DayPanel extends JPanel
     }
     
     String validateFields() {
-        if (StringUtil.isEmpty(routeField.getText()))
+        if (noRouteNoImages())
             return i18n("The Route description must not be empty!");
         
         if (plannedHomeDateField.getDateValue() == null)
@@ -161,6 +161,14 @@ class DayPanel extends JPanel
         return DateUtil.mergeDateAndTime(homeDate, homeTime);
     }
 
+    @SuppressWarnings("rawtypes")
+    boolean noRouteNoImages() {
+        final Vector<Vector> dataVector = getImagesFromTable();
+        final boolean noImages = (dataVector == null || dataVector.size() <= 0);
+        final boolean noText = StringUtil.isEmpty(routeField.getText());
+        return (noImages && noText);
+    }
+    
     Collection<? extends JComponent> getFocusValidationFields() {
         return List.of(
                 routeField,

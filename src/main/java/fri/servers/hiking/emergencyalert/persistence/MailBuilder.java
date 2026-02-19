@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import fri.servers.hiking.emergencyalert.Version;
 import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
+import fri.servers.hiking.emergencyalert.persistence.entities.Day;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 import fri.servers.hiking.emergencyalert.util.Platform;
@@ -60,10 +61,54 @@ public class MailBuilder
     /** This is sent when hike is overdue. */
     public Mail buildAlertMail() {
         final String subject = subject();
-        final String text = buildAlertMailText(hike, contact);
-        final List<File> attachments = buildAttachments(hike.currentDay().getRouteImages());
+        final String text = buildAlertMailText(-1);
+        final List<File> attachments = buildAttachments(-1);
         
         return new Mail(from(), to(), subject, text, CONTENT_TYPE, attachments, null);
+    }
+
+    public String buildAlertMailText(int dayIndex) {
+        final StringBuilder textBuilder = new StringBuilder();
+                
+        textBuilder.append(getContactTitle(contact)+" !\n\n");
+        textBuilder.append(substitute(hike.getAlert().getHelpRequestIntroduction()));
+        textBuilder.append("\n\n");
+        textBuilder.append("MAIL-ID: "+hike.uniqueMailId);
+        textBuilder.append("\n\n");
+        
+        if (hike.getAlert().getProcedureTodos() != null) {
+            for (int i = 0; i < hike.getAlert().getProcedureTodos().size(); i++) {
+                final String procedureTodo = hike.getAlert().getProcedureTodos().get(i);
+                textBuilder.append("("+(i + 1)+") "+substitute(procedureTodo)+"\n");
+            }
+            textBuilder.append("\n");
+        }
+        
+        final Day day = (dayIndex < 0) ? hike.currentDay() : hike.getDays().get(dayIndex);
+        textBuilder.append(
+                i18n("Route")+": "+
+                (day.getRoute() != null ? "\n"+day.getRoute() : i18n("See attached images"))
+                +"\n");
+        
+        footer(hike, textBuilder);
+        
+        return textBuilder.toString();
+    }
+
+    public List<File> buildAttachments(int dayIndex) {
+        final Day day = (dayIndex < 0) ? hike.currentDay() : hike.getDays().get(dayIndex);
+        final List<String> routeImages = day.getRouteImages();
+        final List<File> attachments = new ArrayList<>();
+        if (routeImages != null) {
+            for (String routeImage : routeImages) {
+                final File file = new File(routeImage);
+                if (file.isFile())
+                    attachments.add(file);
+                else
+                    System.err.println("ERROR: Could not find attachment file "+routeImage);
+            }
+        }
+        return attachments;
     }
 
     /** This is sent when a contact did not respond in time. */
@@ -91,49 +136,10 @@ public class MailBuilder
         return contact.getMailAddress();
     }
 
-    private String buildAlertMailText(Hike hike, Contact contact) {
-        final StringBuilder textBuilder = new StringBuilder();
-                
-        textBuilder.append(getContactTitle(contact)+" !\n\n");
-        textBuilder.append(substitute(hike.getAlert().getHelpRequestIntroduction()));
-        textBuilder.append("\n\n");
-        textBuilder.append("MAIL-ID: "+hike.uniqueMailId);
-        textBuilder.append("\n\n");
-        
-        if (hike.getAlert().getProcedureTodos() != null) {
-            for (int i = 0; i < hike.getAlert().getProcedureTodos().size(); i++) {
-                final String procedureTodo = hike.getAlert().getProcedureTodos().get(i);
-                textBuilder.append("("+(i + 1)+") "+substitute(procedureTodo)+"\n");
-            }
-            textBuilder.append("\n");
-        }
-        
-        if (hike.currentDay().getRoute() != null)
-            textBuilder.append("Route:\n"+hike.currentDay().getRoute()+"\n");
-        
-        footer(hike, textBuilder);
-        
-        return textBuilder.toString();
-    }
-
     private String getContactTitle(Contact contact) {
         return StringUtil.isNotEmpty(contact.getFirstName()) ? contact.getFirstName()
                 : StringUtil.isNotEmpty(contact.getLastName()) ? contact.getLastName() 
                 : contact.getMailAddress();
-    }
-
-    private List<File> buildAttachments(List<String> routeImages) {
-        final List<File> attachments = new ArrayList<>();
-        if (routeImages != null) {
-            for (String routeImage : routeImages) {
-                final File file = new File(routeImage);
-                if (file.isFile())
-                    attachments.add(file);
-                else
-                    System.err.println("ERROR: Could not find attachment file "+routeImage);
-            }
-        }
-        return attachments;
     }
 
     private void footer(Hike hike, final StringBuilder textBuilder) {

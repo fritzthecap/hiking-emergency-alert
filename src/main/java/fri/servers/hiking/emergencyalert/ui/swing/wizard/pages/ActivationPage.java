@@ -12,6 +12,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
@@ -37,8 +38,7 @@ public class ActivationPage extends AbstractWizardPage
     private JTextArea hikerData;
     private JTextArea contactsAndSendTimes;
     private JTextField alertMailSubject;
-    private JTextArea alertMailText;
-    private JList<String> attachmentFileNames;
+    private JTabbedPane mailTextsAndRouteImages;
     private JTextField passingToNextMailSubject;
     private JTextArea passingToNextMailText;
     
@@ -68,9 +68,7 @@ public class ActivationPage extends AbstractWizardPage
         alertMailSubject.setEditable(false);
         alertMailSubject.setBackground(Color.WHITE);
         
-        alertMailText = SwingUtil.buildTextArea(null);
-        
-        attachmentFileNames = new JList<>();
+        mailTextsAndRouteImages = new JTabbedPane();
         
         passingToNextMailSubject = SwingUtil.buildTextField(i18n("Continue-to-next Mail Subject"), null, null);
         passingToNextMailSubject.setBackground(Color.WHITE);
@@ -92,21 +90,13 @@ public class ActivationPage extends AbstractWizardPage
                 contactsAndSendTimes));
         timesAndHikerPanel.add(hikerAndContactsPanel);
        
-        final JSplitPane alertMailSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        alertMailSplitPane.setResizeWeight(0.8);
-        alertMailSplitPane.setOneTouchExpandable(true);
-        alertMailSplitPane.setLeftComponent(
-                SwingUtil.buildScrollPane(i18n("Alert Mail Text"), alertMailText));
-        alertMailSplitPane.setRightComponent(
-                SwingUtil.buildScrollPane(i18n("Attachments"), attachmentFileNames));
-        
         final JPanel alertMailPanel = new JPanel(new BorderLayout());
-        alertMailPanel.add(
-                alertMailSplitPane, 
-                BorderLayout.CENTER);
         alertMailPanel.add(
                 alertMailSubject, 
                 BorderLayout.NORTH);
+        alertMailPanel.add(
+                mailTextsAndRouteImages, 
+                BorderLayout.CENTER);
         
         final JPanel passingToNextMailPanel = new JPanel(new BorderLayout());
         passingToNextMailPanel.add(
@@ -147,8 +137,14 @@ public class ActivationPage extends AbstractWizardPage
         final Mail alertMail = mailBuilder.buildAlertMail();
         
         alertMailSubject.setText(alertMail.subject());
-        alertMailText.setText(alertMail.text());
-        attachmentFileNames.setListData(buildAttachmentsList(alertMail));
+        
+        mailTextsAndRouteImages.removeAll();
+        final List<Day> days = hike.getDays();
+        for (int i = 0; i < days.size(); i++)
+            mailTextsAndRouteImages.addTab(
+                    i18n("Day")+" "+(i + 1), 
+                    new MailTextAndRouteImagesPanel(days.get(i), mailBuilder, i)
+                );
         
         final Mail passingToNextMail = mailBuilder.buildPassingToNextMail();
         passingToNextMailSubject.setText(passingToNextMail.subject());
@@ -229,16 +225,45 @@ public class ActivationPage extends AbstractWizardPage
         return contactsText.toString();
     }
     
-    private String[] buildAttachmentsList(Mail alertMail) {
-        final List<File> attachments = alertMail.attachments();
-        final int size = attachments.size();
-        if (size <= 0) // JList layout workaround
-            return new String[] { " " }; // JList would be VERY wide when empty, despite split resizeWeight
+    
+    
+    private static class MailTextAndRouteImagesPanel extends JPanel
+    {
+        private JTextArea alertMailText;
+        private JList<String> attachmentFileNames;
+
+        MailTextAndRouteImagesPanel(Day day, MailBuilder mailBuilder, int dayIndex) {
+            super(new BorderLayout());
+            
+            alertMailText = SwingUtil.buildTextArea(null);
+            attachmentFileNames = new JList<>();
+            
+            final JSplitPane alertMailSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+            alertMailSplitPane.setResizeWeight(0.8);
+            alertMailSplitPane.setOneTouchExpandable(true);
+            alertMailSplitPane.setLeftComponent(
+                    SwingUtil.buildScrollPane(i18n("Alert Mail Text"), alertMailText));
+            alertMailSplitPane.setRightComponent(
+                    SwingUtil.buildScrollPane(i18n("Attachments"), attachmentFileNames));
+            add(alertMailSplitPane, BorderLayout.CENTER);
+
+            final String mailText = mailBuilder.buildAlertMailText(dayIndex);
+            alertMailText.setText(mailText);
+            
+            final List<File> attachments = mailBuilder.buildAttachments(dayIndex);
+            attachmentFileNames.setListData(buildAttachmentsList(attachments));
+        }
         
-        final String[] attachmentNames = new String[size];
-        for (int i = 0; i < size; i++)
-            attachmentNames[i] = attachments.get(i).getName()+"\n";
-        
-        return attachmentNames;
+        private String[] buildAttachmentsList(List<File> attachments) {
+            final int size = attachments.size();
+            if (size <= 0) // JList layout workaround
+                return new String[] { " " }; // JList would be VERY wide when empty, despite split resizeWeight
+            
+            final String[] attachmentNames = new String[size];
+            for (int i = 0; i < size; i++)
+                attachmentNames[i] = attachments.get(i).getName()+"\n";
+            
+            return attachmentNames;
+        }
     }
 }
