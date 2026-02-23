@@ -1,5 +1,17 @@
 # hiking-emergency-alert
 
+![Static Badge](https://img.shields.io/badge/Type-Desktop_App-blue?link=https://en.wikipedia.org/wiki/Desktop_computer)
+![Static Badge](https://img.shields.io/badge/Language-Java_17-darkgreen?link=https://openjdk.org/)
+![Static Badge](https://img.shields.io/badge/UI_System-Swing-darkgreen?link=https://docs.oracle.com/javase/tutorial/uiswing/index.html)
+![Static Badge](https://img.shields.io/badge/Application_JAR-1.86_MB-darkgreen)
+
+![Static Badge](https://img.shields.io/github/license/fritzthecap/hiking-emergency-alert?color=pink)
+![GitHub Created At](https://img.shields.io/github/created-at/fritzthecap/hiking-emergency-alert?color=pink)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/fritzthecap/hiking-emergency-alert?color=pink)
+![GitHub repo size](https://img.shields.io/github/repo-size/fritzthecap/hiking-emergency-alert?color=pink)
+![GitHub last commit](https://img.shields.io/github/last-commit/fritzthecap/hiking-emergency-alert?color=pink)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/fritzthecap/hiking-emergency-alert/total?color=pink)
+
 A desktop application that runs at home while you are hiking. It starts to send alert e-mails when you are overdue.
 
 You need an e-mail account and Internet connection at your home. You run this application before you leave for a hike.
