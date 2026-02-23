@@ -96,6 +96,14 @@ public class HikeFileManager
 
     /** Delivers the default save directory, excluding file-name. */
     public String getSavePath() {
+        final Path savePath = Path.of(DEFAULT_JSON_PATH);
+        if (Files.isDirectory(savePath) == false)
+            try {
+                Files.createDirectories(savePath);
+            }
+            catch (IOException e) {
+                System.err.println(e.toString());
+            }
         return DEFAULT_JSON_PATH;
     }
 

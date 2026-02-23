@@ -280,7 +280,7 @@ class DayPanel extends JPanel
     }
     
     private void chooseImageFile() {
-        final File[] files = fileChooser.open(false, null);
+        final File[] files = fileChooser.openFiles(false, null);
         if (files != null)
             for (File file : files)
                 addRouteImageToTable(file.getAbsolutePath());

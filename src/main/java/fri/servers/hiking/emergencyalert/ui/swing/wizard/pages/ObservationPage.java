@@ -257,7 +257,7 @@ public class ObservationPage extends AbstractWizardPage
             getStateMachine().getUserInterface().registerHike(newHike);
             
             getTrolley().gotoPage(RouteAndTimesPage.class); // go back to RouteAndTimesPage
-            getTrolley().setHikeFile(null); // forget old file name
+            getTrolley().setHikeFile(null, newHike); // forget old file name
         }
     }
 }

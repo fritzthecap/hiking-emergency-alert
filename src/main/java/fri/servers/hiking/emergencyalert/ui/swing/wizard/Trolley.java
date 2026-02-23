@@ -53,7 +53,7 @@ public class Trolley
         this.forwardButton = forwardButton;
         this.backwardButton = backwardButton;
 
-        refreshHikeCopy();
+        refreshHikeCopy(stateMachine.getHike());
     }
     
     /** @return true when the hike was changed by the UI, done by comparison with a deep clone. */
@@ -76,9 +76,9 @@ public class Trolley
         return hikeFile;
     }
     /** Called when loading a hike-file from disk, or saving one to disk. */
-    public void setHikeFile(File hikeFile) {
+    public void setHikeFile(File hikeFile, Hike hike) {
         this.hikeFile = hikeFile;
-        refreshHikeCopy();
+        refreshHikeCopy(hike);
     }
     
     public void setForwardEnabled(boolean enabled) {
@@ -119,19 +119,21 @@ public class Trolley
         
         if (targetFile != null) { // user explicitly chose a file
             hikeFileManager.save(targetFile.getAbsolutePath(), json);
-            setHikeFile(targetFile); // make the explicitly chosen file the file for future saves
+            setHikeFile(targetFile, hike); // make the explicitly chosen file the file for future saves
+        }
+        else {
+            refreshHikeCopy(hike); // refresh change-detection with current persistence-state
         }
         
         hikeFileManager.save(json); // always also save to default file
         
-        refreshHikeCopy(); // refresh change-detection with current persistence-state
     }
     
     private String hikeToJsonString(Hike hike) {
         return new JsonGsonSerializer<Hike>().toJson(hike);
     }
     
-    private void refreshHikeCopy() {
-        this.hikeCopy = hikeToJsonString(stateMachine.getHike());
+    private void refreshHikeCopy(Hike hike) {
+        this.hikeCopy = hikeToJsonString(hike);
     }
 }

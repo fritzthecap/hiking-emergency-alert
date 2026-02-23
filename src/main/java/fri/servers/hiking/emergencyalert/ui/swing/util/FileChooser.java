@@ -24,7 +24,7 @@ public class FileChooser
      * @param extension optional, the file extension without leading dot.
      * @return chosen file(s) or null for canceled.
      */
-    public File[] open(boolean singleSelection, String extension) {
+    public File[] openFiles(boolean singleSelection, String extension) {
         if (StringUtil.isNotEmpty(currentDirectory))
             currentDirectory = new HikeFileManager().ensurePathExists(currentDirectory);
         
@@ -44,8 +44,8 @@ public class FileChooser
         return null;
     }
     
-    /** Never returns a directory, always a file. */
-    public File save(File suggestedFile) {
+    /** @return the file the user chose for saving data. */
+    public File saveFile(File suggestedFile) {
         final String directory = suggestedFile.getParent();
         
         final JFileChooser fileChooser = new JFileChooser(directory != null ? directory : currentDirectory);

@@ -241,7 +241,7 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
     // file load logic
     
     private void loadHike() {
-        final File[] hikeFile = fileChooser.open(true, "json"); // extension
+        final File[] hikeFile = fileChooser.openFiles(true, "json"); // extension
         if (hikeFile != null)
             loadHike(hikeFile[0]);
     }
@@ -258,7 +258,7 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
                 rebuildWithNewLanguage(newLocale);
             
             // when no error occurred until now, we can use this as save-file
-            getTrolley().setHikeFile(hikeFile);
+            getTrolley().setHikeFile(hikeFile, hike);
         }
         catch (Exception e) {
             showError(e);
