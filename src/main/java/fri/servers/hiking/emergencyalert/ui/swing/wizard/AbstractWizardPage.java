@@ -285,10 +285,8 @@ public abstract class AbstractWizardPage
     }
     
     /**
-     * Called by windowClose() on any page, and from ActivationPage.commit().
-     * @param letChooseTargetFile true when coming from ActivationPage.commit(),
-     *      or from <code>windowClose()</code> when <code>trolley.getHikeFile() != null</code>;
-     *      false when coming from <code>windowClose()</code> and <code>trolley.getHikeFile() == null</code>.
+     * Called by windowClose() on any page, and from global "Save" button.
+     * @param letChooseTargetFile true when <code>trolley.getHikeFile() != null</code>.
      */
     private boolean saveHikeToFile(boolean letChooseTargetFile) {
         final File hikeFile = trolley.getHikeFile();
@@ -330,7 +328,7 @@ public abstract class AbstractWizardPage
                 ? hikeFile
                 : createFilenameFromHike(directory, hikeFileManager.getSaveFilename());
         
-        return saveFileChooser.save(suggestedFile); // opens dialog to browse file-system
+        return saveFileChooser.saveFile(suggestedFile); // opens dialog to browse file-system
     }
 
     private File createFilenameFromHike(String directory, String saveFilename) {
@@ -362,6 +360,7 @@ public abstract class AbstractWizardPage
             saveButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    commit(false);
                     saveHikeToFile(trolley.getHikeFile() == null);
                 }
             });
