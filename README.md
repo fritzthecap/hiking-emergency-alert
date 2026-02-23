@@ -1,7 +1,5 @@
 # hiking-emergency-alert
 
-- **Sorry, still buggy due to a JAR packing problem with angus-mail and dsn libraries overwriting each others jakarta.mailcap. Currently trying to fix this problem.** 
-
 ![Static Badge](https://img.shields.io/badge/Type-Desktop_App-blue?link=https://en.wikipedia.org/wiki/Desktop_computer)
 ![Static Badge](https://img.shields.io/badge/Language-Java_17-darkgreen?link=https://openjdk.org/)
 ![Static Badge](https://img.shields.io/badge/UI_System-Swing-darkgreen?link=https://docs.oracle.com/javase/tutorial/uiswing/index.html)
