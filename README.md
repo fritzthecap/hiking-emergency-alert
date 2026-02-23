@@ -1,5 +1,19 @@
 # hiking-emergency-alert
 
+- **Sorry, still buggy due to a JAR packing problem with angus-mail and dsn libraries overwriting each others jakarta.mailcap. Currently trying to fix this problem.** 
+
+![Static Badge](https://img.shields.io/badge/Type-Desktop_App-blue?link=https://en.wikipedia.org/wiki/Desktop_computer)
+![Static Badge](https://img.shields.io/badge/Language-Java_17-darkgreen?link=https://openjdk.org/)
+![Static Badge](https://img.shields.io/badge/UI_System-Swing-darkgreen?link=https://docs.oracle.com/javase/tutorial/uiswing/index.html)
+![Static Badge](https://img.shields.io/badge/Application_JAR-1.86_MB-darkgreen)
+
+![Static Badge](https://img.shields.io/github/license/fritzthecap/hiking-emergency-alert?color=pink)
+![GitHub Created At](https://img.shields.io/github/created-at/fritzthecap/hiking-emergency-alert?color=pink)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/fritzthecap/hiking-emergency-alert?color=pink)
+![GitHub repo size](https://img.shields.io/github/repo-size/fritzthecap/hiking-emergency-alert?color=pink)
+![GitHub last commit](https://img.shields.io/github/last-commit/fritzthecap/hiking-emergency-alert?color=pink)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/fritzthecap/hiking-emergency-alert/total?color=pink)
+
 A desktop application that runs at home while you are hiking. It starts to send alert e-mails when you are overdue.
 
 You need an e-mail account and Internet connection at your home. You run this application before you leave for a hike.
@@ -16,7 +30,7 @@ Supported languages:
 - Italian
 - Spanish
 
-To use this application you need at least Java 17 installed on your computer. This is freely available on the [Open Java website](https://jdk.java.net/25/), or [from Oracle](https://www.oracle.com/de/java/technologies/downloads/).
+To use this application you need at least Java 17 installed on your computer. This is freely available on the [Open Java website](https://jdk.java.net/25/), or [from Oracle](https://www.oracle.com/de/java/technologies/downloads/). If you are on a 32bit platform, the [bellsoft JDK downloads](https://fritzthecat-blog.blogspot.com/2026/02/installing-java-17-on-32-bit-linux.html)  may help you.
 As soon as you have installed the Java Runtime Environment and downloaded _hiking-emergency-alert.jar_, launch
 
     java -jar hiking-emergency-alert.jar
