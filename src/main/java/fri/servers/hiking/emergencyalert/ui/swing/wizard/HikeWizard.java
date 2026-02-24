@@ -15,7 +15,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.ToolTipManager;
 import javax.swing.event.MouseInputAdapter;
 import fri.servers.hiking.emergencyalert.persistence.HikeFactory;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
@@ -105,9 +104,6 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
                 }
             }
         });
-        
-        // globally show tooltips for 25 seconds
-        ToolTipManager.sharedInstance().setDismissDelay(25000);
     }
 
     /**

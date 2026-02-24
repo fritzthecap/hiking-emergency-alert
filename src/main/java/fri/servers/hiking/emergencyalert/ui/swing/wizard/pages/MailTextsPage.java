@@ -3,10 +3,10 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 import static fri.servers.hiking.emergencyalert.persistence.MailBuilder.*;
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -21,6 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -47,6 +48,7 @@ public class MailTextsPage extends AbstractWizardPage
 {
     private JTextField mailSubjectField;
     private JTextArea mailIntroductionTextField;
+    private JLabel mailId;
     private JList<String> procedureTodosField;
     private JTextArea passingToNextTextField;
     private JCheckBox usePassingToNextMail;
@@ -67,7 +69,7 @@ public class MailTextsPage extends AbstractWizardPage
         mailIntroductionTextField = SwingUtil.buildTextArea(
                 i18n("The message's content text"),
                 i18n("I had an accident while hiking and need help. This is serious!"));
-        mailIntroductionTextField.setRows(4);
+        mailIntroductionTextField.setRows(2);
         
         final JComponent todoList = buildProcedureTodosList();
         
@@ -105,20 +107,31 @@ public class MailTextsPage extends AbstractWizardPage
         
         final JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        
+        subjectTextPanel.setAlignmentX(JComponent.LEFT_ALIGNMENT);
         panel.add(subjectTextPanel);
         
-        panel.add(SwingUtil.buildScrollPane(
-                "* "+i18n("Alert Mail Text"), 
-                mailIntroductionTextField)); // full width
+        final JScrollPane mailIntro = 
+                SwingUtil.buildScrollPane("* "+i18n("Alert Mail Text"), mailIntroductionTextField);
+        mailIntro.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        panel.add(mailIntro);
         
+        mailId = new JLabel();
+        mailId.setToolTipText(i18n("Unique hike identifier for recognizing mails related to it"));
+        mailId.setForeground(Color.BLUE);
+        mailId.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        panel.add(mailId);
+        
+        todoList.setAlignmentX(JComponent.LEFT_ALIGNMENT);
         panel.add(todoList);
         
-        usePassingToNextMail.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        usePassingToNextMail.setAlignmentX(JComponent.LEFT_ALIGNMENT);
         panel.add(usePassingToNextMail);
         
-        panel.add(SwingUtil.buildScrollPane(
-                i18n("Continue-to-next Mail Text"),
-                passingToNextTextField));
+        final JScrollPane passingToNext = 
+                SwingUtil.buildScrollPane(i18n("Continue-to-next Mail Text"), passingToNextTextField);
+        passingToNext.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        panel.add(passingToNext);
         
         final JPanel contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(panel, BorderLayout.CENTER);
@@ -136,6 +149,8 @@ public class MailTextsPage extends AbstractWizardPage
         
         if (StringUtil.isNotEmpty(alert.getHelpRequestIntroduction()))
             mailIntroductionTextField.setText(hike.getAlert().getHelpRequestIntroduction());
+        
+        mailId.setText("MAIL-ID: "+hike.uniqueMailId);
         
         if (alert.getProcedureTodos() != null && alert.getProcedureTodos().size() > 0) {
             final DefaultListModel<String> listModel = (DefaultListModel<String>) procedureTodosField.getModel();
@@ -214,7 +229,6 @@ public class MailTextsPage extends AbstractWizardPage
         listModel.addElement(i18n("IMPORTANT: when you could organize help, please send a response-mail. The MAIL-ID above must be contained in it. That prevents further contacts to be distressed."));
         
         procedureTodosField = new JList<>(listModel); // list of 1-n multiline text-areas
-        procedureTodosField.setFont(procedureTodosField.getFont().deriveFont(Font.PLAIN)); // default font is BOLD
         procedureTodosField.setToolTipText(i18n("Tell the contact what to do when receiving this mail"));
         procedureTodosField.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         procedureTodosField.setCellRenderer(new DefaultListCellRenderer() {
@@ -225,6 +239,7 @@ public class MailTextsPage extends AbstractWizardPage
                     theValue = " "; // else line has no height
                 else
                     theValue = theValue.replace("\n", " | ");
+                
                 return super.getListCellRendererComponent(list, theValue, index, isSelected, cellHasFocus);
             }
         });

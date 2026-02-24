@@ -3,6 +3,7 @@ package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
@@ -27,6 +28,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import fri.servers.hiking.emergencyalert.mail.MailUtil;
@@ -55,6 +57,8 @@ public class ContactsPage extends AbstractWizardPage
     private JCheckBox useContactDetectionMinutesField;
     private JFormattedTextField confirmationPollingMinutesField;
     
+    private ActionListener useContactDetectionMinutesActionListener;
+    
     @Override
     protected String getTitle() {
         return i18n("Contacts");
@@ -71,6 +75,8 @@ public class ContactsPage extends AbstractWizardPage
     protected void populateUi(Hike hike) {
         populateContactsUi(hike);
         populateIntervalsUi(hike);
+        // initialize state
+        useContactDetectionMinutesActionListener.actionPerformed(null);
     }
 
     @Override
@@ -95,21 +101,34 @@ public class ContactsPage extends AbstractWizardPage
                 i18n("Will appear in mail signature"),
                 null);
         
-        addressOfHikerField = SwingUtil.buildTextField(
-                i18n("Your Address"),
-                i18n("Would appear in mail signature"),
-                null);
-        
         phoneNumberOfHikerField = SwingUtil.buildTextField(
                 i18n("Your Phone Number"),
                 i18n("Available as '$phone' variable in mail texts"),
                 null);
         
+        addressOfHikerField = SwingUtil.buildTextField(
+                i18n("Your Address"),
+                i18n("Would appear in mail signature"),
+                null);
+        
         final JComponent contactsTable = buildContactsTable();
+        
+        // set column 3 disabled when useContactDetectionMinutesField is off
+        final TableCellRenderer originalHeaderRenderer = alertContactsField.getTableHeader().getDefaultRenderer();
+        alertContactsField.getTableHeader().setDefaultRenderer(new TableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                final Component c = originalHeaderRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (column == 3)
+                    c.setEnabled(useContactDetectionMinutesField.isSelected());
+                else
+                    c.setEnabled(true);
+                return c;
+            }
+        });
         
         final String contactTip = i18n("Use your own e-mail as first contact for the case you are Ok but running late!");
         final TitledBorder insideBorder = BorderFactory.createTitledBorder(contactTip);
-        contactsTable.setToolTipText(contactTip);
         insideBorder.setTitleColor(Color.GRAY);
         contactsTable.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createTitledBorder("* "+i18n("Emergency Alert Contacts")), // outside
@@ -284,7 +303,7 @@ public class ContactsPage extends AbstractWizardPage
         };
         
         // commit cell editing on focus-lost
-        alertContactsField.putClientProperty("terminateEditOnFocusLost", true); // is null by default
+        alertContactsField.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE); // is null by default
         
         ((DefaultCellEditor) alertContactsField.getDefaultEditor(String.class)).setClickCountToStart(1);
         ((DefaultCellEditor) alertContactsField.getDefaultEditor(Integer.class)).setClickCountToStart(1);
@@ -349,9 +368,8 @@ public class ContactsPage extends AbstractWizardPage
     private void addEmptyRowWhenNeeded() {
         final DefaultTableModel model = (DefaultTableModel) alertContactsField.getModel();
         final int lastRow = model.getRowCount() - 1;
-        if (lastRow >= 0)
-            if (isEmptyRow(model, lastRow) == false)
-                model.addRow(createEmptyRow());
+        if (lastRow >= 0 && isEmptyRow(model, lastRow) == false)
+            model.addRow(createEmptyRow());
     }
 
     private void removeEmptyRowsExceptLast() {
@@ -410,14 +428,19 @@ public class ContactsPage extends AbstractWizardPage
         panel.add(Box.createRigidArea(new Dimension(1, 16)));
         panel.add(confirmationPollingMinutesField);
         
-        useContactDetectionMinutesField.addActionListener(new ActionListener() {
+        useContactDetectionMinutesActionListener = (new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final boolean on = useContactDetectionMinutesField.isSelected();
                 alertIntervalMinutesField.setEnabled(on == false);
                 alertIntervalShrinkingField.setEnabled(on == false);
+                
+                ((JComponent) alertContactsField.getDefaultRenderer(Integer.class)).setEnabled(on == true);
+                alertContactsField.repaint();
+                alertContactsField.getTableHeader().repaint();
             }
         });
+        useContactDetectionMinutesField.addActionListener(useContactDetectionMinutesActionListener);
         
         final JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         centerPanel.add(panel);

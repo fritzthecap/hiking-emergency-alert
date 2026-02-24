@@ -8,7 +8,7 @@ import fri.servers.hiking.emergencyalert.persistence.Mail;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.time.HikeTimer;
-import fri.servers.hiking.emergencyalert.ui.swing.util.FontSizer;
+import fri.servers.hiking.emergencyalert.ui.swing.util.UiAdjustments;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.HikeWizard;
 
 /**
@@ -28,8 +28,8 @@ public class SwingAlertHomeServer extends SwingUserInterface
                 new HikeTimer(), 
                 this);
         
-        // configure font when needed
-        FontSizer.checkFontSize();
+        // do some UI corrections
+        UiAdjustments.adjust();
         
         // build Swing UI
         final JFrame frame = new JFrame();

@@ -13,7 +13,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
-import fri.servers.hiking.emergencyalert.ui.swing.util.FontSizer;
+import fri.servers.hiking.emergencyalert.ui.swing.util.UiAdjustments;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.util.Language;
 
@@ -44,7 +44,7 @@ public class DescriptionArea
         editorKit.setStyleSheet(localStyleSheet);
         
         // size fonts for given HTML elements
-        final int fontPercent = FontSizer.getFontPercent();
+        final int fontPercent = UiAdjustments.getFontPercent();
         if (fontPercent != -1) {
             for (Map.Entry<String,Integer> fontSize : fontSizes.entrySet()) {
                 final int scaledFontSize = (int) Math.round((double) fontSize.getValue() * (double) fontPercent / 100.0);

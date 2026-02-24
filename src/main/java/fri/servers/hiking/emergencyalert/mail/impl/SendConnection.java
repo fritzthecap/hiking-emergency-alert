@@ -90,9 +90,12 @@ public class SendConnection extends MailSessionFactory
     private static boolean workedAround = false;
     
     /**
-     * Bug #24: on packing JAR, the file jakarta-mail/META-INF/jakarta.mailcap
-     * is overwritten by dsn/META-INF/jakarta.mailcap. It could also happen that
-     * the second is overwritten by the first. Fixed this here by adding entries copied from 
+     * Error message <i>"no object DCH for MIME type multipart/mixed"</i>.<br/>
+     * Bug #24: on Maven JAR assembly, the file jakarta-mail/META-INF/jakarta.mailcap
+     * is overwritten by dsn/META-INF/jakarta.mailcap; it could also happen that
+     * the second is overwritten by the first. Consequence is that one of the files
+     * did not contribute its MIME-bindings.<br/>
+     * Fixed this here by optionally adding entries copied from 
      * jakarta.mail-2.0.5.jar/META-INF/jakarta.mailcap and dsn-2.0.5.jar/META-INF/jakarta.mailcap
      * to the static default command-map.
      */
