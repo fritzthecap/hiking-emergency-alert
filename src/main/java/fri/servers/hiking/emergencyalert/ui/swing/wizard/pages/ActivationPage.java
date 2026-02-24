@@ -36,7 +36,7 @@ public class ActivationPage extends AbstractWizardPage
 {
     private JTextField hikeTimes;
     private JTextArea hikerData;
-    private JTextArea contactsAndSendTimes;
+    private JTextArea alertPlan;
     private JTextField alertMailSubject;
     private JTabbedPane mailTextsAndRouteImages;
     private JTextField passingToNextMailSubject;
@@ -61,8 +61,8 @@ public class ActivationPage extends AbstractWizardPage
         
         hikerData = SwingUtil.buildTextArea(i18n("You"));
         
-        contactsAndSendTimes = SwingUtil.buildTextArea(null);
-        contactsAndSendTimes.setRows(3);
+        alertPlan = SwingUtil.buildTextArea(null);
+        alertPlan.setRows(3);
         
         alertMailSubject = SwingUtil.buildTextField(i18n("Alert Mail Subject"), null, null);
         alertMailSubject.setEditable(false);
@@ -87,7 +87,7 @@ public class ActivationPage extends AbstractWizardPage
         hikerAndContactsPanel.add(hikerData);
         hikerAndContactsPanel.add(SwingUtil.buildScrollPane(
                 i18n("Planned Alert Times for Contacts"), 
-                contactsAndSendTimes));
+                alertPlan));
         timesAndHikerPanel.add(hikerAndContactsPanel);
        
         final JPanel alertMailPanel = new JPanel(new BorderLayout());
@@ -130,7 +130,7 @@ public class ActivationPage extends AbstractWizardPage
         
         hikerData.setText(buildHikerInfos(alert));
         
-        contactsAndSendTimes.setText(buildContactsAndTimesInfos(hike));
+        alertPlan.setText(buildAlertInfos(hike));
         
         final Contact firstContact = alert.getAlertContacts().get(0);
         final MailBuilder mailBuilder = new MailBuilder(firstContact, hike);
@@ -196,7 +196,7 @@ public class ActivationPage extends AbstractWizardPage
         return hikerText.toString();
     }
     
-    private String buildContactsAndTimesInfos(Hike hike) {
+    static String buildAlertInfos(Hike hike) {
         final List<Contact> contacts = hike.getAlert().getNonAbsentContacts();
         final StringBuilder contactsText = new StringBuilder();
         
@@ -218,7 +218,7 @@ public class ActivationPage extends AbstractWizardPage
             }
         }
         
-        return contactsText.toString();
+        return contactsText.toString().trim();
     }
     
     

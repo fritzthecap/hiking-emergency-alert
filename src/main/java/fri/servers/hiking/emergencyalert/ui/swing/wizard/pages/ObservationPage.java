@@ -37,6 +37,7 @@ public class ObservationPage extends AbstractWizardPage
     private JButton homeAgain;
     private ActionListener homeAgainListener;
     private JTextArea instructionsArea;
+    private JTextArea alertPlan;
     private JLabel timePanel;
     private JTextArea consoleOut;
     private JTextArea consoleErr;
@@ -71,6 +72,8 @@ public class ObservationPage extends AbstractWizardPage
     @Override
     protected void buildUi() {
         // top
+        timePanel = (JLabel) SwingUtil.increaseFontSize(new JLabel("", JLabel.CENTER), 160, true, false);
+        
         instructionsArea = new JTextArea();
         final int BORDER = 12; // empty border space
         instructionsArea.setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER, BORDER));
@@ -78,7 +81,9 @@ public class ObservationPage extends AbstractWizardPage
         instructionsArea.setOpaque(false);
         instructionsArea.setLineWrap(true);
         instructionsArea.setWrapStyleWord(true);
-        timePanel = (JLabel) SwingUtil.increaseFontSize(new JLabel("", JLabel.CENTER), 160, true, false);
+        
+        alertPlan = SwingUtil.buildTextArea(null);
+        alertPlan.setRows(3);
         
         // center
         consoleOut = new JTextArea();
@@ -100,7 +105,14 @@ public class ObservationPage extends AbstractWizardPage
         
         final JPanel instructionsPanel = new JPanel(new BorderLayout());
         instructionsPanel.add(timePanel, BorderLayout.NORTH);
-        instructionsPanel.add(instructionsArea, BorderLayout.CENTER);
+        final JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        split.setResizeWeight(0.5);
+        split.setOneTouchExpandable(true);
+        split.setLeftComponent(new JScrollPane(instructionsArea));
+        final JScrollPane alertPlanScrollPane = new JScrollPane(alertPlan);
+        alertPlanScrollPane.setBorder(BorderFactory.createTitledBorder(i18n("Emergency Alert Contacts")));
+        split.setRightComponent(alertPlanScrollPane);
+        instructionsPanel.add(split, BorderLayout.CENTER);
         
         final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.setTopComponent(scrollPaneForColoredConsole(splitPane, consoleOut, i18n("Progress")));
@@ -128,10 +140,12 @@ public class ObservationPage extends AbstractWizardPage
         
         final String instructions = 
                 i18n("This window can be closed only by the 'Home Again' button.")+" "+
-                i18n("Click it as soon as you return.")+" "+
-                i18n("Emergency alert mails will be sent starting from")+" "+allHomes+". "+
-                i18n("Number of contacts")+": "+hike.getAlert().getAlertContacts().size()+".";
+                i18n("Click it as soon as you return."); //+" "+
+//                i18n("Emergency alert mails will be sent starting from")+" "+allHomes+". "+
+//                i18n("Number of contacts")+": "+hike.getAlert().getAlertContacts().size()+".";
         instructionsArea.setText(instructions);
+        
+        alertPlan.setText(ActivationPage.buildAlertInfos(hike));
         
         timePanel.setText(plannedBegin+"   \u2192   "+lastHome); // arrow right
         
