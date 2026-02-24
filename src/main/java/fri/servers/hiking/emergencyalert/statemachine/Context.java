@@ -164,13 +164,17 @@ public class Context
                     // tell previous contact about skip, in 1 second
                     timer.runInSeconds(() -> sendPassingToNext(previousContact), 1);
                 
-                if (isFirstCall) {
+                if (isFirstCall)
                     mailer.startConfirmationPolling(
                             stateMachine,
                             hike.uniqueMailId,
                             hike.getAlert().getMailConfiguration(),
                             hike.getAlert().getConfirmationPollingMinutes());
-                }
+                
+                if (contactIndex < alertContacts.size()) // a next contact exists
+                    System.out.println("Next contact will be alerted at "+DateUtil.toString(timer.getNextOverdueAlertTime()));
+                else
+                    System.out.println("Polling will be stopped at "+DateUtil.toString(timer.getNextOverdueAlertTime()));
             }
         }
         else { // here it is 1 hour after last contact, it makes no sense to poll anymore
@@ -282,7 +286,7 @@ public class Context
             
             // repeat send attempt when delay is before next overdue alert time
             final int minutesBeforeNextOverdue = FAILURE_REPEAT_MINUTES + 2; // 2 minutes safety offset
-            final Date repeatUntilDate = DateUtil.addMinutes(timer.getNextOverdueAlertTime(), -minutesBeforeNextOverdue);
+            final Date repeatUntilDate = DateUtil.addMinutes(timer.getOverdueAlertTime(), -minutesBeforeNextOverdue);
             
             if (DateUtil.now().before(repeatUntilDate)) {
                 System.out.println("Will repeat send attempt in "+FAILURE_REPEAT_MINUTES+" minutes.");

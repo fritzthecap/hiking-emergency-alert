@@ -60,10 +60,10 @@ public class StateMachine implements
         System.out.println("-> New state is "+state.getClass().getSimpleName());
         
         // end states need a new initialization
-        if (state instanceof AlertConfirmed || state instanceof HomeAgain) { // TODO: this is ugly!
+        if (state instanceof AlertConfirmed || state instanceof HomeAgain) {
             context = new Context(context);
             
-            System.out.println("StateMachine is back to initial state, you can start a new hike.");
+            System.out.println("StateMachine finished.");
         }
     }
     

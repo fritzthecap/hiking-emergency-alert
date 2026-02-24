@@ -26,7 +26,7 @@ public class HikeTimer extends Scheduler
     private EventDispatcher dispatcher;
     private AlertIntervalModel intervalModel;
     
-    private Date nextOverdueAlertTime;
+    private Date overdueAlertTime;
     
     /**
      * Prepares this timer with hike-data and starts it.
@@ -36,6 +36,7 @@ public class HikeTimer extends Scheduler
      * @param plannedHome required, the planned end date/time from Hike.
      * @param intervalModel source for the amount of minutes that should
      *      be waited until the next contact gets alerted about overdue.
+     * @param eventDispatcher the StateMachine.
      */
     public void start(
             final Date plannedBegin, 
@@ -45,7 +46,7 @@ public class HikeTimer extends Scheduler
     {
         assertStart(plannedHome);
         
-        this.nextOverdueAlertTime = Objects.requireNonNull(plannedHome);
+        this.overdueAlertTime = Objects.requireNonNull(plannedHome);
         this.intervalModel = intervalModel;
         this.dispatcher = Objects.requireNonNull(eventDispatcher);
         
@@ -94,8 +95,20 @@ public class HikeTimer extends Scheduler
         });
     }
     
+    /**
+     * The returned time is valid until OVERDUE_ALERT event was fully dispatched.
+     * @return the time when the pending OVERDUE_ALERT will be dispatched.
+     */
+    public Date getOverdueAlertTime() {
+        return overdueAlertTime;
+    }
+    
+    /**
+     * The returned time is valid until OVERDUE_ALERT event was fully dispatched.
+     * @return the time when the next (after pending) OVERDUE_ALERT will be dispatched.
+     */
     public Date getNextOverdueAlertTime() {
-        return nextOverdueAlertTime;
+        return DateUtil.addMinutes(getOverdueAlertTime(), intervalModel.pendingIntervalMinutes());
     }
     
     
@@ -113,12 +126,14 @@ public class HikeTimer extends Scheduler
             @Override
             public void run() {
                 // send an alert
-                dispatcher.dispatchEvent(Event.OVERDUE_ALERT);
+                dispatcher.dispatchEvent(Event.OVERDUE_ALERT); // sends alert-mail
                 
                 // schedule next alert
                 synchronizedOnScheduler(scheduler -> {
-                    nextOverdueAlertTime = DateUtil.addMinutes(nextOverdueAlertTime, intervalModel.nextIntervalMinutes());
-                    scheduler.schedule(createOverdueTask(), nextOverdueAlertTime);
+                    // assign a new overdue time
+                    overdueAlertTime = DateUtil.addMinutes(getOverdueAlertTime(), intervalModel.nextIntervalMinutes());
+                    // schedule the next overdue event
+                    scheduler.schedule(createOverdueTask(), overdueAlertTime);
                 });
             }
         };

@@ -31,22 +31,35 @@ public class AlertIntervalModel
         
     }
     
-    /** Every call may deliver a different minutes amount. */
+    /** Every call skips to a possibly different minutes amount. */
     public int nextIntervalMinutes() {
+        final int minutes = nextIntervalMinutes(true);
+        
+        if (alertIntervalShrinking > 0f) {
+            // in any case shrink alertIntervalMinutes for the case that contact-index runs out of bounds
+            final int minutesToSubtract = Math.round((float) alertIntervalMinutes * alertIntervalShrinking);
+            alertIntervalMinutes = Math.max(1, Math.round((float) alertIntervalMinutes - minutesToSubtract));
+            // never get smaller than one minute
+        }
+        
+        return minutes;
+    }
+    
+    /** The next minutes amount, without skipping to next. */
+    public int pendingIntervalMinutes() {
+        return nextIntervalMinutes(false);
+    }
+    
+    private int nextIntervalMinutes(boolean increment) {
         final int minutes;
         if (useContactDetectionMinutes && index < contactDetectionMinutes.size()) {
             minutes = contactDetectionMinutes.get(index);
-            index++;
+            if (increment)
+                index++;
         }
         else {
             minutes = alertIntervalMinutes;
         }
-        
-        // in any case shrink alertIntervalMinutes for the case that contact-index runs out of bounds
-        final int minutesToSubtract = Math.round((float) alertIntervalMinutes * alertIntervalShrinking);
-        alertIntervalMinutes = Math.max(1, Math.round((float) alertIntervalMinutes - minutesToSubtract));
-        // never get smaller than one minute
-        
         return minutes;
     }
 }

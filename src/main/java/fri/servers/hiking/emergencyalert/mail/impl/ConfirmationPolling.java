@@ -83,7 +83,6 @@ public class ConfirmationPolling extends Scheduler
     
     private void receiveAlertConfirmation() {
         try {
-            System.out.println("Polling tries to receive an alert confirmation at "+DateUtil.nowString()+" ...");
             final Mail confirmation = receiveConnection.searchExternalMailHavingMailId();
             
             if (confirmation != null) { // found an alert confirmation in INBOX
@@ -101,11 +100,11 @@ public class ConfirmationPolling extends Scheduler
     }
 
     private void continuePolling(Exception e) {
-        final String errorMessage = (e != null) ? (e.toString()+"\n") : "";
+        final String errorMessage = (e != null) ? ("ERROR: "+e.toString()+"\n") : "";
         System.out.println(
                 errorMessage+
                 "Found no alert confirmation at "+DateUtil.nowString()+
-                ", continue polling in "+pollingMinutes+" minutes.");
+                ", trying again in "+pollingMinutes+" minutes.");
         
         synchronizedOnScheduler(scheduler ->
             scheduler.schedule(buildTask(), DateUtil.addMinutes(DateUtil.now(), pollingMinutes)));
