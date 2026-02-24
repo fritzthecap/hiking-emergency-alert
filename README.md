@@ -28,7 +28,7 @@ Supported languages:
 - Italian
 - Spanish
 
-To use this application you need at least Java 17 installed on your computer. This is freely available on the [Open Java website](https://jdk.java.net/25/), or [from Oracle](https://www.oracle.com/de/java/technologies/downloads/). If you are on a 32bit platform, the [bellsoft JDK downloads](https://fritzthecat-blog.blogspot.com/2026/02/installing-java-17-on-32-bit-linux.html)  may help you.
+To use this application you need at least Java 17 installed on your computer. This is freely available on the [Open Java website](https://jdk.java.net/25/), or [from Oracle](https://www.oracle.com/de/java/technologies/downloads/). If you are on a 32-bit platform, the [bellsoft JDK downloads](https://fritzthecat-blog.blogspot.com/2026/02/installing-java-17-on-32-bit-linux.html)  may help you.
 As soon as you have installed the Java Runtime Environment and [downloaded hiking-emergency-alert.jar](https://github.com/fritzthecap/hiking-emergency-alert/raw/refs/heads/main/hiking-emergency-alert.jar), launch
 
     java -jar hiking-emergency-alert.jar
