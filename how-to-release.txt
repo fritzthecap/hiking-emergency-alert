@@ -27,9 +27,7 @@
 - Commit and push all project changes to repository
 
 - For major releases, create a release on github ("Releases" - "Draft a New Release"),
-   attach the hiking-emergency-alert.jar file to the release, and
-   edit README.md and adjust the release version number in hyperlink.
-   Then fetch / pull the README.md change to local disk!
+   attach the hiking-emergency-alert.jar file to the release.
    
 - Edit pom.xml, increase version number and add '-SNAPSHOT', save file
 
