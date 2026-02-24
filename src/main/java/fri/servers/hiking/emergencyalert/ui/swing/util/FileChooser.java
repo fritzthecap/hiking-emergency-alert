@@ -36,10 +36,13 @@ public class FileChooser
             fileChooser.setFileFilter(new FileNameExtensionFilter("."+extension, extension));
 
         if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
-            final File[] files = fileChooser.getSelectedFiles();
+            final File[] result = fileChooser.getSelectedFiles();
+            final File[] selectedFiles = (result == null || result.length <= 0)
+                    ? new File[] { fileChooser.getSelectedFile() }
+                    : result;
             // save directory for next call
-            currentDirectory = files[0].getParent();
-            return files;
+            currentDirectory = selectedFiles[0].getParent();
+            return selectedFiles;
         }
         return null;
     }
