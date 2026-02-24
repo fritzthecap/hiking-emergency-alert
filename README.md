@@ -1,7 +1,5 @@
 # hiking-emergency-alert
 
-- **Sorry, still buggy due to a JAR packing problem with angus-mail and dsn libraries overwriting each others jakarta.mailcap. Currently trying to fix this problem.** 
-
 ![Static Badge](https://img.shields.io/badge/Type-Desktop_App-blue?link=https://en.wikipedia.org/wiki/Desktop_computer)
 ![Static Badge](https://img.shields.io/badge/Language-Java_17-darkgreen?link=https://openjdk.org/)
 ![Static Badge](https://img.shields.io/badge/UI_System-Swing-darkgreen?link=https://docs.oracle.com/javase/tutorial/uiswing/index.html)
@@ -30,8 +28,8 @@ Supported languages:
 - Italian
 - Spanish
 
-To use this application you need at least Java 17 installed on your computer. This is freely available on the [Open Java website](https://jdk.java.net/25/), or [from Oracle](https://www.oracle.com/de/java/technologies/downloads/). If you are on a 32bit platform, the [bellsoft JDK downloads](https://fritzthecat-blog.blogspot.com/2026/02/installing-java-17-on-32-bit-linux.html)  may help you.
-As soon as you have installed the Java Runtime Environment and downloaded _hiking-emergency-alert.jar_, launch
+To use this application you need at least Java 17 installed on your computer. This is freely available on the [Open Java website](https://jdk.java.net/25/), or [from Oracle](https://www.oracle.com/de/java/technologies/downloads/). If you are on a 32-bit platform, the [bellsoft JDK downloads](https://fritzthecat-blog.blogspot.com/2026/02/installing-java-17-on-32-bit-linux.html)  may help you.
+As soon as you have installed the Java Runtime Environment and [downloaded hiking-emergency-alert.jar](https://github.com/fritzthecap/hiking-emergency-alert/raw/refs/heads/main/hiking-emergency-alert.jar), launch
 
     java -jar hiking-emergency-alert.jar
 
