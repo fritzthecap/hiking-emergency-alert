@@ -6,7 +6,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -119,10 +118,7 @@ public class ContactsPage extends AbstractWizardPage
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 final Component c = originalHeaderRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if (column == 3)
-                    c.setEnabled(useContactDetectionMinutesField.isSelected());
-                else
-                    c.setEnabled(true);
+                c.setEnabled((column == 3) ? useContactDetectionMinutesField.isSelected() : true);
                 return c;
             }
         });
@@ -269,6 +265,14 @@ public class ContactsPage extends AbstractWizardPage
     
     private JComponent buildContactsTable() {
         alertContactsField = new JTable(buildTableModel(createEmptyDataVector(0))) {
+            private final String[] columnToolTips = new String[] {
+                    i18n("The contact's mail address"),
+                    i18n("The first name of the contact person"),
+                    i18n("The last name of the contact person"),
+                    i18n("How many minutes the person would need to detect an arrived mail"),
+                    i18n("Absent contacts would be ignored when sending alert mails"),
+            };
+            
             /** When editing stops, remove empty rows, validate and and an empty row when needed. */
             @Override
             public void editingStopped(ChangeEvent e) {
@@ -279,24 +283,27 @@ public class ContactsPage extends AbstractWizardPage
                     addEmptyRowWhenNeeded();
             }
             
+            @Override
+            public String getToolTipText(MouseEvent event) {
+                return toolTipText(event);
+            }
+            
+            public String toolTipText(MouseEvent event) {
+                if (event != null)  {
+                    final int column = columnAtPoint(event.getPoint());
+                    if (column >= 0 & columnToolTips.length > column)
+                        return columnToolTips[column];
+                }
+                return null;
+            }
+            
             /** Implement table header tool tips. */
             @Override
             protected JTableHeader createDefaultTableHeader() {
                 return new JTableHeader(columnModel) {
-                    private String[] columnToolTips = new String[] {
-                            i18n("The contact's mail address"),
-                            i18n("The first name of the contact person"),
-                            i18n("The last name of the contact person"),
-                            i18n("How many minutes the person would need to detect an arrived mail"),
-                            i18n("Absent contacts would be ignored when sending alert mails"),
-                    };
-                    
                     @Override
-                    public String getToolTipText(MouseEvent e) {
-                        Point p = e.getPoint();
-                        int index = columnModel.getColumnIndexAtX(p.x);
-                        int realIndex = columnModel.getColumn(index).getModelIndex();
-                        return columnToolTips[realIndex];
+                    public String getToolTipText(MouseEvent event) {
+                        return toolTipText(event);
                     }
                 };
             }
