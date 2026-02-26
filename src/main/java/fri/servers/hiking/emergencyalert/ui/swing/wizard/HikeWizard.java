@@ -69,7 +69,6 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         frame.setGlassPane(this.glassPane = buildGlassPane());
         
         this.descriptionArea = new DescriptionArea();
-        this.wizardOutline = new WizardOutline(pages.length);
         
         // START keep order of statements!
         final boolean fileLoaded = loadDefaultHike();
@@ -79,6 +78,8 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         Language.load(hikeLanguage);
         // resource bundle is loaded, can use i18n() from now on
         SwingLanguage.setJOptionPaneButtonLabels();
+        
+        this.wizardOutline = new WizardOutline(pages);
         
         buildUi();
         
@@ -219,7 +220,8 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
                     }
                 },
                 forwardButton, 
-                backwardButton); // travels through all pages
+                backwardButton,
+                wizardOutline); // travels through all pages
     }
 
     private int determinePageIndex(Class<? extends AbstractWizardPage> requestedPage) {

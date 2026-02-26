@@ -68,10 +68,9 @@ public class LanguageAndFileLoadPage extends AbstractWizardPage
         return false;
     }
     
-    /** Language for title would not get updated, so return no title! */
     @Override
     protected String getTitle() {
-        return "";
+        return i18n("Language and Files");
     }
     
     @Override

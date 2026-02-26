@@ -18,17 +18,20 @@ class WizardOutline extends JPanel
     private static final Color normalColor = Color.GRAY;
     private static final Color highlightColor = Color.RED;
     
-    private List<JLabel> balls = new ArrayList<>();
+    private final AbstractWizardPage[] pages;
+    private final List<JLabel> balls = new ArrayList<>();
     
-    WizardOutline(int pageCount) {
+    WizardOutline(AbstractWizardPage[] pages) {
+        this.pages = pages;
+        
         setLayout(new FlowLayout(FlowLayout.CENTER));
         
         final JPanel bar = new JPanel();
         bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
         add(bar); // centers bar
         
-        for (int i = 0; i < pageCount; i++)
-            bar.add(ball(balls, i + 1, pageCount));
+        for (int i = 0; i < pages.length; i++)
+            bar.add(ball(balls, i, pages));
     }
     
     public void setHighlight(int index)  {
@@ -37,14 +40,19 @@ class WizardOutline extends JPanel
         balls.get(index).setForeground(highlightColor);
     }
 
-    private Component ball(List<JLabel> balls, int pageIndex, int pageCount) {
-        final String label = (pageIndex == 1) ? "\u25CF\u2500"
-                : (pageIndex == pageCount) ? "\u2500\u25CF"
+    private Component ball(List<JLabel> balls, int pageIndex, AbstractWizardPage[] pages) {
+        final String label = (pageIndex == 0) ? "\u25CF\u2500"
+                : (pageIndex == pages.length - 1) ? "\u2500\u25CF"
                     : "\u2500\u25CF\u2500";
         final JLabel ball = new JLabel(label);
-        ball.setToolTipText(""+pageIndex);
+        ball.setToolTipText(pages[pageIndex].getTitle());
         SwingUtil.increaseFontSize(ball, 120, false, false);
         balls.add(ball);
         return ball;
+    }
+
+    void refreshLanguage() {
+        for (int i = 0; i < balls.size(); i++)
+            balls.get(i).setToolTipText(pages[i].getTitle());
     }
 }

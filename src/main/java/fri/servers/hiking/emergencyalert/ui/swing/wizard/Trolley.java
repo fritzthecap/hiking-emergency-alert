@@ -30,28 +30,30 @@ public class Trolley
     }
     
     public final StateMachine stateMachine;
-    private final JButton forwardButton, backwardButton;
     private final DescriptionArea descriptionArea;
+    private final PageRequestListener pageRequestListener;
+    private final JButton forwardButton, backwardButton;
+    private final WizardOutline wizardOutline;
     
     private String hikeCopy;
     private File hikeFile;
     
     private Authenticator authenticator;
     
-    private PageRequestListener pageRequestListener;
-    
     public Trolley(
             StateMachine stateMachine, 
             DescriptionArea descriptionArea,
             PageRequestListener pageRequestListener,
             JButton forwardButton, 
-            JButton backwardButton)
+            JButton backwardButton,
+            WizardOutline wizardOutline)
     {
         this.stateMachine = Objects.requireNonNull(stateMachine);
         this.descriptionArea = descriptionArea;
         this.pageRequestListener = pageRequestListener;
         this.forwardButton = forwardButton;
         this.backwardButton = backwardButton;
+        this.wizardOutline = wizardOutline;
 
         refreshHikeCopy(stateMachine.getHike());
     }
@@ -98,6 +100,7 @@ public class Trolley
         forwardButton.setText(buildNextButtonText());
         backwardButton.setText(buildPreviousButtonText());
         descriptionArea.refreshLanguage();
+        wizardOutline.refreshLanguage();
     }
     
     /**
