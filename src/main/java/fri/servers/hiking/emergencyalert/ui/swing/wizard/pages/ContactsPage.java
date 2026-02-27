@@ -112,20 +112,10 @@ public class ContactsPage extends AbstractWizardPage
         
         final JComponent contactsTable = buildContactsTable();
         
-        // set column 3 disabled when useContactDetectionMinutesField is off
-        final TableCellRenderer originalHeaderRenderer = alertContactsField.getTableHeader().getDefaultRenderer();
-        alertContactsField.getTableHeader().setDefaultRenderer(new TableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                final Component c = originalHeaderRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                c.setEnabled((column == 3) ? useContactDetectionMinutesField.isSelected() : true);
-                return c;
-            }
-        });
-        
         final String contactTip = i18n("Use your own e-mail as first contact for the case you are Ok but running late!");
         final TitledBorder insideBorder = BorderFactory.createTitledBorder(contactTip);
         insideBorder.setTitleColor(Color.GRAY);
+        contactsTable.setToolTipText(contactTip);
         contactsTable.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createTitledBorder("* "+i18n("Emergency Alert Contacts")), // outside
                 insideBorder)
@@ -288,11 +278,12 @@ public class ContactsPage extends AbstractWizardPage
                 return toolTipText(event);
             }
             
-            public String toolTipText(MouseEvent event) {
+            private String toolTipText(MouseEvent event) {
                 if (event != null)  {
                     final int column = columnAtPoint(event.getPoint());
+                    
                     if (column >= 0 & columnToolTips.length > column)
-                        return columnToolTips[column];
+                        return columnToolTips[convertColumnIndexToModel(column)];
                 }
                 return null;
             }
@@ -324,15 +315,24 @@ public class ContactsPage extends AbstractWizardPage
             columnModel.getColumn(4).setPreferredWidth(10);
         });
         
+        // set column 3 disabled when useContactDetectionMinutesField is off
+        final TableCellRenderer originalHeaderRenderer = alertContactsField.getTableHeader().getDefaultRenderer();
+        alertContactsField.getTableHeader().setDefaultRenderer(new TableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                final Component c = originalHeaderRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                c.setEnabled((table.convertColumnIndexToModel(column) == 3) 
+                        ? useContactDetectionMinutesField.isSelected()
+                        : true);
+                return c;
+            }
+        });
+        
         alertContactsField.getTableHeader().setReorderingAllowed(false);
         alertContactsField.setRowHeight(24);
-        
-        final JPanel tablePanel = new JPanel(new BorderLayout());
-        tablePanel.add(new JScrollPane(alertContactsField), BorderLayout.CENTER);
-        
         SwingUtil.makeComponentFocusable(alertContactsField);
         
-        return tablePanel;
+        return new JScrollPane(alertContactsField);
     }
 
     private TableModel buildTableModel(Vector<Vector<Object>> data) {
