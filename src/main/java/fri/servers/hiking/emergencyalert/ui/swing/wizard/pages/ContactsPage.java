@@ -497,6 +497,7 @@ public class ContactsPage extends AbstractWizardPage
             
             if (alertIntervalShrinking > 0) {
                 final AlertIntervalModel intervalModel = new AlertIntervalModel(alertInterval, alertIntervalShrinking);
+                @SuppressWarnings("rawtypes")
                 final Vector<Vector> dataVector = contactsDataVector();
                 
                 for (int row = 0; row < dataVector.size(); row++) // loop non-absent contacts
