@@ -5,6 +5,8 @@ import java.util.List;
 
 public class Alert
 {
+    public static final transient int DEFAULT_ALERT_INTERVAL_MINUTES = 60;
+    
     private String helpRequestSubject;
     private String helpRequestIntroduction;
     private List<String> procedureTodos = new ArrayList<>();
@@ -18,7 +20,7 @@ public class Alert
     
     private String iso639Language = "en";
     
-    private int alertIntervalMinutes = 60; // wait-time until alerting next contact
+    private int alertIntervalMinutes = DEFAULT_ALERT_INTERVAL_MINUTES; // wait-time until alerting next contact
     private float alertIntervalShrinking = 0.0f; // between 0.0 and 1.0, how the wait-time gets smaller with every alert
     private boolean useContactDetectionMinutes = false; // use minutes of contacts
     

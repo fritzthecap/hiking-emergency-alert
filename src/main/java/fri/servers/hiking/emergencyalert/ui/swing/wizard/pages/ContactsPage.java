@@ -34,6 +34,7 @@ import fri.servers.hiking.emergencyalert.mail.MailUtil;
 import fri.servers.hiking.emergencyalert.persistence.entities.Alert;
 import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
+import fri.servers.hiking.emergencyalert.time.AlertIntervalModel;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
@@ -91,6 +92,7 @@ public class ContactsPage extends AbstractWizardPage
     protected boolean commit(boolean goingForward) {
         return commitContacts() && commitIntervals();
     }
+    
 
     // user and contacts
     
@@ -177,6 +179,7 @@ public class ContactsPage extends AbstractWizardPage
         if (StringUtil.isEmpty(nameOfHikerField.getText()))
             return i18n("Your name must not be empty!");
 
+        final int pollingInterval = SwingUtil.getNumberValue(confirmationPollingMinutesField);
         @SuppressWarnings("rawtypes")
         final Vector<Vector> dataVector = contactsDataVector();
         int count = 0;
@@ -191,6 +194,13 @@ public class ContactsPage extends AbstractWizardPage
                 if (StringUtil.isEmpty(firstName) && StringUtil.isEmpty(lastName))
                     return i18n("Either first or last name of contact must be given!");
                 
+                if (useContactDetectionMinutesField.isSelected()) {
+                    final Object number = dataVector.get(row).get(3);
+                    final int detectionMinutes = (number != null) ? (Integer) number : Alert.DEFAULT_ALERT_INTERVAL_MINUTES;
+                    if (detectionMinutes <= pollingInterval)
+                        return i18n("Contact Mail Detection minutes must be greater than Confirmation Polling Interval!");
+                }
+
                 final boolean absent = (Boolean) dataVector.get(row).get(4);
                 if (absent == false)
                     count++;
@@ -330,9 +340,13 @@ public class ContactsPage extends AbstractWizardPage
         
         alertContactsField.getTableHeader().setReorderingAllowed(false);
         alertContactsField.setRowHeight(24);
-        SwingUtil.makeComponentFocusable(alertContactsField);
         
-        return new JScrollPane(alertContactsField);
+        // START keep order of statements
+        final JScrollPane scrollPane = new JScrollPane(alertContactsField);
+        SwingUtil.makeComponentFocusable(alertContactsField);
+        // END keep order of statements
+        
+        return scrollPane;
     }
 
     private TableModel buildTableModel(Vector<Vector<Object>> data) {
@@ -405,6 +419,7 @@ public class ContactsPage extends AbstractWizardPage
                 StringUtil.isEmpty(lastName));
     }
     
+    
     // intervals
     
     private JComponent buildIntervalsUi() {
@@ -464,25 +479,37 @@ public class ContactsPage extends AbstractWizardPage
     }
     
     private String validateIntervalsFields() {
-        final int alertInterval = SwingUtil.getNumberValue(alertIntervalMinutesField);
         final int pollingInterval = SwingUtil.getNumberValue(confirmationPollingMinutesField);
         
-        if (pollingInterval <= 0)
-            return i18n("Confirmation Polling Minutes must be greater zero!");
-        
-        if (alertInterval <= pollingInterval)
-            return i18n("Alert Interval must be greater than Confirmation Polling Interval!");
-        
         if (useContactDetectionMinutesField.isSelected() == false) {
+            final int alertInterval = SwingUtil.getNumberValue(alertIntervalMinutesField);
             if (alertInterval <= 0)
                 return i18n("Alert Interval Minutes must not be empty!");
+            
+            if (alertInterval <= pollingInterval)
+                return i18n("Alert Interval must be greater than Confirmation Polling Interval!");
             
             final int alertIntervalShrinking = SwingUtil.getNumberValue(alertIntervalShrinkingField);
             if (alertIntervalShrinking < MINIMUM_INTERVAL_SHRINKING_PERCENT)
                 return i18n("Alert Interval Shrinking Percent must be greater equal")+" "+MINIMUM_INTERVAL_SHRINKING_PERCENT;
             else if (alertIntervalShrinking > MAXIMUM_INTERVAL_SHRINKING_PERCENT)
                 return i18n("Alert Interval Shrinking Percent must be smaller equal")+" "+MAXIMUM_INTERVAL_SHRINKING_PERCENT;
+            
+            if (alertIntervalShrinking > 0) {
+                final AlertIntervalModel intervalModel = new AlertIntervalModel(alertInterval, alertIntervalShrinking);
+                final Vector<Vector> dataVector = contactsDataVector();
+                
+                for (int row = 0; row < dataVector.size(); row++) // loop non-absent contacts
+                    if (isEmptyRow(dataVector, row) == false && 
+                            Boolean.FALSE.equals(dataVector.get(row).get(4))) // absent checkbox
+                        if (intervalModel.nextIntervalMinutes() <= pollingInterval)
+                            return i18n("Alert Interval with Shrinking Percent would become shorter than Confirmation Polling Interval!");
+            }
         }
+        // else: see contact fields validation
+        
+        if (pollingInterval <= 0)
+            return i18n("Confirmation Polling Minutes must be greater zero!");
         
         return null;
     }

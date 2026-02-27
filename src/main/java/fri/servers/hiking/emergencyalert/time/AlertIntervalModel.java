@@ -17,11 +17,14 @@ public class AlertIntervalModel
     
     private int index = 0;
 
+    /** Constructor for dispatching a Hike. */
     public AlertIntervalModel(Hike hike) {
-        this.alertIntervalMinutes = hike.getAlert().getAlertIntervalMinutes();
-        this.alertIntervalShrinking = hike.getAlert().getAlertIntervalShrinking();
-        this.contactDetectionMinutes = new ArrayList<>();
-        this.useContactDetectionMinutes = hike.getAlert().isUseContactDetectionMinutes();
+        this(
+            hike.getAlert().getAlertIntervalMinutes(),
+            hike.getAlert().getAlertIntervalShrinking(),
+            new ArrayList<>(),
+            hike.getAlert().isUseContactDetectionMinutes()
+        );
         
         if (useContactDetectionMinutes)
             for (Contact contact : hike.getAlert().getNonAbsentContacts())
@@ -31,6 +34,23 @@ public class AlertIntervalModel
         
     }
     
+    /** Constructor for validation of UI fields. */
+    public AlertIntervalModel(int alertIntervalMinutes, float alertIntervalShrinking) {
+        this(alertIntervalMinutes, alertIntervalShrinking, null, false);
+    }
+    
+    private AlertIntervalModel(
+            int alertIntervalMinutes,
+            float alertIntervalShrinking,
+            List<Integer> contactDetectionMinutes,
+            boolean useContactDetectionMinutes)
+    {
+        this.alertIntervalMinutes = alertIntervalMinutes;
+        this.alertIntervalShrinking = alertIntervalShrinking;
+        this.contactDetectionMinutes = contactDetectionMinutes;
+        this.useContactDetectionMinutes = useContactDetectionMinutes;
+    }
+
     /** Every call skips to a possibly different minutes amount. */
     public int nextIntervalMinutes() {
         final int minutes = nextIntervalMinutes(true);
