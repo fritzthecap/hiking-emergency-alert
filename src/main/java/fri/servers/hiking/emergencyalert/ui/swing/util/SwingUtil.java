@@ -34,6 +34,10 @@ public final class SwingUtil
         return button;
     }
 
+    public static JButton getAddOrRemoveButton(boolean isAdd, String tooltip, ActionListener action) {
+        return getSmallButton(isAdd ? "+" : "-", tooltip, action);
+    }
+    
     public static JComponent increaseFontSize(JComponent component, int sizePercent, boolean bold, boolean italic) {
         final Font font = component.getFont();
         final float size = font.getSize2D();
@@ -45,10 +49,6 @@ public final class SwingUtil
         return component;
     }
 
-    public static JButton getAddOrRemoveButton(boolean isAdd, String tooltip, ActionListener action) {
-        return getSmallButton(isAdd ? "+" : "-", tooltip, action);
-    }
-    
     public static JComponent forceSize(final JComponent component, Dimension size) {
         component.setPreferredSize(size);
         component.setMaximumSize(size);

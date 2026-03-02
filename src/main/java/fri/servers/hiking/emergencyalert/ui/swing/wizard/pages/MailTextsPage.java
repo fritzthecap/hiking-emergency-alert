@@ -116,9 +116,13 @@ public class MailTextsPage extends AbstractWizardPage
         mailIntro.setAlignmentX(JComponent.LEFT_ALIGNMENT);
         panel.add(mailIntro);
         
+        final Color mailIdColor = Color.GRAY;
         mailId = new JLabel();
         mailId.setToolTipText(i18n("Unique hike identifier for recognizing mails related to it"));
-        mailId.setForeground(Color.BLUE);
+        mailId.setForeground(mailIdColor);
+        mailId.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(mailIdColor, 2),
+                BorderFactory.createEmptyBorder(3, 3, 3, 3)));
         mailId.setAlignmentX(JComponent.LEFT_ALIGNMENT);
         panel.add(mailId);
         
