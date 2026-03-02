@@ -43,7 +43,7 @@ public class SwingAlertHomeServer extends SwingUserInterface
     public void show(String title) {
         frame.setTitle(title);
         frame.pack();
-        frame.setSize(new Dimension(900, 600));
+        frame.setSize(new Dimension(1000, 600));
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
