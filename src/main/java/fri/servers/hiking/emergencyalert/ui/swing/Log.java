@@ -41,37 +41,4 @@ public final class Log
     }
     
     private Log() {} // do not instantiate
-    
-    
-//    public static void main(String[] args) {
-//        SwingUtilities.invokeLater(() -> {
-//            JButton stdoutButton = new JButton("Write to System.out");
-//            stdoutButton.addActionListener(event -> System.out.println("Hello System.out at "+new Date()));
-//            
-//            JButton stderrButton = new JButton("Write to System.err");
-//            stderrButton.addActionListener(event -> System.err.println("Hello System.err at "+new Date()));
-//
-//            JToolBar toolbar = new JToolBar();
-//            toolbar.add(stdoutButton);
-//            toolbar.add(stderrButton);
-//            
-//            JTextArea textArea = new JTextArea();
-//            textArea.setLineWrap(true);
-//            textArea.setWrapStyleWord(true);
-//            
-//            Log.redirectOut(textArea);
-//            Log.redirectErr(textArea);
-//            
-//            JPanel panel = new JPanel(new BorderLayout());
-//            panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
-//            panel.add(toolbar, BorderLayout.NORTH);
-//            
-//            JFrame frame = new JFrame();
-//            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//            frame.getContentPane().add(panel);
-//            frame.setSize(new Dimension(400, 200));
-//            frame.setLocationRelativeTo(null);
-//            frame.setVisible(true);
-//        });
-//    }
 }

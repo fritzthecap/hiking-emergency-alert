@@ -239,7 +239,7 @@ public class PropertiesEditDialog extends PropertiesViewDialog
     }
 
     
-    /** Test main. */
+    /** Test main. 
     public static void main(String[] args) {
         Properties properties = new Properties();
         properties.put("aaa", "AAA");
@@ -249,5 +249,5 @@ public class PropertiesEditDialog extends PropertiesViewDialog
         properties.put("ccc", "CCC");
         PropertiesEditDialog dialog = new PropertiesEditDialog(null, properties, "Properties Editor");
         dialog.setVisible(true);
-    }
+    }*/
 }

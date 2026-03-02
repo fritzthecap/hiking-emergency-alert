@@ -10,7 +10,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -172,17 +171,17 @@ public class EditableTabbedPane extends JTabbedPane
     }
 
     
-    /** Test main. */
+    /** Test main. 
     public static void main(String [] args) {
         EditableTabbedPane tabbedPane = new EditableTabbedPane();
         for (int i = 0; i < 2; i++)
             tabbedPane.addTab("Tab "+i, new JLabel("Tab "+i, JLabel.CENTER));
 
-        JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        javax.swing.JFrame frame = new javax.swing.JFrame();
+        frame.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(tabbedPane);
         frame.setSize(400, 200);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-    }
+    }*/
 }

@@ -171,9 +171,9 @@ public class PropertiesViewDialog extends JDialog
     }
     
     
-    /** Test main. */
+    /** Test main. 
     public static void main(String[] args) {
         PropertiesViewDialog dialog = new PropertiesViewDialog(null, System.getProperties(), "Properties Viewer");
         dialog.setVisible(true);
-    }
+    }*/
 }
