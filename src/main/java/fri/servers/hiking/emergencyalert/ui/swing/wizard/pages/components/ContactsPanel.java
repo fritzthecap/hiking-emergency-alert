@@ -80,11 +80,14 @@ public class ContactsPanel extends JPanel
                 
                 boolean moveUpPossible = selectionExists;
                 boolean moveDownPossible = selectionExists;
-                for (int i = 0; i < selectedRows.length; i++)
+                
+                for (int i = 0; i < selectedRows.length; i++) {
                     if (selectedRows[i] == 0)
                         moveUpPossible = false;
-                    else if (selectedRows[i] == contactsTable.getRowCount() - 1)
+                    
+                    if (selectedRows[i] == contactsTable.getRowCount() - 1)
                         moveDownPossible = false;
+                }
                 
                 moveUpButton.setEnabled(moveUpPossible);
                 moveDownButton.setEnabled(moveDownPossible);
