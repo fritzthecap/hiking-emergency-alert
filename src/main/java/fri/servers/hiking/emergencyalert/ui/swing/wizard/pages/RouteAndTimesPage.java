@@ -120,10 +120,13 @@ public class RouteAndTimesPage extends AbstractWizardPage
 
         final List<Day> days = hike.getDays();
         for (int i = 0; i < days.size(); i++) {
+            // START keep order of statements
             final DayPanel dayPanel = new DayPanel(fileChooser);
-            daysTabbedPane.addTab(buildTabTitle(i), dayPanel);
             final Day day = days.get(i);
             dayPanel.populateUi(day);
+            
+            daysTabbedPane.addTab(buildTabTitle(i), dayPanel);
+            // END keep order of statements
         }
         daysTabbedPane.setSelectedIndex(0); // without this, pane would show empty "+" tab
     }
