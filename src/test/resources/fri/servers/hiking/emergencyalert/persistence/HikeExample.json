@@ -34,14 +34,16 @@
         "firstName": "First",
         "lastName": "Person",
         "absent": false,
-        "detectionMinutes": 60
+        "detectionMinutes": 60,
+        "needsProcedure": true
       },
       {
         "mailAddress": "example2.user@provider.org",
         "firstName": "Second",
         "lastName": "Person",
         "absent": false,
-        "detectionMinutes": 40
+        "detectionMinutes": 40,
+        "needsProcedure": true
       }
     ],
     "mailConfiguration": {
