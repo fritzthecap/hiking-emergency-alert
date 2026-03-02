@@ -68,10 +68,11 @@ public class MailTextsPage extends AbstractWizardPage
         
         mailIntroductionTextField = SwingUtil.buildTextArea(
                 i18n("The message's content text"),
-                i18n("I had an accident while hiking and need help. This is serious!"));
+                i18n("I had an accident while hiking and need help.")+" "+
+                    i18n("The hike was planned")+" $begin - $end.");
         mailIntroductionTextField.setRows(2);
         
-        final JComponent todoList = buildProcedureTodosList();
+        final JComponent procedureList = buildProcedureTodosList();
         
         passingToNextTextField = SwingUtil.buildTextArea(
                 i18n("Text that will be sent to every contact that did not respond in time"),
@@ -126,8 +127,8 @@ public class MailTextsPage extends AbstractWizardPage
         mailId.setAlignmentX(JComponent.LEFT_ALIGNMENT);
         panel.add(mailId);
         
-        todoList.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        panel.add(todoList);
+        procedureList.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        panel.add(procedureList);
         
         usePassingToNextMail.setAlignmentX(JComponent.LEFT_ALIGNMENT);
         panel.add(usePassingToNextMail);
