@@ -58,6 +58,8 @@ public abstract class AbstractWizardPage
         errorField.setForeground(Color.RED);
         errorField.setOpaque(false);
         errorField.setRows(1);
+        errorField.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+        SwingUtil.increaseFontSize(errorField, 110, true, false);
         
         final JPanel errorPanel = new JPanel(new BorderLayout());
         errorPanel.add(errorField, BorderLayout.CENTER);
