@@ -8,35 +8,28 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
-import fri.servers.hiking.emergencyalert.mail.MailUtil;
 import fri.servers.hiking.emergencyalert.persistence.entities.Alert;
 import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.time.AlertIntervalModel;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.components.ContactsPanel;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.components.ContactsTable;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
 
 /**
@@ -50,7 +43,7 @@ public class ContactsPage extends AbstractWizardPage
     private JTextField nameOfHikerField;
     private JTextField addressOfHikerField;
     private JTextField phoneNumberOfHikerField;
-    private JTable alertContactsField;
+    private ContactsTable contactsTable;
     
     private JFormattedTextField alertIntervalMinutesField;
     private JFormattedTextField alertIntervalShrinkingField;
@@ -164,36 +157,28 @@ public class ContactsPage extends AbstractWizardPage
                 
                 data.add(row);
             }
-            alertContactsField.setModel(buildTableModel(data));
+            contactsTable.setData(data);
         }
         
         validate(); // clears error field
         
-        if (havingContacts == false)
-            alertContactsField.setModel(buildTableModel(createEmptyDataVector(1)));
-        else
-            addEmptyRowWhenNeeded();
+        contactsTable.addEmptyRowWhenNeeded();
     }
     
     private String validateContactsFields() {
         if (StringUtil.isEmpty(nameOfHikerField.getText()))
             return i18n("Your name must not be empty!");
 
+        final String contactsError = contactsTable.validateContactsFields();
+        if (contactsError != null)
+            return contactsError;
+        
         final int pollingInterval = SwingUtil.getNumberValue(confirmationPollingMinutesField);
         @SuppressWarnings("rawtypes")
-        final Vector<Vector> dataVector = contactsDataVector();
+        final Vector<Vector> dataVector = contactsTable.getData();
         int count = 0;
         for (int row = 0; row < dataVector.size(); row++) {
-            if (isEmptyRow(dataVector, row) == false) {
-                final String mailAddress = (String) dataVector.get(row).get(0);
-                if (MailUtil.isMailAddress(mailAddress) == false)
-                    return i18n("There is an invalid mail address in contacts!");
-                
-                final String firstName = (String) dataVector.get(row).get(1);
-                final String lastName = (String) dataVector.get(row).get(2);
-                if (StringUtil.isEmpty(firstName) && StringUtil.isEmpty(lastName))
-                    return i18n("Either first or last name of contact must be given!");
-                
+            if (contactsTable.isEmptyRow(dataVector, row) == false) {
                 if (useContactDetectionMinutesField.isSelected()) {
                     final Object number = dataVector.get(row).get(3);
                     final int detectionMinutes = (number != null) ? (Integer) number : Alert.DEFAULT_ALERT_INTERVAL_MINUTES;
@@ -226,14 +211,14 @@ public class ContactsPage extends AbstractWizardPage
             alert.setPhoneNumberOfHiker(phoneNumberOfHikerField.getText());
         
         @SuppressWarnings("rawtypes")
-        final Vector<Vector> dataVector = contactsDataVector();
+        final Vector<Vector> dataVector = contactsTable.getData();
         if (alert.getAlertContacts() == null)
             alert.setAlertContacts(new ArrayList<Contact>());
         else 
             alert.getAlertContacts().clear();
         
         for (int row = 0; row < dataVector.size(); row++) {
-            if (isEmptyRow(dataVector, row) == false) {
+            if (contactsTable.isEmptyRow(dataVector, row) == false) {
                 final String mailAddress = (String) dataVector.get(row).get(0);
                 final String firstName = (String) dataVector.get(row).get(1);
                 final String lastName = (String) dataVector.get(row).get(2);
@@ -255,79 +240,21 @@ public class ContactsPage extends AbstractWizardPage
         
         return true;
     }
-    
 
-    @SuppressWarnings("rawtypes")
-    private Vector<Vector> contactsDataVector() {
-        final DefaultTableModel model = (DefaultTableModel) alertContactsField.getModel();
-        return model.getDataVector();
-    }
-    
     private JComponent buildContactsTable() {
-        alertContactsField = new JTable(buildTableModel(createEmptyDataVector(0))) {
-            private final String[] columnToolTips = new String[] {
-                    i18n("The contact's mail address"),
-                    i18n("The first name of the contact person"),
-                    i18n("The last name of the contact person"),
-                    i18n("How many minutes the person would need to detect an arrived mail"),
-                    i18n("Absent contacts would be ignored when sending alert mails"),
-            };
-            
-            /** When editing stops, remove empty rows, validate and and an empty row when needed. */
+        contactsTable = new ContactsTable() {
+            /** When editing stops, remove empty rows, validate and add an empty row when needed. */
             @Override
             public void editingStopped(ChangeEvent e) {
                 super.editingStopped(e);
-                
-                removeEmptyRowsExceptLast();
-                if (ContactsPage.this.validate()) // do not call Container.validate() here!
-                    addEmptyRowWhenNeeded();
-            }
-            
-            @Override
-            public String getToolTipText(MouseEvent event) {
-                return toolTipText(event);
-            }
-            
-            private String toolTipText(MouseEvent event) {
-                if (event != null)  {
-                    final int column = columnAtPoint(event.getPoint());
-                    
-                    if (column >= 0 & columnToolTips.length > column)
-                        return columnToolTips[convertColumnIndexToModel(column)];
-                }
-                return null;
-            }
-            
-            /** Implement table header tool tips. */
-            @Override
-            protected JTableHeader createDefaultTableHeader() {
-                return new JTableHeader(columnModel) {
-                    @Override
-                    public String getToolTipText(MouseEvent event) {
-                        return toolTipText(event);
-                    }
-                };
+                if (ContactsPage.this.validate()) // no error
+                    contactsTable.addEmptyRowWhenNeeded(); // make sure to prepare an empty last row
             }
         };
         
-        // commit cell editing on focus-lost
-        alertContactsField.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE); // is null by default
-        
-        ((DefaultCellEditor) alertContactsField.getDefaultEditor(String.class)).setClickCountToStart(1);
-        ((DefaultCellEditor) alertContactsField.getDefaultEditor(Integer.class)).setClickCountToStart(1);
-        
-        SwingUtilities.invokeLater(() -> { // unreliable! set column widths
-            final TableColumnModel columnModel = alertContactsField.getColumnModel();
-            columnModel.getColumn(0).setPreferredWidth(100);
-            columnModel.getColumn(1).setPreferredWidth(40);
-            columnModel.getColumn(2).setPreferredWidth(40);
-            columnModel.getColumn(3).setPreferredWidth(16);
-            columnModel.getColumn(4).setPreferredWidth(10);
-        });
-        
         // set column 3 disabled when useContactDetectionMinutesField is off
-        final TableCellRenderer originalHeaderRenderer = alertContactsField.getTableHeader().getDefaultRenderer();
-        alertContactsField.getTableHeader().setDefaultRenderer(new TableCellRenderer() {
+        final TableCellRenderer originalHeaderRenderer = contactsTable.getTableHeader().getDefaultRenderer();
+        contactsTable.getTableHeader().setDefaultRenderer(new TableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 final Component c = originalHeaderRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -338,85 +265,7 @@ public class ContactsPage extends AbstractWizardPage
             }
         });
         
-        alertContactsField.getTableHeader().setReorderingAllowed(false);
-        alertContactsField.setRowHeight(24);
-        
-        // START keep order of statements
-        final JScrollPane scrollPane = new JScrollPane(alertContactsField);
-        SwingUtil.makeComponentFocusable(alertContactsField);
-        // END keep order of statements
-        
-        return scrollPane;
-    }
-
-    private TableModel buildTableModel(Vector<Vector<Object>> data) {
-        final Vector<Object> columnNames = new Vector<>();
-        columnNames.add(i18n("Mail Address"));
-        columnNames.add(i18n("First Name"));
-        columnNames.add(i18n("Last Name"));
-        columnNames.add(i18n("Minutes to Detect Mail"));
-        columnNames.add(i18n("Absent"));
-        
-        return new DefaultTableModel(data, columnNames) {
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 3)
-                    return Integer.class;
-                else if (columnIndex == 4)
-                    return Boolean.class;
-                return String.class;
-            }
-        };
-    }
-
-    private Vector<Vector<Object>> createEmptyDataVector(int numberOfEmptyRows) {
-        final Vector<Vector<Object>> data = new Vector<>();
-        for (int i = 0; i < numberOfEmptyRows; i++)
-            data.add(createEmptyRow());
-        return data;
-    }
-
-    private Vector<Object> createEmptyRow() {
-        final Vector<Object> emptyRow = new Vector<>();
-        emptyRow.add("");
-        emptyRow.add("");
-        emptyRow.add("");
-        emptyRow.add(null);
-        emptyRow.add(false);
-        return emptyRow;
-    }
-
-    private void addEmptyRowWhenNeeded() {
-        final DefaultTableModel model = (DefaultTableModel) alertContactsField.getModel();
-        final int lastRow = model.getRowCount() - 1;
-        if (lastRow >= 0 && isEmptyRow(model, lastRow) == false)
-            model.addRow(createEmptyRow());
-    }
-
-    private void removeEmptyRowsExceptLast() {
-        final DefaultTableModel model = (DefaultTableModel) alertContactsField.getModel();
-        @SuppressWarnings("rawtypes")
-        final Vector<Vector> dataVector = model.getDataVector();
-        
-        final int startDecrement = 2;
-        for (int row = dataVector.size() - startDecrement; row >= 0; row--)
-            if (isEmptyRow(model, row))
-                model.removeRow(row);
-    }
-        
-    private boolean isEmptyRow(DefaultTableModel model, int rowIndex) {
-        return isEmptyRow(model.getDataVector(), rowIndex);
-    }
-    
-    @SuppressWarnings("rawtypes")
-    private boolean isEmptyRow(Vector<Vector> dataVector, int rowIndex) {
-        final Vector row = dataVector.get(rowIndex);
-        final String mailAddress = (String) row.get(0);
-        final String firstName = (String) row.get(1);
-        final String lastName = (String) row.get(2);
-        return (StringUtil.isEmpty(mailAddress) &&
-                StringUtil.isEmpty(firstName) &&
-                StringUtil.isEmpty(lastName));
+        return new ContactsPanel(contactsTable);
     }
     
     
@@ -457,9 +306,9 @@ public class ContactsPage extends AbstractWizardPage
                 alertIntervalMinutesField.setEnabled(on == false);
                 alertIntervalShrinkingField.setEnabled(on == false);
                 
-                ((JComponent) alertContactsField.getDefaultRenderer(Integer.class)).setEnabled(on == true);
-                alertContactsField.repaint();
-                alertContactsField.getTableHeader().repaint();
+                ((JComponent) contactsTable.getDefaultRenderer(Integer.class)).setEnabled(on == true);
+                contactsTable.repaint();
+                contactsTable.getTableHeader().repaint();
             }
         });
         useContactDetectionMinutesField.addActionListener(useContactDetectionMinutesActionListener);
@@ -498,10 +347,10 @@ public class ContactsPage extends AbstractWizardPage
             if (alertIntervalShrinking > 0) {
                 final AlertIntervalModel intervalModel = new AlertIntervalModel(alertInterval, alertIntervalShrinking);
                 @SuppressWarnings("rawtypes")
-                final Vector<Vector> dataVector = contactsDataVector();
+                final Vector<Vector> dataVector = contactsTable.getData();
                 
                 for (int row = 0; row < dataVector.size(); row++) // loop non-absent contacts
-                    if (isEmptyRow(dataVector, row) == false && 
+                    if (contactsTable.isEmptyRow(dataVector, row) == false && 
                             Boolean.FALSE.equals(dataVector.get(row).get(4))) // absent checkbox
                         if (intervalModel.nextIntervalMinutes() <= pollingInterval)
                             return i18n("Alert Interval with Shrinking Percent would become shorter than Confirmation Polling Interval!");
