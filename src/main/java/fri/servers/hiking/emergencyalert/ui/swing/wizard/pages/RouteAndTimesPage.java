@@ -18,6 +18,7 @@ import fri.servers.hiking.emergencyalert.ui.swing.util.EditableTabbedPane;
 import fri.servers.hiking.emergencyalert.ui.swing.util.FileChooser;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.components.DayPanel;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 
 /**
@@ -26,7 +27,8 @@ import fri.servers.hiking.emergencyalert.util.DateUtil;
  */
 public class RouteAndTimesPage extends AbstractWizardPage
 {
-    static final Dimension labelSize = new Dimension(120, 24);
+    /** The fixed size of the date/time labels. */
+    public static final Dimension DATETIME_LABEL_SIZE = new Dimension(120, 24);
     
     private SwingUtil.DateField plannedBeginDateField;
     private SwingUtil.DateField plannedBeginTimeField;
@@ -57,8 +59,10 @@ public class RouteAndTimesPage extends AbstractWizardPage
             @Override
             public void addTab(String title, Component component) {
                 super.addTab(title, component);
-                if (getTabCount() > 1) // not only the "+" tab is present
+                if (getTabCount() > 1) { // not only the "+" tab is present
                     installFocusValidation();
+                    RouteAndTimesPage.this.validate();
+                }
             }
             /** @return a new DayPanel. */
             @Override
@@ -79,6 +83,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
                     super.closeTab(title, component);
                     reorganizeTabTitles();
                     installFocusValidation();
+                    RouteAndTimesPage.this.validate();
                 }
             }
         };
@@ -90,7 +95,7 @@ public class RouteAndTimesPage extends AbstractWizardPage
         
         final JPanel beginPanel = new JPanel();
         final JLabel beginLabel = new JLabel(i18n("Hike Begin"));
-        beginPanel.add(SwingUtil.increaseFontSize(SwingUtil.forceSize(beginLabel, labelSize), 140, true, false));
+        beginPanel.add(SwingUtil.increaseFontSize(SwingUtil.forceSize(beginLabel, DATETIME_LABEL_SIZE), 140, true, false));
         beginPanel.add(plannedBeginDateField);
         beginPanel.add(plannedBeginTimeField);
         

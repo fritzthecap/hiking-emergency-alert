@@ -1,4 +1,4 @@
-package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages;
+package fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.components;
 
 import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.BorderLayout;
@@ -31,10 +31,12 @@ import fri.servers.hiking.emergencyalert.persistence.entities.Day;
 import fri.servers.hiking.emergencyalert.ui.swing.util.FileChooser;
 import fri.servers.hiking.emergencyalert.ui.swing.util.ImageViewer;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
+import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.RouteAndTimesPage;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
 import fri.servers.hiking.emergencyalert.util.StringUtil;
 
-class DayPanel extends JPanel
+/** On route-and-times page there can be several hike days. */
+public class DayPanel extends JPanel
 {
     private final SwingUtil.DateField plannedHomeDateField;
     private final SwingUtil.DateField plannedHomeTimeField;
@@ -42,7 +44,7 @@ class DayPanel extends JPanel
     private final JTable routeImagesField;
     private final FileChooser fileChooser;
     
-    DayPanel(FileChooser fileChooser) {
+    public DayPanel(FileChooser fileChooser) {
         setLayout(new BorderLayout());
         
         this.fileChooser = fileChooser;
@@ -71,7 +73,7 @@ class DayPanel extends JPanel
         
         final JPanel homePanel = new JPanel();
         final JLabel endLabel = new JLabel(i18n("Hike End"));
-        homePanel.add(SwingUtil.increaseFontSize(SwingUtil.forceSize(endLabel, RouteAndTimesPage.labelSize), 140, true, false));
+        homePanel.add(SwingUtil.increaseFontSize(SwingUtil.forceSize(endLabel, RouteAndTimesPage.DATETIME_LABEL_SIZE), 140, true, false));
         homePanel.add(plannedHomeDateField);
         homePanel.add(plannedHomeTimeField);
         
@@ -92,7 +94,7 @@ class DayPanel extends JPanel
         add(all, BorderLayout.CENTER);
     }
 
-    void populateUi(Day day) {
+    public void populateUi(Day day) {
         if (StringUtil.isNotEmpty(day.getRoute()))
             routeField.setText(day.getRoute());
         
@@ -113,7 +115,7 @@ class DayPanel extends JPanel
         }
     }
     
-    String validateFields() {
+    public String validateFields() {
         if (noRouteNoImages())
             return i18n("The Route description must not be empty!");
         
@@ -127,7 +129,7 @@ class DayPanel extends JPanel
     }
     
     @SuppressWarnings("rawtypes")
-    boolean commit(boolean goingForward, Day day) {
+    public boolean commit(boolean goingForward, Day day) {
         if (StringUtil.isNotEmpty(routeField.getText()))
             day.setRoute(routeField.getText());
         
@@ -155,21 +157,21 @@ class DayPanel extends JPanel
         return true;
     }
     
-    Date homeDateTime() {
+    public Date homeDateTime() {
         final Date homeDate = plannedHomeDateField.getDateValue();
         final Date homeTime = plannedHomeTimeField.getDateValue();
         return DateUtil.mergeDateAndTime(homeDate, homeTime);
     }
 
     @SuppressWarnings("rawtypes")
-    boolean noRouteNoImages() {
+    public boolean noRouteNoImages() {
         final Vector<Vector> dataVector = getImagesFromTable();
         final boolean noImages = (dataVector == null || dataVector.size() <= 0);
         final boolean noText = StringUtil.isEmpty(routeField.getText());
         return (noImages && noText);
     }
     
-    Collection<? extends JComponent> getFocusValidationFields() {
+    public Collection<? extends JComponent> getFocusValidationFields() {
         return List.of(
                 routeField,
                 routeImagesField,
