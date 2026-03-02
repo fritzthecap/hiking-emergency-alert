@@ -61,7 +61,7 @@ public class MailBuilder
         return new Mail(from(), to(), subject, textBuilder.toString(), CONTENT_TYPE, null, null);
     }
     
-    /** This is sent when hike is overdue. */
+    /** This is sent when hike is overdue. The day-index will be taken from <code>Hike.currentDay()</code>.*/
     public Mail buildAlertMail() {
         final String subject = subject();
         final String text = buildAlertMailText(-1);
@@ -70,6 +70,7 @@ public class MailBuilder
         return new Mail(from(), to(), subject, text, CONTENT_TYPE, attachments, null);
     }
 
+    /** This is called by activation-check page.*/
     public String buildAlertMailText(int dayIndex) {
         final StringBuilder textBuilder = new StringBuilder();
                 
@@ -79,7 +80,7 @@ public class MailBuilder
         textBuilder.append("MAIL-ID: "+hike.uniqueMailId);
         textBuilder.append("\n\n");
         
-        if (hike.getAlert().getProcedureTodos() != null) {
+        if (hike.getAlert().getProcedureTodos() != null && contact.isNeedsProcedure()) {
             for (int i = 0; i < hike.getAlert().getProcedureTodos().size(); i++) {
                 final String procedureTodo = hike.getAlert().getProcedureTodos().get(i);
                 textBuilder.append("("+(i + 1)+") "+substitute(procedureTodo)+"\n");
@@ -153,9 +154,13 @@ public class MailBuilder
         if (StringUtil.isNotEmpty(addressOfHiker))
             textBuilder.append(addressOfHiker+"\n");
         
+        final String phoneOfHiker = hike.getAlert().getPhoneNumberOfHiker();
+        if (StringUtil.isNotEmpty(phoneOfHiker))
+            textBuilder.append(i18n("Phone")+": "+phoneOfHiker+"\n");
+        
         final String mailFromAddress = hike.getAlert().getMailConfiguration().getMailFromAddress();
         if (StringUtil.isNotEmpty(mailFromAddress))
-            textBuilder.append(mailFromAddress);
+            textBuilder.append(i18n("Mail")+": "+mailFromAddress);
         
         footerBottom(textBuilder);
     }

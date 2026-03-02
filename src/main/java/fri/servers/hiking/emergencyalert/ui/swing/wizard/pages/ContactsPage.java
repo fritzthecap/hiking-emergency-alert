@@ -148,10 +148,11 @@ public class ContactsPage extends AbstractWizardPage
             final Vector<Vector<Object>> data = new Vector<>();
             
             for (Contact contact : alert.getAlertContacts()) {
-                final Vector<Object> row = new Vector<>(5);
+                final Vector<Object> row = new Vector<>(6);
                 row.addElement(contact.getMailAddress());
                 row.addElement(contact.getFirstName());
                 row.addElement(contact.getLastName());
+                row.addElement(contact.isNeedsProcedure());
                 row.addElement(contact.getDetectionMinutes());
                 row.addElement(contact.isAbsent());
                 
@@ -180,13 +181,13 @@ public class ContactsPage extends AbstractWizardPage
         for (int row = 0; row < dataVector.size(); row++) {
             if (contactsTable.isEmptyRow(dataVector, row) == false) {
                 if (useContactDetectionMinutesField.isSelected()) {
-                    final Object number = dataVector.get(row).get(3);
+                    final Object number = dataVector.get(row).get(ContactsTable.MAIL_DETECTION_MINUTES_COLUMN);
                     final int detectionMinutes = (number != null) ? (Integer) number : Alert.DEFAULT_ALERT_INTERVAL_MINUTES;
                     if (detectionMinutes <= pollingInterval)
                         return i18n("Contact Mail Detection minutes must be greater than Confirmation Polling Interval!");
                 }
 
-                final boolean absent = (Boolean) dataVector.get(row).get(4);
+                final boolean absent = (Boolean) dataVector.get(row).get(ContactsTable.ABSENT_COLUMN);
                 if (absent == false)
                     count++;
             }
@@ -219,17 +220,19 @@ public class ContactsPage extends AbstractWizardPage
         
         for (int row = 0; row < dataVector.size(); row++) {
             if (contactsTable.isEmptyRow(dataVector, row) == false) {
-                final String mailAddress = (String) dataVector.get(row).get(0);
-                final String firstName = (String) dataVector.get(row).get(1);
-                final String lastName = (String) dataVector.get(row).get(2);
-                final Object number = dataVector.get(row).get(3);
+                final String mailAddress = (String) dataVector.get(row).get(ContactsTable.E_MAIL_COLUMN);
+                final String firstName = (String) dataVector.get(row).get(ContactsTable.FIRST_NAME_COLUMN);
+                final String lastName = (String) dataVector.get(row).get(ContactsTable.LAST_NAME_COLUMN);
+                final boolean needsProcedure = (Boolean) dataVector.get(row).get(ContactsTable.NEEDS_PROCEDURE_COLUMN);
+                final Object number = dataVector.get(row).get(ContactsTable.MAIL_DETECTION_MINUTES_COLUMN);
                 final int detectionMinutes = (number != null) ? (Integer) number : -1;
-                final boolean absent = (Boolean) dataVector.get(row).get(4);
+                final boolean absent = (Boolean) dataVector.get(row).get(ContactsTable.ABSENT_COLUMN);
                 
                 final Contact contact = new Contact();
                 contact.setMailAddress(mailAddress);
                 contact.setFirstName(firstName);
                 contact.setLastName(lastName);
+                contact.setNeedsProcedure(needsProcedure);
                 if (detectionMinutes > 0)
                     contact.setDetectionMinutes(detectionMinutes);
                 contact.setAbsent(absent);
@@ -252,13 +255,13 @@ public class ContactsPage extends AbstractWizardPage
             }
         };
         
-        // set column 3 disabled when useContactDetectionMinutesField is off
+        // set mail-detection-minutes column disabled when useContactDetectionMinutesField is off
         final TableCellRenderer originalHeaderRenderer = contactsTable.getTableHeader().getDefaultRenderer();
         contactsTable.getTableHeader().setDefaultRenderer(new TableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 final Component c = originalHeaderRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                c.setEnabled((table.convertColumnIndexToModel(column) == 3) 
+                c.setEnabled((table.convertColumnIndexToModel(column) == ContactsTable.MAIL_DETECTION_MINUTES_COLUMN) 
                         ? useContactDetectionMinutesField.isSelected()
                         : true);
                 return c;
@@ -351,7 +354,7 @@ public class ContactsPage extends AbstractWizardPage
                 
                 for (int row = 0; row < dataVector.size(); row++) // loop non-absent contacts
                     if (contactsTable.isEmptyRow(dataVector, row) == false && 
-                            Boolean.FALSE.equals(dataVector.get(row).get(4))) // absent checkbox
+                            Boolean.FALSE.equals(dataVector.get(row).get(ContactsTable.ABSENT_COLUMN)))
                         if (intervalModel.nextIntervalMinutes() <= pollingInterval)
                             return i18n("Alert Interval with Shrinking Percent would become shorter than Confirmation Polling Interval!");
             }

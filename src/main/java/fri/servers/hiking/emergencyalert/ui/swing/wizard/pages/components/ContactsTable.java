@@ -19,10 +19,18 @@ import fri.servers.hiking.emergencyalert.util.StringUtil;
 /** The email-table on contacts page. */
 public class ContactsTable extends JTable
 {
+    public static final int E_MAIL_COLUMN = 0;
+    public static final int FIRST_NAME_COLUMN = 1;
+    public static final int LAST_NAME_COLUMN = 2;
+    public static final int NEEDS_PROCEDURE_COLUMN = 3;
+    public static final int MAIL_DETECTION_MINUTES_COLUMN = 4;
+    public static final int ABSENT_COLUMN = 5;
+    
     private final String[] columnToolTips = new String[] {
             i18n("The contact's mail address"),
             i18n("The first name of the contact person"),
             i18n("The last name of the contact person"),
+            i18n("Should receive the steps-to-be-taken list"),
             i18n("How many minutes the person would need to detect an arrived mail"),
             i18n("Absent contacts would be ignored when sending alert mails"),
         };
@@ -33,6 +41,7 @@ public class ContactsTable extends JTable
         columnNames.add(i18n("Mail Address"));
         columnNames.add(i18n("First Name"));
         columnNames.add(i18n("Last Name"));
+        columnNames.add(i18n("Needs Procedure"));
         columnNames.add(i18n("Minutes to Detect Mail"));
         columnNames.add(i18n("Absent"));
     }
@@ -41,6 +50,7 @@ public class ContactsTable extends JTable
             String.class,
             String.class,
             String.class,
+            Boolean.class,
             Integer.class,
             Boolean.class);
 
@@ -58,11 +68,12 @@ public class ContactsTable extends JTable
         
         SwingUtilities.invokeLater(() -> {
             final TableColumnModel columnModel = getColumnModel();
-            columnModel.getColumn(0).setPreferredWidth(100);
-            columnModel.getColumn(1).setPreferredWidth(40);
-            columnModel.getColumn(2).setPreferredWidth(40);
-            columnModel.getColumn(3).setPreferredWidth(16);
-            columnModel.getColumn(4).setPreferredWidth(10);
+            columnModel.getColumn(E_MAIL_COLUMN).setPreferredWidth(100);
+            columnModel.getColumn(FIRST_NAME_COLUMN).setPreferredWidth(40);
+            columnModel.getColumn(LAST_NAME_COLUMN).setPreferredWidth(40);
+            columnModel.getColumn(NEEDS_PROCEDURE_COLUMN).setPreferredWidth(10);
+            columnModel.getColumn(MAIL_DETECTION_MINUTES_COLUMN).setPreferredWidth(16);
+            columnModel.getColumn(ABSENT_COLUMN).setPreferredWidth(10);
         });
         
         buildTableModel(createEmptyDataVector(0));
@@ -86,12 +97,12 @@ public class ContactsTable extends JTable
         final Vector<Vector> dataVector = ((DefaultTableModel) getModel()).getDataVector();
         for (int row = 0; row < dataVector.size(); row++) {
             if (isEmptyRow(dataVector, row) == false) {
-                final String mailAddress = (String) dataVector.get(row).get(0);
+                final String mailAddress = (String) dataVector.get(row).get(E_MAIL_COLUMN);
                 if (MailUtil.isMailAddress(mailAddress) == false)
                     return i18n("There is an invalid mail address in contacts!");
                 
-                final String firstName = (String) dataVector.get(row).get(1);
-                final String lastName = (String) dataVector.get(row).get(2);
+                final String firstName = (String) dataVector.get(row).get(FIRST_NAME_COLUMN);
+                final String lastName = (String) dataVector.get(row).get(LAST_NAME_COLUMN);
                 if (StringUtil.isEmpty(firstName) && StringUtil.isEmpty(lastName))
                     return i18n("Either first or last name of contact must be given!");
             }
@@ -109,9 +120,9 @@ public class ContactsTable extends JTable
     @SuppressWarnings("rawtypes")
     public boolean isEmptyRow(Vector<Vector> dataVector, int rowIndex) {
         final Vector row = dataVector.get(rowIndex);
-        final String mailAddress = (String) row.get(0);
-        final String firstName = (String) row.get(1);
-        final String lastName = (String) row.get(2);
+        final String mailAddress = (String) row.get(E_MAIL_COLUMN);
+        final String firstName = (String) row.get(FIRST_NAME_COLUMN);
+        final String lastName = (String) row.get(LAST_NAME_COLUMN);
         return (StringUtil.isEmpty(mailAddress) &&
                 StringUtil.isEmpty(firstName) &&
                 StringUtil.isEmpty(lastName));
@@ -170,6 +181,7 @@ public class ContactsTable extends JTable
         emptyRow.add("");
         emptyRow.add("");
         emptyRow.add("");
+        emptyRow.add(Boolean.TRUE);
         emptyRow.add(Integer.valueOf(Alert.DEFAULT_ALERT_INTERVAL_MINUTES));
         emptyRow.add(Boolean.FALSE);
         return emptyRow;

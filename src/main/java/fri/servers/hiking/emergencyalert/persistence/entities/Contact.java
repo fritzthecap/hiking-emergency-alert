@@ -5,8 +5,9 @@ public class Contact
     private String mailAddress;
     private String firstName;
     private String lastName;
-    private boolean absent; // absent contacts will be ignored on mail sending
-    private int detectionMinutes = 60; // how long this person needs to detect a mail
+    private boolean absent = false; // absent contacts will be ignored on mail sending
+    private int detectionMinutes = Alert.DEFAULT_ALERT_INTERVAL_MINUTES; // how long this person needs to detect a mail
+    private boolean needsProcedure = true; // whether "steps-to-be-taken" should be contained in mail
     
     public String getMailAddress() {
         return mailAddress;
@@ -37,5 +38,11 @@ public class Contact
     }
     public void setDetectionMinutes(int detectionMinutes) {
         this.detectionMinutes = detectionMinutes;
+    }
+    public boolean isNeedsProcedure() {
+        return needsProcedure;
+    }
+    public void setNeedsProcedure(boolean needsProcedure) {
+        this.needsProcedure = needsProcedure;
     }
 }
