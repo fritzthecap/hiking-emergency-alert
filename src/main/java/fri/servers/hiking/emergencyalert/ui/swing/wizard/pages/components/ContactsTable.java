@@ -75,8 +75,6 @@ public class ContactsTable extends JTable
             columnModel.getColumn(MAIL_DETECTION_MINUTES_COLUMN).setPreferredWidth(16);
             columnModel.getColumn(ABSENT_COLUMN).setPreferredWidth(10);
         });
-        
-        buildTableModel(createEmptyDataVector(0));
     }
     
     

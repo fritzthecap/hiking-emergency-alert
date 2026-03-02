@@ -144,9 +144,10 @@ public class ContactsPage extends AbstractWizardPage
             phoneNumberOfHikerField.setText(alert.getPhoneNumberOfHiker());
         
         final boolean havingContacts = (alert.getAlertContacts() != null && alert.getAlertContacts().size() > 0);
+        final Vector<Vector<Object>> data = new Vector<>();
+        contactsTable.setData(data); // MUST once set a data-vector!
+        
         if (havingContacts) {
-            final Vector<Vector<Object>> data = new Vector<>();
-            
             for (Contact contact : alert.getAlertContacts()) {
                 final Vector<Object> row = new Vector<>(6);
                 row.addElement(contact.getMailAddress());
@@ -158,12 +159,11 @@ public class ContactsPage extends AbstractWizardPage
                 
                 data.add(row);
             }
-            contactsTable.setData(data);
         }
         
-        validate(); // clears error field
-        
         contactsTable.addEmptyRowWhenNeeded();
+        
+        validate(); // clears error field
     }
     
     private String validateContactsFields() {
