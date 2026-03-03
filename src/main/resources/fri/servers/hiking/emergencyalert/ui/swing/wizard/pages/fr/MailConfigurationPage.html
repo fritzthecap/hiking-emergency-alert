@@ -39,13 +39,16 @@
             qui se trouvent dans la partie inférieure de la boîte de dialogue qui s'ouvre.
             Activez d'abord la 
         </p>
+        <p>&nbsp;&nbsp;<i>mail.smtp.ssl.enable = true</i></p>
+        <p>ou la</p>
         <p>&nbsp;&nbsp;<i>mail.smtp.socketFactory.class = javax.net.ssl.SSLSocketFactory</i></p>
         <p>
             et enregistrez. Essayez à nouveau le bouton « Tester la connexion ». 
-            Si cela ne fonctionne pas, essayez certaines des propriétés <i>« mail.xxx.ssl.enable »</i>. 
+            Si cela ne fonctionne pas, essayez les propriétés <i>« mail.smtp.starttls.enable »</i> 
+            et <i>« mail.smtp.ssl.protocols »</i>. 
             Toutes les propriétés répertoriées ont des valeurs non par défaut, 
-            de sorte que le simple fait de les activer permet de voir si elles permettent d'établir la connexion. 
-            Vous pouvez également demander de l'aide sur Internet concernant les propriétés <i>jakarta mail</i>.
+            de sorte que le simple fait de les activer et de réessayer permettrait de voir si elles ont une incidence sur la connexion. 
+            Vous pouvez également rechercher de l'aide sur Internet pour les propriétés <i>jakarta mail</i>.
         </p>
         <p>
             Lorsque vous naviguez à partir d'ici, l'application tente de se connecter
