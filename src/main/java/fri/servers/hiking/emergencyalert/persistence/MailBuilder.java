@@ -91,7 +91,7 @@ public class MailBuilder
         final Day day = (dayIndex < 0) ? hike.currentDay() : hike.getDays().get(dayIndex);
         textBuilder.append(
                 i18n("Route")+": "+
-                (day.getRoute() != null ? "\n"+day.getRoute() : i18n("See attached images"))
+                (StringUtil.isNotEmpty(day.getRoute()) ? "\n"+day.getRoute() : i18n("See attached images"))
                 +"\n");
         
         footer(hike, textBuilder);
