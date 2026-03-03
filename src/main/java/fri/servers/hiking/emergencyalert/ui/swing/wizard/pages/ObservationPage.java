@@ -257,6 +257,9 @@ public class ObservationPage extends AbstractWizardPage
         
         getTrolley().setBackwardEnabled(true);
         
+        Log.restoreOut();
+        Log.restoreErr();
+        
         // ask for new hike and initialize it when Yes
         if (startNewHike && 
                 JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
