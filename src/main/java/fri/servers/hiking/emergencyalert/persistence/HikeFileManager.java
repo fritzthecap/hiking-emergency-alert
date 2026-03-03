@@ -21,33 +21,39 @@ public class HikeFileManager
     private static final String DEFAULT_JSON_FILEPATH;
     
     static {
-        final String fileName = System.getProperty("hike.file", "hike.json"); // property name, default value
-        final boolean invalidFileProperty = (true == fileName.contains(File.separator));
-        if (invalidFileProperty) {
-            System.err.println("ERROR: System property 'hike.file' must NOT contain a file-separator character!");
-            DEFAULT_JSON_FILE = "hike.json";
-        }
-        else {
-            
-            DEFAULT_JSON_FILE = fileName + (fileName.toLowerCase().endsWith(".json") ? "" : ".json");
-        }
-        
-        final String directory = System.getProperty("hike.home");
-        final boolean propertyEmpty = StringUtil.isEmpty(directory);
-        final boolean invalidDirectoryProperty = (false == propertyEmpty && false == directory.contains(File.separator));
+        final String directoryProperty = "hike.home";
+        final String configuredDirectory = System.getProperty(directoryProperty);
+        final boolean propertyEmpty = StringUtil.isEmpty(configuredDirectory);
+        final boolean invalidDirectoryProperty = (false == propertyEmpty && false == configuredDirectory.contains(File.separator));
         if (propertyEmpty || invalidDirectoryProperty) {
             if (invalidDirectoryProperty)
-                System.err.println("ERROR: System property 'hike.home' MUST contain a file-separator character!");
-            DEFAULT_JSON_PATH = System.getProperty("user.home") + File.separator + "hiking-emergency-alert";
+                System.err.println("ERROR: System property '"+directoryProperty+"' MUST contain a file-separator!");
+            DEFAULT_JSON_PATH = joinPathParts(System.getProperty("user.home"), "hiking-emergency-alert");
         }
         else {
-            DEFAULT_JSON_PATH = directory;
+            DEFAULT_JSON_PATH = configuredDirectory;
         }
         
-        DEFAULT_JSON_FILEPATH = DEFAULT_JSON_PATH + File.separatorChar + DEFAULT_JSON_FILE;
+        final String fileProperty = "hike.file";
+        final String defaultFile = "hike.json";
+        final String configuredFile = System.getProperty(fileProperty, defaultFile); // property name, default value
+        final boolean invalidFileProperty = (true == configuredFile.contains(File.separator));
+        if (invalidFileProperty) {
+            System.err.println("ERROR: System property '"+fileProperty+"' must NOT contain a file-separator!");
+            DEFAULT_JSON_FILE = defaultFile;
+        }
+        else {
+            DEFAULT_JSON_FILE = configuredFile + (configuredFile.toLowerCase().endsWith(".json") ? "" : ".json");
+        }
         
-        System.out.println("Default JSON directory (property 'hike.home') is '"+DEFAULT_JSON_PATH+"'");
-        System.out.println("Default JSON filename (property 'hike.file') is '"+DEFAULT_JSON_FILE+"'");
+        DEFAULT_JSON_FILEPATH = joinPathParts(DEFAULT_JSON_PATH, DEFAULT_JSON_FILE);
+        
+        System.out.println("Default JSON directory (property '"+directoryProperty+"') is '"+DEFAULT_JSON_PATH+"'");
+        System.out.println("Default JSON filename (property '"+fileProperty+"') is '"+DEFAULT_JSON_FILE+"'");
+    }
+    
+    private static String joinPathParts(String part1, String part2) {
+        return part1 + (part1.endsWith(File.separator) ? "" : File.separator) + part2;
     }
     
     public String load() throws IOException {
