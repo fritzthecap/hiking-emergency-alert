@@ -70,7 +70,7 @@ public class MailTextsPage extends AbstractWizardPage
                 i18n("The message's content text"),
                 i18n("I had an accident while hiking and need help.")+" "+
                     i18n("The hike was planned")+" $begin - $end.");
-        mailIntroductionTextField.setRows(2);
+        mailIntroductionTextField.setRows(3);
         
         final JComponent procedureList = buildProcedureTodosList();
         
