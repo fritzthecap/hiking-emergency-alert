@@ -238,7 +238,7 @@ public class ActivationPage extends AbstractWizardPage
             alertMailSplitPane.setResizeWeight(0.8);
             alertMailSplitPane.setOneTouchExpandable(true);
             alertMailSplitPane.setLeftComponent(
-                    SwingUtil.buildScrollPane(i18n("Alert Mail Text"), alertMailText));
+                    SwingUtil.buildScrollPane(i18n("Alert Mail Complete Text"), alertMailText));
             alertMailSplitPane.setRightComponent(
                     SwingUtil.buildScrollPane(i18n("Attachments"), attachmentFileNames));
             add(alertMailSplitPane, BorderLayout.CENTER);
