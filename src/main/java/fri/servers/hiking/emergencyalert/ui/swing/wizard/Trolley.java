@@ -121,15 +121,19 @@ public class Trolley
         final String json = hikeToJsonString(hike);
         
         if (targetFile != null) { // user explicitly chose a file
-            hikeFileManager.save(targetFile.getAbsolutePath(), json);
-            setHikeFile(targetFile, hike); // make the explicitly chosen file the file for future saves
+            final String targetPathFile = targetFile.getAbsolutePath();
+            hikeFileManager.save(targetPathFile, json);
+            
+            setHikeFile(targetFile, hike); // make targetFile the file for future saves
+            // also refreshes hike copy
+            
+            if (hikeFileManager.getSavePathFile().equals(targetPathFile) == false)
+                hikeFileManager.save(json); // always also save to default file
         }
         else {
+            hikeFileManager.save(json); // save to default file
             refreshHikeCopy(hike); // refresh change-detection with current persistence-state
         }
-        
-        hikeFileManager.save(json); // always also save to default file
-        
     }
     
     private String hikeToJsonString(Hike hike) {
