@@ -37,6 +37,8 @@ import fri.servers.hiking.emergencyalert.mail.MailUtil;
 import fri.servers.hiking.emergencyalert.mail.impl.ConnectionCheck;
 import fri.servers.hiking.emergencyalert.mail.impl.MailProperties;
 import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
+import fri.servers.hiking.emergencyalert.persistence.entities.Alert;
+import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.ui.swing.util.PropertiesEditDialog;
@@ -46,32 +48,6 @@ import fri.servers.hiking.emergencyalert.util.StringUtil;
 
 /**
  * Configure mail send- and receive-connection.
- * <p/>
- * Securing mail:
- * <ol>
- * <li>Securing Email Transmission (Send/Receive) 
- * <ul><li>
- * Use TLS/SSL: Ensure your mail client/server uses 
- * TLS 1.2 or higher for both SMTP (sending) and 
- * IMAP/POP (receiving) to encrypt data between servers.
- * </li><li>
- * Configure Mail Clients: In Outlook/Gmail, 
- * ensure settings for incoming and outgoing servers 
- * are set to "SSL/TLS" rather than "None" or "STARTTLS" 
- * (if a higher encryption option is available). 
- * </li>
- * </ul>
- * </ol>
- * Die Mailserver Konfiguration ist auf Android phones zu finden unter:
- * <blockquote>
- *     Einstellungen -> Apps -> E-Mail ->
- *     E-Mail-Einstellungen -> 
- *     Tippe auf das Konto (Mail-Adresse) ->
- *     Ganz hinunter scrollen zu Servereinstellungen -> 
- *     Eingangssserver, Ausgangsserver.
- * </blockquote>
- * Die Ports nur übernehmen, wenn SSL-Zertifikate des Mail-Providers
- * auf dem Computer installiert wurden!
  * 
  * @see https://www.oracle.com/java/technologies/javamail-sslnotes.html
  */
@@ -179,9 +155,16 @@ public class MailConfigurationPage extends AbstractWizardPage
 
     @Override
     protected void populateUi(Hike hike) {
-        final MailConfiguration mailConfiguration = hike.getAlert().getMailConfiguration();
+        final Alert alert = hike.getAlert();
+        final MailConfiguration mailConfiguration = alert.getMailConfiguration();
         
-        mailUserField.setText(mailConfiguration.getMailUser());
+        String mailUser = mailConfiguration.getMailUser();
+        if (StringUtil.isEmpty(mailUser)) { // first contact may be the hiker itself
+            final List<Contact> contacts = alert.getAlertContacts();
+            if (contacts.size() > 0)
+                mailUser = contacts.get(0).getMailAddress();
+        }
+        mailUserField.setText(mailUser);
         
         receiveMailProtocolField.setSelectedItem(mailConfiguration.getReceiveMailProtocol());
         receiveMailHostField.setText(mailConfiguration.getReceiveMailHost());

@@ -64,13 +64,13 @@ public class MailTextsPage extends AbstractWizardPage
                 "* "+i18n("Alert Mail Subject"),
                 i18n("The text that will be in mail subject"),
                 i18n("Hiking emergency - I need help!"));
-        mailSubjectField.setColumns(40);
+        mailSubjectField.setColumns(48); // else has only width of content-text
         
         mailIntroductionTextField = SwingUtil.buildTextArea(
                 i18n("The message's content text"),
                 i18n("I had an accident while hiking and need help.")+" "+
                     i18n("The hike was planned")+" $begin - $end.");
-        mailIntroductionTextField.setRows(3);
+        mailIntroductionTextField.setRows(3); // else has only as much rows as content-text has
         
         final JComponent procedureList = buildProcedureTodosList();
         

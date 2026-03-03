@@ -16,19 +16,16 @@ public class Hike
      */
     public final transient String uniqueMailId = UUID.randomUUID().toString();
 
-    /** Suggestions for <code>plannedBegin</code> and <code>plannedHome</code>. */
-    private final transient Date suggestedStart = DateUtil.eraseSeconds(DateUtil.now());
-    private final transient Date suggestedEnd = DateUtil.addHours(suggestedStart, 12);
-    
     // properties visible in JSON
-    private Date plannedBegin = suggestedStart;
+    
+    private Date plannedBegin = DateUtil.eraseSeconds(DateUtil.now());
     
     private transient int dayIndex; // transient would not get persisted
     private List<Day> days = new ArrayList<>();
     
     {   // make sure there is at least one day in list
         final Day day = new Day();
-        day.setPlannedHome(suggestedEnd);
+        day.setPlannedHome(DateUtil.addHours(plannedBegin, 12));
         days.add(day);
     }
     

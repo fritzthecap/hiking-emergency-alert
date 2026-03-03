@@ -45,7 +45,7 @@ class WizardOutline extends JPanel
                 : (pageIndex == pages.length - 1) ? "\u2500\u25CF"
                     : "\u2500\u25CF\u2500";
         final JLabel ball = new JLabel(label);
-        ball.setToolTipText(pages[pageIndex].getTitle());
+        ball.setToolTipText((pageIndex + 1)+"  "+pages[pageIndex].getTitle());
         SwingUtil.increaseFontSize(ball, 120, false, false);
         balls.add(ball);
         return ball;

@@ -362,8 +362,8 @@ public abstract class AbstractWizardPage
             saveButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    commit(false);
-                    saveHikeToFile(trolley.getHikeFile() == null);
+                    commit(false); // false: do not test mail connection
+                    saveHikeToFile(trolley.getHikeFile() == null); // ignore commit result, save also invalid data
                 }
             });
         }
