@@ -24,7 +24,7 @@
 - Check that correct version is in title-bar of application by launching it:
     java -jar hiking-emergency-alert.jar
     
-- Commit and push all project changes to repository
+- Refresh Eclipse, commit and push all project changes to repository
 
 - For major releases, create a release on github ("Releases" - "Draft a New Release"),
    attach the hiking-emergency-alert.jar file to the release.
