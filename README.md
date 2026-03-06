@@ -40,6 +40,9 @@ Following JVM-argument would give you bigger fonts:
 The application stores your hike-data by default in _$HOME/hiking-emergency-alert_ directory, that gets created as soon as you once have configured your mail connection successfully. You can generate different hikes and load them on the first page of the "wizard", see screenshots below.
 
 ----
+<img width="517" height="61" alt="write-to-email" src="https://github.com/user-attachments/assets/8829f9c5-6ef6-4cc1-822d-d94ca6133d44" />
+
+----
 
 This project started 2026-01-01 and had its first release 2026-02-02.
 It was implemented using _Java 21_ (compatible with 17), the UI is good old _Swing_.
