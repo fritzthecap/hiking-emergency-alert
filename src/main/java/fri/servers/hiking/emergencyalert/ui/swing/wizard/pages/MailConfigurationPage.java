@@ -232,15 +232,11 @@ public class MailConfigurationPage extends AbstractWizardPage
         
         customPropertiesToCommit = null; // no uncommitted data any more
         
-        if (goingForward) {
-            try { // silently save precious mail configurations to file before next page
-                getTrolley().save(getHike());
-            }
-            catch (Exception e) {
-                System.err.println("ERROR: Could not save base data, error was "+e);
-            }
-        }
-
+        return true;
+    }
+    
+    @Override
+    protected boolean autoSaveOnGoingForward() {
         return true;
     }
     

@@ -40,12 +40,12 @@ public interface Mailer
     public void sendActivation(Hike hike, Date plannedHome, int dayIndex) throws MailSendException;
 
     /**
-     * Finds and deletes a reply to the activation mail.
+     * Finds and deletes a reply to the activation mail on first OVERDUE_ALERT event.
      * @param sentAfterDate the minimum "Sent"-time of the mail.
      * @return true when a reply to the activation mail can be found in INBOX, 
      *      containing the MAIL-ID of the hike.
      */
-    public boolean findActivationReply(
+    public boolean findAlertStopReply(
             MailConfiguration mailConfiguration, 
             String uniqueMailId, 
             Date sentAfterDate) throws MailReceiveException;

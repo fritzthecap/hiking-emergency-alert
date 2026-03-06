@@ -181,6 +181,11 @@ public class ActivationPage extends AbstractWizardPage
         return true; // nothing else to commit here
     }
 
+    @Override
+    protected boolean autoSaveOnGoingForward() {
+        return true;
+    }
+    
     
     private String buildHikerInfos(Alert alert) {
         final StringBuilder hikerText = new StringBuilder();

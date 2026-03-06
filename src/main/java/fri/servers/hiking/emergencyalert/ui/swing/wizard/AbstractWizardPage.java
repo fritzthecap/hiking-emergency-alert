@@ -172,12 +172,28 @@ public abstract class AbstractWizardPage
         
         final boolean committed = commit(goingForward);
         
-        if (committed && focusListener != null) {
-            focusListener.uninstall(); // enable garbage-collection
-            focusListener = null;
+        if (committed) {
+            if (goingForward && autoSaveOnGoingForward()) {
+                try { // silently save data before navigating to next page
+                    getTrolley().save(getHike());
+                }
+                catch (Exception e) { // not important to throw this
+                    System.err.println("ERROR: Could not save base data, error was "+e);
+                }
+            }
+            
+            if (focusListener != null) {
+                focusListener.uninstall(); // enable garbage-collection
+                focusListener = null;
+            }
         }
         
         return committed ? trolley : null;
+    }
+
+    /** @return default false for not auto-saving data on navigating forward. To be overridden. */
+    protected boolean autoSaveOnGoingForward() {
+        return false;
     }
 
     /**

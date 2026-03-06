@@ -23,7 +23,7 @@ public class SwingAlertHomeServer extends SwingUserInterface
     @Override
     protected JFrame buildUi() {
         final StateMachine stateMachine = new StateMachine(
-                new Hike(), // a new empty default hike 
+                new Hike(), // will be replaced by HikeWizard/HikeFactory, StateMachine allows no null 
                 new MailerImpl(), 
                 new HikeTimer(), 
                 this);

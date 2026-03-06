@@ -12,6 +12,10 @@ import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 
+/**
+ * This INBOX visitation won't find any mail that was sent by the application itself, 
+ * (<code>sendResultsLive</code>) or was sent before given <code>minimumSentTime</code>.
+ */
 public class InboxVisitorConnection extends ReceiveConnection implements InboxVisitor
 {
     protected final String uniqueMailId;
@@ -40,7 +44,7 @@ public class InboxVisitorConnection extends ReceiveConnection implements InboxVi
      * @return mail-information, or null if no mail found.
      * @throws MailReceiveException when mail connection fails.
      */
-    public Mail searchExternalMailHavingMailId() throws MailReceiveException {
+    public Mail searchNonSelfSentMailHavingMailId() throws MailReceiveException {
         receive(this);
         return found;
     }

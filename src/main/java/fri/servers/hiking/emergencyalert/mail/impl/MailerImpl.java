@@ -68,7 +68,7 @@ public class MailerImpl implements Mailer
     }
 
     @Override
-    public boolean findActivationReply(
+    public boolean findAlertStopReply(
             MailConfiguration mailConfiguration, 
             String uniqueMailId, 
             Date sentAfterDate) throws MailReceiveException
@@ -79,8 +79,8 @@ public class MailerImpl implements Mailer
                 uniqueMailId,
                 sentAfterDate,
                 alertSendResults);
-        final Mail activtionReply = receiveConnection.searchExternalMailHavingMailId();
-        return (activtionReply != null);
+        final Mail alertStopReply = receiveConnection.searchNonSelfSentMailHavingMailId();
+        return (alertStopReply != null);
     }
     
     @Override

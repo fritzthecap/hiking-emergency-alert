@@ -123,19 +123,26 @@ public class Context
     }
     
     /**
-     * ON_THE_WAY, checks whether hiker has stopped overdue alerts by a activation reply.
-     * Mind that this can be called just once per hike day, because the activation reply will
-     * be deleted when found.
-     * @return true when alert confirmation mail was from hiker, else false.
+     * First OVERDUE_ALERT OnTheWay, checks whether hiker has stopped overdue alerts
+     * by an activation reply. Mind that this can be called just once per hike day,
+     * because the activation reply will be deleted from INBOX when found.
+     * @return if found a confirmation mail (from hiker),
+     *      returns TRUE when having more hike days, or null when not,
+     *      else returns FALSE when no confirmation mail (from hiker) was found.
      */
-    public boolean alertsStoppedByHiker() {
-        if (findActivationReply()) {
-            System.out.println("Hiker stopped alerts by replying to activation mail, detected at "+DateUtil.nowString());
-            
-            timerContinue();
-            return true;
+    public Boolean alertsStoppedByHiker() {
+        if (findAlertStopReply()) {
+            if (hike.hasMoreDays()) {
+                timerContinue();
+                return Boolean.TRUE; // stay OnTheWay
+            }
+            else {
+                stop();
+                System.out.println("You have prevented alerts on last day, detected at "+DateUtil.nowString());
+                return null;
+            }
         }
-        return false;
+        return Boolean.FALSE;
     }
     
     /**
@@ -186,19 +193,19 @@ public class Context
 
     /**
      * ALERT_CONFIRMED, alert-confirmation mail arrived from polling.
-     * @return false when mail came from hiker himself and timer continues when more days,
+     * @return false when mail came from hiker himself and hike has more days,
      *      true when mail came from a contact.
      */
-    public boolean alertConfirmedByContact() {
-        stop();
+    public boolean hikerMailAndMoreDays() {
+        stop(); // stops timer and confirmation polling
         
         final Mail confirmation = (Mail) eventParameter;
-        if (hike.hasMoreDays() &&
-                confirmation.from().equalsIgnoreCase( // mail comes from hiker
-                        hike.getAlert().getMailConfiguration().getMailFromAddress()))
-        {
-            timerContinue(); // was replied by hiker himself, so skip to next day when existing
-            return false;
+        final boolean mailIsFromHiker =  confirmation.from().equalsIgnoreCase(
+                hike.getAlert().getMailConfiguration().getMailFromAddress());
+                
+        if (mailIsFromHiker && hike.hasMoreDays()) {
+            timerContinue(); // was replied by hiker himself, skip to next day
+            return true;
         }
         
         userInterface.showConfirmMail(confirmation);
@@ -232,19 +239,17 @@ public class Context
                 stateMachine);
     }
     
-    private void timerContinue() {
-        if (hike.hasMoreDays()) { // check for further hike days, see issue #1 
-            contactIndex = 0; // reset contact list to head
-            final int dayIndex = hike.skipDay(); // switch to next hike day
-            
-            if (isRunning())
-                stop();
-            
-            final Date plannedHome = hike.currentDay().getPlannedHome();
-            System.out.println("Skipping to next hike day that ends at "+DateUtil.toString(plannedHome));
-            
-            timerStart(null, plannedHome, dayIndex);
-        }
+    private void timerContinue() { // check for further hike days, see issue #1
+        contactIndex = 0; // reset contact list to head
+        final int dayIndex = hike.skipDay(); // switch to next hike day
+        
+        if (isRunning())
+            stop();
+        
+        final Date plannedHome = hike.currentDay().getPlannedHome();
+        System.out.println("Skipping to next hike day that ends at "+DateUtil.toString(plannedHome));
+        
+        timerStart(null, plannedHome, dayIndex);
     }
 
     private void sendActivationMessage(Date plannedHome, int dayIndex) {
@@ -261,12 +266,17 @@ public class Context
         }
     }
     
-    private boolean findActivationReply() {
+    private boolean findAlertStopReply() {
         try {
-            return mailer.findActivationReply(
+            final boolean hikerPreventedAlerts = mailer.findAlertStopReply(
                     hike.getAlert().getMailConfiguration(),
                     hike.uniqueMailId,
                     activationTime);
+            
+            if (hikerPreventedAlerts)
+                System.out.println("Hiker prevented alerts by replying to activation mail, detected at "+DateUtil.nowString());
+            
+            return hikerPreventedAlerts;
         }
         catch (MailReceiveException e) {
             System.err.println("ERROR: failed to find activation reply, at "+DateUtil.nowString()+", error: "+e.toString());

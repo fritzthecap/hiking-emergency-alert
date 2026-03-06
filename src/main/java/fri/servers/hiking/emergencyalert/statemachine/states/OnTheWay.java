@@ -5,20 +5,27 @@ import fri.servers.hiking.emergencyalert.statemachine.Context;
 
 public class OnTheWay extends AbstractState
 {
+    /** Clicked "Home Again" before first OVERDUE_ALERT. */
     @Override
     public AbstractState comingHome(Context context) {
         context.comingHomeInTime();
         return new HomeAgain();
     }
     
-   @Override
+    /** The first OVERDUE_ALERT event arrives, at hike's home-time. */
+    @Override
     public AbstractState overdueAlert(Context context) {
-        if (context.alertsStoppedByHiker()) // hiker is alive, do not change to overdue state
-            return this; // TODO: this is not yet in state/transition diagram!
+        final Boolean alertsStoppedByHiker = context.alertsStoppedByHiker();
         
-        final AbstractState followerState = new OverdueAlert();
-        followerState.overdueAlert(context); // immediately send first alert
+        final boolean stoppedAndNoMoreHikeDays = (alertsStoppedByHiker == null);
+        if (stoppedAndNoMoreHikeDays) // hiker is alive, hike finished
+            return new HomeAgain(); // timer was stopped
         
-        return followerState;
+        final boolean stoppedButMoreHikeDays = Boolean.TRUE.equals(alertsStoppedByHiker);
+        if (stoppedButMoreHikeDays) // hiker is alive, hike continues
+            return this; // timer was restarted
+        
+        context.sendAlertMessage();
+        return new OverdueAlert();
     } 
 }

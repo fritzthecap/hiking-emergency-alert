@@ -104,7 +104,7 @@ public class ConnectionCheck extends InboxVisitorConnection
         for (int done = 0; success == false && done <= maximumSeconds; done += sleepSeconds) {
             System.out.println("    ... Receive attempt at "+DateUtil.nowString(true));
             
-            success = (searchExternalMailHavingMailId() != null); // searches for mail text containing uniqueMailId
+            success = (searchNonSelfSentMailHavingMailId() != null); // searches for mail text containing uniqueMailId
             
             if (success == false)
                 try { Thread.sleep(sleepSeconds * 1000); } catch (InterruptedException e) {}

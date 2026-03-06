@@ -29,7 +29,8 @@
         </p>
             
         <table>
-            <tr> <!--header -->
+            <!--header row -->
+            <tr>
                     <th>&rarr; State<br/>&darr; Event</th>
                     <th>HikerRegistered</th>
                     <th>HikeActivated</th>
@@ -38,8 +39,9 @@
                     <th>HomeAgain / AlertConfirmed</th>
             </tr>
             
-            <tr> <!--states -->
-                <th>REGISTRATION (user)</th> <!--event -->
+            <!--event rows -->
+            <tr>
+                <th>REGISTRATION (user)</th>
                 <td>&rarr; HikerRegistered (or updated)</td>
                 <td>&#128683;</td>
                 <td>&#128683;</td>
@@ -47,7 +49,7 @@
                 <td>&rarr; HikerRegistered</td>
             </tr>
             <tr>
-                <th>ACTIVATION (user)</th> <!--event -->
+                <th>ACTIVATION (user)</th>
                 <td>&rarr; HikeActivated (or updated)</td>
                 <td>&#128683;</td>
                 <td>&#128683;</td>
@@ -55,7 +57,7 @@
                 <td>&rarr; HikeActivated</td>
             </tr>
             <tr>
-                <th>SETTING_OFF (timer)</th> <!--event -->
+                <th>SETTING_OFF (timer)</th>
                 <td>&#128683;</td>
                 <td>&rarr; OnTheWay</td>
                 <td>&#128683;</td>
@@ -63,7 +65,7 @@
                 <td>&#128683;</td>
             </tr>
             <tr>
-                <th>COMING_HOME (user)</th> <!--event -->
+                <th>COMING_HOME (user)</th>
                 <td>&#128683;</td>
                 <td>&rarr; HomeAgain</td>
                 <td>&rarr; HomeAgain</td>
@@ -71,10 +73,17 @@
                 <td>&#128077;</td>
             </tr>
             <tr>
-                <th>OVERDUE_ALERT (timer)</th> <!--event -->
+                <th>OVERDUE_ALERT (timer)</th>
                 <td>&#128683;</td>
                 <td>&#128683;</td>
-                <td>&rarr; OverdueAlert</td>
+                <td>if (alertsStoppedByHiker)<br/>
+                    &nbsp;&nbsp;if (moreHikeDays)<br/>
+                    &nbsp;&nbsp;&rarr; OnTheWay<br/>
+                    &nbsp;&nbsp;else<br/>
+                    &nbsp;&nbsp;&rarr; HomeAgain<br/>
+                    else<br/>
+                    &rarr; OverdueAlert
+                    </td>
                 <td>&rarr; OverdueAlert</td>
                 <td>&#128683;</td>
             </tr>
@@ -83,7 +92,10 @@
                 <td>&#128683;</td>
                 <td>&#128683;</td>
                 <td>&#128683;</td>
-                <td>&rarr; AlertConfirmed</td>
+                <td>if (hikerMail AND moreHikeDays)<br/>
+                    &rarr; OnTheWay<br/>
+                    else<br/>
+                    &rarr; AlertConfirmed</td>
                 <td>&#128077; / &#128078;</td>
             </tr>
         </table>

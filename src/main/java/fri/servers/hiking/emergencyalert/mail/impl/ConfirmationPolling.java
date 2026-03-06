@@ -83,7 +83,7 @@ public class ConfirmationPolling extends Scheduler
     
     private void receiveAlertConfirmation() {
         try {
-            final Mail confirmation = receiveConnection.searchExternalMailHavingMailId();
+            final Mail confirmation = receiveConnection.searchNonSelfSentMailHavingMailId();
             
             if (confirmation != null) { // found an alert confirmation in INBOX
                 System.out.println("Received alert confirmation from "+confirmation.from()+" at "+DateUtil.nowString());
