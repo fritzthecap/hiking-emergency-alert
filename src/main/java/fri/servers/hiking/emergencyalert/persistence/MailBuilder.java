@@ -38,7 +38,7 @@ public class MailBuilder
 
     
     /** This is sent when hike is activated. */
-    public Mail buildActivationMail(Date plannedHome, int dayIndex) {
+    public Mail buildActivationMail(Date plannedHome, int dayIndex, boolean remoteActivation) {
         final String subject = i18n("Your hike started!");
         
         final StringBuilder textBuilder = new StringBuilder();
@@ -48,14 +48,27 @@ public class MailBuilder
         if (dayIndex > 0)
             textBuilder.append(i18n("Day")+" "+(dayIndex + 1)+".\n");
             
+        if (remoteActivation == true) {
+            textBuilder.append(
+                    i18n("You must activate your hike by responding to this mail."+"\n"+
+                    i18n("The MAIL-ID below must be contained as text or attachment.")+"\n\n"));
+            textBuilder.append("MAIL-ID: "+hike.uniqueMailId);
+            textBuilder.append("\n\n");
+        }
+        
         final String overdueDate = DateUtil.toString(plannedHome);
         textBuilder.append(
-                i18n("You can block alert mails by responding to this mail before")+" "+overdueDate+".\n"+
-                i18n("The MAIL-ID below must be contained as text or attachment.")+"\n"+
-                i18n("Good luck!"));
-        textBuilder.append("\n\n");
-        textBuilder.append("MAIL-ID: "+hike.uniqueMailId);
-        textBuilder.append("\n");
+                i18n("You can block alert mails by responding to this mail before")+" "+overdueDate+".\n");
+        
+        if (remoteActivation == false) {
+            textBuilder.append(
+                    i18n("The MAIL-ID below must be contained as text or attachment.")+"\n\n");
+            textBuilder.append("MAIL-ID: "+hike.uniqueMailId);
+            textBuilder.append("\n\n");
+        }
+        
+        textBuilder.append(i18n("Good luck!")+"\n");
+        
         footerBottom(textBuilder);
         
         return new Mail(from(), to(), subject, textBuilder.toString(), CONTENT_TYPE, null, null);

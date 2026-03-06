@@ -172,7 +172,7 @@ public class ObservationPage extends AbstractWizardPage
                 Log.redirectOut(consoleOut);
                 Log.redirectErr(consoleErr);
                 
-                // change to state HikeActivated, this triggers another mail connection check
+                // change to state HikeActivated, this triggers a final validation
                 getStateMachine().getUserInterface().activateHike(hike);
             }
             catch (Exception e) { // validation assertions could strike

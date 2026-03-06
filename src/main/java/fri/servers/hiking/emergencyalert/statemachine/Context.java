@@ -90,11 +90,11 @@ public class Context
      * ACTIVATION event in HikerRegistered state,
      * starts the timer that observes the planned hike times and fires time-events.
      */
-    public void startHikeTimer() {
+    public void activateHike() {
         new Validation().assertHike(hike);
         
         if (timer.isRunning())
-            throw new IllegalStateException("Timer can be started just once!");
+            throw new IllegalStateException("Timer can not be started when already running!");
         
         try { // here the mail connection login dialog may show up
             if (mailer.ensureMailConnection(hike.getAlert().getMailConfiguration()) == false)
@@ -104,19 +104,24 @@ public class Context
             throw new RuntimeException(e); // assuming user is still at the computer and sees the error
         }
         
-        activationOutputs(); // just once per hike
-        
         final Date begin = (hike.getPlannedBegin() != null) 
                 ? hike.getPlannedBegin()
                 : DateUtil.now(); // make sure SET_OFF event is fired
         final Date home = hike.currentDay().getPlannedHome();
         
-        timerStart(begin, home, 0); // 0 is first day
+        final boolean remoteActivation = hike.isRemoteActivation();
+        
+        sendActivationMessage(home, 0, remoteActivation);
+        
+        if (remoteActivation)
+            startHikeTimerDeferred(begin, home);
+        else
+            startHikeTimer(begin, home);
     }
-
+        
     /** @return true when timer is running, i.e. ACTIVATION already took place. */
     public boolean isRunning() {
-        return timer.isRunning() || mailer.isPolling();
+        return timer.isRunning() || mailer.isConfirmationPolling();
     }
     
     /** COMING_HOME or ALERT_CONFIRMED, stops all timers and thus all observations. */
@@ -229,15 +234,32 @@ public class Context
                 ". Mail has been sent already to "+contactIndex+" contact(s).");
     }
 
+    // privates
     
-    private void timerStart(Date plannedBegin, Date plannedHome, int dayIndex) {
+    /** This is called just on first hike-day when remote activation was chosen. */
+    private void startHikeTimerDeferred(final Date begin, final Date home) {
+        mailer.startActivationPolling(
+                (mail) -> startHikeTimer(begin, home),
+                hike.uniqueMailId,
+                hike.getAlert().getMailConfiguration(),
+                hike.getAlert().getConfirmationPollingMinutes(),
+                home);
+    }
+
+    private void startHikeTimer(Date begin, Date home) {
+        activationOutputs(); // just once per hike
+        timerStart(begin, home, 0); // 0 is first day
+    }
+
+    private void timerStart(Date begin, Date home, int dayIndex) {
         activationTime = DateUtil.now();
         
-        sendActivationMessage(plannedHome, dayIndex); // give the hiker a chance to stop alerts before overdue time
+        if (dayIndex > 0) // on first day activation mail already has been sent
+            sendActivationMessage(home, dayIndex, false); // give the hiker a chance to stop alerts before overdue time
         
         timer.start(
-                plannedBegin,
-                plannedHome,
+                begin,
+                home,
                 new AlertIntervalModel(hike),
                 stateMachine);
     }
@@ -249,16 +271,16 @@ public class Context
         if (isRunning())
             stop();
         
-        final Date plannedHome = hike.currentDay().getPlannedHome();
-        System.out.println("Skipping to next hike day that ends at "+DateUtil.toString(plannedHome));
+        final Date home = hike.currentDay().getPlannedHome();
+        System.out.println("Skipping to next hike day that ends at "+DateUtil.toString(home));
         
-        timerStart(null, plannedHome, dayIndex);
+        timerStart(null, home, dayIndex);
     }
 
-    private void sendActivationMessage(Date plannedHome, int dayIndex) {
+    private void sendActivationMessage(Date home, int dayIndex, boolean remoteActivation) {
         System.out.println("Trying to send activation mail at "+DateUtil.nowString());
         try {
-            mailer.sendActivation(hike, plannedHome, dayIndex);
+            mailer.sendActivation(hike, home, dayIndex, remoteActivation);
             
             System.out.println("Sending succeeded!");
         }

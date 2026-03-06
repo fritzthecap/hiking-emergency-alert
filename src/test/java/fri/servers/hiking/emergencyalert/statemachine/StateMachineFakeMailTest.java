@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import fri.servers.hiking.emergencyalert.mail.MailException;
 import fri.servers.hiking.emergencyalert.mail.MailReceiveException;
@@ -116,17 +117,28 @@ class StateMachineFakeMailTest
                 System.err.println("Confirmation polling stopped");
             }
             @Override
-            public boolean isPolling() {
+            public boolean isConfirmationPolling() {
                 return polling;
             }
             @Override
-            public void sendActivation(Hike hike, Date plannedHome, int dayIndex) throws MailSendException {
+            public void sendActivation(Hike hike, Date plannedHome, int dayIndex, boolean remoteActivation) throws MailSendException {
             }
             @Override
             public boolean findAlertStopReply(
                     MailConfiguration mailConfiguration, 
                     String uniqueMailId, 
                     Date sentAfterDate) throws MailReceiveException {
+                return false;
+            }
+            @Override
+            public void startActivationPolling(Consumer<Mail> toBeCalledWhenReceived, String uniqueMailId,
+                    MailConfiguration mailConfiguration, int pollingMinutes, Date homeTime) {
+            }
+            @Override
+            public void stopActivationPolling() {
+            }
+            @Override
+            public boolean isActivationPolling() {
                 return false;
             }
         };

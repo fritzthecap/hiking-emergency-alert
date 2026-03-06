@@ -14,7 +14,7 @@ public class HikerRegistered extends AbstractState
     @Override
     public AbstractState activation(Context context) {
         context.updateHike();
-        context.startHikeTimer();
+        context.activateHike();
         return new HikeActivated();
     }
 }

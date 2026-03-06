@@ -1,27 +1,22 @@
 package fri.servers.hiking.emergencyalert.mail.impl;
 
-import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TimerTask;
-import fri.servers.hiking.emergencyalert.mail.MailReceiveException;
 import fri.servers.hiking.emergencyalert.mail.Mailer;
-import fri.servers.hiking.emergencyalert.mail.impl.SendConnection.SendResult;
 import fri.servers.hiking.emergencyalert.persistence.Mail;
 import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
 import fri.servers.hiking.emergencyalert.statemachine.Event;
-import fri.servers.hiking.emergencyalert.time.Scheduler;
-import fri.servers.hiking.emergencyalert.util.DateUtil;
 import jakarta.mail.Authenticator;
 
 /**
- * Polls on mail-connection for an alert-confirmation mail coming from outside.
+ * After the hike's home-time arrived, this polls
+ * for an alert-confirmation mail coming from outside.
+ * Fires an ALERT_CONFIRMED event when received a confirmation
+ * and stops polling then.
  */
-public class ConfirmationPolling extends Scheduler
+public class ConfirmationPolling extends AbstractPolling
 {
     private Mailer.EventDispatcher eventDispatcher;
-    private InboxVisitorConnection receiveConnection;
-    private int pollingMinutes;
     
     public void start(
             String uniqueMailId, 
@@ -31,82 +26,18 @@ public class ConfirmationPolling extends Scheduler
             Set<SendConnection.SendResult> sendResultsLive,
             Mailer.EventDispatcher eventDispatcher)
     {
-        if (receiveConnection != null)
-            throw new IllegalStateException("Can not start polling again!");
+        super.start(uniqueMailId, mailConfiguration, authenticator, pollingMinutes, sendResultsLive);
         
         this.eventDispatcher = Objects.requireNonNull(eventDispatcher);
-        this.pollingMinutes = pollingMinutes;
-        
-        final Date pollingStartTime = DateUtil.now();
-        
-        this.receiveConnection = newInboxVisitorConnection(
-                mailConfiguration, 
-                authenticator, 
-                uniqueMailId,
-                pollingStartTime,
-                sendResultsLive);
-        
-        final Date firstPolling = DateUtil.addMinutes(pollingStartTime, pollingMinutes);
-        super.start(scheduler -> 
-            scheduler.schedule(buildTask(), firstPolling));
-        
-        System.out.println(
-                "Polling for alert confirmations will start in "+pollingMinutes+
-                " minute(s), now it is "+DateUtil.nowString());
     }
     
-    /** Factory method for InboxVisitorConnection, to be overridden by unit-tests. */
-    protected InboxVisitorConnection newInboxVisitorConnection(
-            MailConfiguration mailConfiguration,
-            Authenticator authenticator, 
-            String uniqueMailId, 
-            Date pollingStartTime, 
-            Set<SendResult> sendResultsLive)
-    {
-        return new InboxVisitorConnection(
-                mailConfiguration,
-                authenticator, 
-                uniqueMailId, 
-                pollingStartTime, 
-                sendResultsLive);
-    }
-
-
-    private TimerTask buildTask() {
-        return new TimerTask() {
-            @Override
-            public void run() {
-                receiveAlertConfirmation();
-            }
-        };
+    @Override
+    protected String pollingType() {
+        return "alert confirmation";
     }
     
-    private void receiveAlertConfirmation() {
-        try {
-            final Mail confirmation = receiveConnection.searchNonSelfSentMailHavingMailId();
-            
-            if (confirmation != null) { // found an alert confirmation in INBOX
-                System.out.println("Received alert confirmation from "+confirmation.from()+" at "+DateUtil.nowString());
-                
-                eventDispatcher.dispatchEvent(Event.ALERT_CONFIRMED, confirmation);
-            }
-            else {
-                continuePolling(null);
-            }
-        }
-        catch (MailReceiveException e) {
-            continuePolling(e);
-        }
-    }
-
-    private void continuePolling(Exception e) {
-        final String errorMessage = (e != null) ? ("ERROR: "+e.toString()+"\n") : "";
-        System.out.println(
-                errorMessage+
-                "Found no alert confirmation at "+DateUtil.nowString()+
-                ", trying again in "+pollingMinutes+" minutes.");
-        
-        synchronizedOnScheduler(scheduler ->
-            scheduler.schedule(buildTask(), DateUtil.addMinutes(DateUtil.now(), pollingMinutes)));
+    @Override
+    protected void processConfirmation(Mail confirmation) {
+        eventDispatcher.dispatchEvent(Event.ALERT_CONFIRMED, confirmation);
     }
 }

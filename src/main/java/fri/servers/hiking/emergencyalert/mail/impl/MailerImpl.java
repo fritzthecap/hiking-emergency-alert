@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import fri.servers.hiking.emergencyalert.mail.MailException;
 import fri.servers.hiking.emergencyalert.mail.MailReceiveException;
 import fri.servers.hiking.emergencyalert.mail.MailSendException;
@@ -20,6 +21,7 @@ public class MailerImpl implements Mailer
 {
     private Authenticator authenticator; // reuse successful authenticator for all actions
     private ConfirmationPolling confirmationPolling;
+    private ActivationPolling activationPolling;
     private Set<SendConnection.SendResult> alertSendResults = new HashSet<>();
     
     @Override
@@ -45,12 +47,12 @@ public class MailerImpl implements Mailer
     }
     
     @Override
-    public void sendActivation(Hike hike, Date plannedHome, int dayIndex) throws MailSendException {
+    public void sendActivation(Hike hike, Date plannedHome, int dayIndex, boolean remoteActivation) throws MailSendException {
         final Contact hikerContact = new Contact();
         hikerContact.setLastName(hike.getAlert().getNameOfHiker());
         hikerContact.setMailAddress(hike.getAlert().getMailConfiguration().getMailFromAddress());
         
-        final Mail mail = new MailBuilder(hikerContact, hike).buildActivationMail(plannedHome, dayIndex);
+        final Mail mail = new MailBuilder(hikerContact, hike).buildActivationMail(plannedHome, dayIndex, remoteActivation);
         
         sendMail(mail, hike.getAlert().getMailConfiguration());
     }
@@ -103,7 +105,7 @@ public class MailerImpl implements Mailer
     }
 
     @Override
-    public boolean isPolling() {
+    public boolean isConfirmationPolling() {
         return confirmationPolling != null && confirmationPolling.isRunning();
     }
 
@@ -116,6 +118,43 @@ public class MailerImpl implements Mailer
         }
     }
     
+
+    @Override
+    public void startActivationPolling(
+            Consumer<Mail> toBeCalledWhenReceived, 
+            String uniqueMailId,
+            MailConfiguration mailConfiguration, 
+            int pollingMinutes, 
+            Date homeTime)
+    {
+        if (activationPolling != null)
+            throw new IllegalStateException("Receive polling already started!");
+        
+        (activationPolling = newActivationPolling()).start(
+                uniqueMailId,
+                mailConfiguration,
+                authenticator,
+                pollingMinutes,
+                homeTime,
+                alertSendResults,
+                toBeCalledWhenReceived);
+    }
+
+    @Override
+    public boolean isActivationPolling() {
+        return activationPolling != null && activationPolling.isRunning();
+    }
+
+    @Override
+    public void stopActivationPolling() {
+        if (activationPolling != null) {
+            activationPolling.stop();
+            activationPolling = null;
+            System.out.println("Polling for activation stopped at "+DateUtil.nowString());
+        }
+    }
+
+    
     /** Factory method for MailConnectionCheck, to be overridden by unit-tests. */
     protected ConnectionCheck newConnectionCheck(MailConfiguration mailConfiguration) {
         return new ConnectionCheck(mailConfiguration);
@@ -124,6 +163,11 @@ public class MailerImpl implements Mailer
     /** Factory method for ConfirmationPolling, to be overridden by unit-tests. */
     protected ConfirmationPolling newConfirmationPolling() {
         return new ConfirmationPolling();
+    }
+
+    /** Factory method for ActivationPolling, to be overridden by unit-tests. */
+    protected ActivationPolling newActivationPolling() {
+        return new ActivationPolling();
     }
 
     /** Factory method for SendConnection, to be overridden by unit-tests. */

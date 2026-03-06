@@ -20,6 +20,8 @@ public class Hike
     
     private Date plannedBegin = DateUtil.eraseSeconds(DateUtil.now());
     
+    private boolean remoteActivation; // = false by default
+    
     private transient int dayIndex; // transient would not get persisted
     private List<Day> days = new ArrayList<>();
     
@@ -43,6 +45,13 @@ public class Hike
     }
     public void setAlert(Alert alert) {
         this.alert = alert;
+    }
+    
+    public boolean isRemoteActivation() {
+        return remoteActivation;
+    }
+    public void setRemoteActivation(boolean remoteActivation) {
+        this.remoteActivation = remoteActivation;
     }
     
     public List<Day> getDays() {

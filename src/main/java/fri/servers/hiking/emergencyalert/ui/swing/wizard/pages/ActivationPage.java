@@ -169,15 +169,26 @@ public class ActivationPage extends AbstractWizardPage
     @Override
     protected boolean commit(boolean goingForward) {
         if (goingForward) {
-            final String message = i18n("Are you sure that you want to start the hike now?");
-            if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(
+            final String message = i18n("Would you like to activate your hike later via start e-mail or right now?");
+            final String[] options = { i18n("Now"), i18n("Later"), i18n("Cancel") };
+            
+            final int answer = JOptionPane.showOptionDialog(
                     getFrame(),
                     message,
                     i18n("Confirm Hike Begin"),
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE))
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    null);
+            
+            if (answer == JOptionPane.CLOSED_OPTION || answer == 2) // cancel
                 return false;
+            
+            if (answer == 1) // activate later
+                getHike().setRemoteActivation(true);
         }
+        
         return true; // nothing else to commit here
     }
 

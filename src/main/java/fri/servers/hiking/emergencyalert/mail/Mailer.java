@@ -1,6 +1,8 @@
 package fri.servers.hiking.emergencyalert.mail;
 
 import java.util.Date;
+import java.util.function.Consumer;
+import fri.servers.hiking.emergencyalert.persistence.Mail;
 import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
@@ -37,7 +39,11 @@ public interface Mailer
     public void setCheckedAuthenticator(Authenticator authenticator);
 
     /** Sends a activation mail to the hiker, containing the MAIL-ID of the hike. */
-    public void sendActivation(Hike hike, Date plannedHome, int dayIndex) throws MailSendException;
+    public void sendActivation(
+            Hike hike, 
+            Date plannedHome, 
+            int dayIndex, 
+            boolean remoteActivation) throws MailSendException;
 
     /**
      * Finds and deletes a reply to the activation mail on first OVERDUE_ALERT event.
@@ -78,9 +84,31 @@ public interface Mailer
             MailConfiguration mailConfiguration,
             int pollingMinutes);
 
-    /** Stops receive-polling, or does nothing when not polling. */
+    /** Stops confirmation receive-polling, or does nothing when not polling. */
     public void stopConfirmationPolling();
 
-    /** @return true when receive-polling is still running. */
-    public boolean isPolling();
+    /** @return true when confirmation receive-polling is still running. */
+    public boolean isConfirmationPolling();
+
+    /**
+     * Tries to receive the hiker's activation-mail containing the 
+     * <code>uniqueMailId</code> of given hike.
+     * @param toBeCalledWhenReceived the accept-function to be called when received.
+     * @param uniqueMailId the <code>uniqueMailId</code> or "MAIL-ID" from Hike.
+     * @param mailConfiguration the MailConfiguration from Hike Alert.
+     * @param pollingMinutes the number of minutes to poll on INBOX for alert confirmations.
+     * @param homeTime the end time of the first hike day.
+     */
+    public void startActivationPolling(
+            Consumer<Mail> toBeCalledWhenReceived,
+            String uniqueMailId, 
+            MailConfiguration mailConfiguration,
+            int pollingMinutes,
+            Date homeTime);
+
+    /** Stops activation receive-polling, or does nothing when not polling. */
+    public void stopActivationPolling();
+
+    /** @return true when activation receive-polling is still running. */
+    public boolean isActivationPolling();
 }

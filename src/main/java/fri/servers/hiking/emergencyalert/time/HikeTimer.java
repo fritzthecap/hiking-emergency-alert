@@ -30,7 +30,7 @@ public class HikeTimer extends Scheduler
     
     /**
      * Prepares this timer with hike-data and starts it.
-     * This can be called just once!
+     * This can be called just once unless you called stop() before!
      * @param plannedBegin optional, the planned start date/time of Hike,
      *      no set-off event would be fired when null.
      * @param plannedHome required, the planned end date/time from Hike.

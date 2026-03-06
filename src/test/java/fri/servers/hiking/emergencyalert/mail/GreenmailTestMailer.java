@@ -5,6 +5,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Timer;
 import com.icegreen.greenmail.util.ServerSetupTest;
+import fri.servers.hiking.emergencyalert.mail.impl.ActivationPolling;
 import fri.servers.hiking.emergencyalert.mail.impl.ConfirmationPolling;
 import fri.servers.hiking.emergencyalert.mail.impl.InboxVisitorConnection;
 import fri.servers.hiking.emergencyalert.mail.impl.ConnectionCheck;
@@ -54,6 +55,33 @@ public class GreenmailTestMailer extends MailerImpl
     @Override
     protected ConfirmationPolling newConfirmationPolling() {
         return new ConfirmationPolling() // a receive connection
+        {
+            @Override
+            protected InboxVisitorConnection newInboxVisitorConnection(
+                    MailConfiguration mailConfiguration,
+                    Authenticator authenticator, 
+                    String uniqueMailId,
+                    Date pollingStartTime,
+                    Set<SendResult> sendResultsLive)
+            {
+                return GreenmailTestMailer.this.newInboxVisitorConnection(
+                        mailConfiguration,
+                        authenticator, 
+                        uniqueMailId,
+                        pollingStartTime,
+                        sendResultsLive);
+            }
+            
+            @Override
+            protected Timer newTimer() {
+                return pollingTimer;
+            }
+        };
+    }
+
+    @Override
+    protected ActivationPolling newActivationPolling() {
+        return new ActivationPolling() // a receive connection
         {
             @Override
             protected InboxVisitorConnection newInboxVisitorConnection(
