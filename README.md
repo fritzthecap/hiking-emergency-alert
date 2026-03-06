@@ -51,6 +51,10 @@ E-mail goes with _jakarta-mail 2.1.5_ and _angus-mail 2.0.5_ libraries.
 
 For German readers, I have written a [Blog article](https://fritzthecat-retired.blogspot.com/2025/12/wandern-notfallmeldung.html) about this idea.
 
+----
+
+Below you see a simplified UML activity-diagram of a hike.
+
 <img width="658" height="825" alt="hiking-emergency-alert_states" src="https://github.com/user-attachments/assets/73278624-7f67-4b3d-a16f-3c1f15f51712" />
 
 
