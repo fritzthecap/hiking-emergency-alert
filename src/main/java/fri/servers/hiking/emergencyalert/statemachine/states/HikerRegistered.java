@@ -8,13 +8,13 @@ public class HikerRegistered extends AbstractState
     @Override
     public AbstractState registration(Context context) {
         context.updateHike();
-        return this; // just answer valid event
+        return this; // hike-update event, no state change
     }
     
     @Override
     public AbstractState activation(Context context) {
-        final AbstractState followerState = new HikeActivated();
-        followerState.activation(context);
-        return followerState;
+        context.updateHike();
+        context.startHikeTimer();
+        return new HikeActivated();
     }
 }

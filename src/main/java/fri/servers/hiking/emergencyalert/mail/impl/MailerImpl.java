@@ -45,11 +45,13 @@ public class MailerImpl implements Mailer
     }
     
     @Override
-    public void sendSetOff(Hike hike, Date plannedHome, int dayIndex) throws MailSendException {
+    public void sendActivation(Hike hike, Date plannedHome, int dayIndex) throws MailSendException {
         final Contact hikerContact = new Contact();
         hikerContact.setLastName(hike.getAlert().getNameOfHiker());
         hikerContact.setMailAddress(hike.getAlert().getMailConfiguration().getMailFromAddress());
-        final Mail mail = new MailBuilder(hikerContact, hike).buildSetOffMail(plannedHome, dayIndex);
+        
+        final Mail mail = new MailBuilder(hikerContact, hike).buildActivationMail(plannedHome, dayIndex);
+        
         sendMail(mail, hike.getAlert().getMailConfiguration());
     }
     
@@ -66,7 +68,7 @@ public class MailerImpl implements Mailer
     }
 
     @Override
-    public boolean findSetOffResponse(
+    public boolean findActivationReply(
             MailConfiguration mailConfiguration, 
             String uniqueMailId, 
             Date sentAfterDate) throws MailReceiveException
@@ -77,8 +79,8 @@ public class MailerImpl implements Mailer
                 uniqueMailId,
                 sentAfterDate,
                 alertSendResults);
-        final Mail setOffResponse = receiveConnection.searchExternalMailHavingMailId();
-        return (setOffResponse != null);
+        final Mail activtionReply = receiveConnection.searchExternalMailHavingMailId();
+        return (activtionReply != null);
     }
     
     @Override

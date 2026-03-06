@@ -8,9 +8,8 @@ public class AlertConfirmed extends HikerRegistered // to inherit activation()
     /** A new hike is going to be configured. */
     @Override
     public AbstractState registration(Context context) {
-        final AbstractState followerState = new HikerRegistered();
-        followerState.registration(context);
-        return followerState;
+        super.registration(context);
+        return new HikerRegistered();
     }
     
     /** Too late press on "Home Again", let it be legal. */

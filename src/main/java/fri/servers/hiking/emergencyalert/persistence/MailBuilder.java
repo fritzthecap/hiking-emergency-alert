@@ -38,7 +38,7 @@ public class MailBuilder
 
     
     /** This is sent when hike is activated. */
-    public Mail buildSetOffMail(Date plannedHome, int dayIndex) {
+    public Mail buildActivationMail(Date plannedHome, int dayIndex) {
         final String subject = i18n("Your hike started!");
         
         final StringBuilder textBuilder = new StringBuilder();

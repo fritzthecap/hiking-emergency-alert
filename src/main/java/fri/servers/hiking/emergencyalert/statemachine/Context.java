@@ -123,14 +123,14 @@ public class Context
     }
     
     /**
-     * ON_THE_WAY, checks whether hiker has stopped overdue alerts by a set-off response.
-     * Mind that this can be called just once per hike day, because the set-off mail will
+     * ON_THE_WAY, checks whether hiker has stopped overdue alerts by a activation reply.
+     * Mind that this can be called just once per hike day, because the activation reply will
      * be deleted when found.
      * @return true when alert confirmation mail was from hiker, else false.
      */
     public boolean alertsStoppedByHiker() {
-        if (findSetOffResponse()) {
-            System.out.println("Hiker stopped alerts by replying to set-off mail, detected at "+DateUtil.nowString());
+        if (findActivationReply()) {
+            System.out.println("Hiker stopped alerts by replying to activation mail, detected at "+DateUtil.nowString());
             
             timerContinue();
             return true;
@@ -223,7 +223,7 @@ public class Context
     private void timerStart(Date plannedBegin, Date plannedHome, int dayIndex) {
         activationTime = DateUtil.now();
         
-        sendSetOffMessage(plannedHome, dayIndex); // give the hiker a chance to stop alerts before overdue time
+        sendActivationMessage(plannedHome, dayIndex); // give the hiker a chance to stop alerts before overdue time
         
         timer.start(
                 plannedBegin,
@@ -247,29 +247,29 @@ public class Context
         }
     }
 
-    private void sendSetOffMessage(Date plannedHome, int dayIndex) {
-        System.out.println("Trying to send set-off mail at "+DateUtil.nowString());
+    private void sendActivationMessage(Date plannedHome, int dayIndex) {
+        System.out.println("Trying to send activation mail at "+DateUtil.nowString());
         try {
-            mailer.sendSetOff(hike, plannedHome, dayIndex);
+            mailer.sendActivation(hike, plannedHome, dayIndex);
             
             System.out.println("Sending succeeded!");
         }
         catch (MailSendException e) {
-            System.out.println("Sending set-off mail failed, error was "+e);
+            System.out.println("Sending activation mail failed, error was "+e);
             // as this is sent immediately after activating the hike, 
             // it is assumed that the mail connection works and no send-repeat is needed
         }
     }
     
-    private boolean findSetOffResponse() {
+    private boolean findActivationReply() {
         try {
-            return mailer.findSetOffResponse(
+            return mailer.findActivationReply(
                     hike.getAlert().getMailConfiguration(),
                     hike.uniqueMailId,
                     activationTime);
         }
         catch (MailReceiveException e) {
-            System.err.println("ERROR: failed to find set-off response, at "+DateUtil.nowString()+", error: "+e.toString());
+            System.err.println("ERROR: failed to find activation reply, at "+DateUtil.nowString()+", error: "+e.toString());
             return false;
         }
     }

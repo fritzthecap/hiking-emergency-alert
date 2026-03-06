@@ -36,16 +36,16 @@ public interface Mailer
      */
     public void setCheckedAuthenticator(Authenticator authenticator);
 
-    /** Sends a set-off mail to the hiker, containing the MAIL-ID of the hike. */
-    public void sendSetOff(Hike hike, Date plannedHome, int dayIndex) throws MailSendException;
+    /** Sends a activation mail to the hiker, containing the MAIL-ID of the hike. */
+    public void sendActivation(Hike hike, Date plannedHome, int dayIndex) throws MailSendException;
 
     /**
-     * Finds and deletes a response to the set-off mail.
+     * Finds and deletes a reply to the activation mail.
      * @param sentAfterDate the minimum "Sent"-time of the mail.
-     * @return true when a response to the set-off mail can be found in INBOX, 
+     * @return true when a reply to the activation mail can be found in INBOX, 
      *      containing the MAIL-ID of the hike.
      */
-    public boolean findSetOffResponse(
+    public boolean findActivationReply(
             MailConfiguration mailConfiguration, 
             String uniqueMailId, 
             Date sentAfterDate) throws MailReceiveException;

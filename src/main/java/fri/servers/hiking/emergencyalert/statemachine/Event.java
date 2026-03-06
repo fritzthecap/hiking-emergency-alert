@@ -19,7 +19,7 @@ public enum Event
             return state.activation(context);
         }
     },
-    /** The timer detected that the set-off time of the hike has passed. */
+    /** The timer detected that the set-off time (begin time) of the hike has passed. */
     SETTING_OFF {
         @Override
         public AbstractState transition(AbstractState state, Context context) {

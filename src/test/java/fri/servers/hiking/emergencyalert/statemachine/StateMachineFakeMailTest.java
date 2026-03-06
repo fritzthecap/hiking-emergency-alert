@@ -120,10 +120,10 @@ class StateMachineFakeMailTest
                 return polling;
             }
             @Override
-            public void sendSetOff(Hike hike, Date plannedHome, int dayIndex) throws MailSendException {
+            public void sendActivation(Hike hike, Date plannedHome, int dayIndex) throws MailSendException {
             }
             @Override
-            public boolean findSetOffResponse(
+            public boolean findActivationReply(
                     MailConfiguration mailConfiguration, 
                     String uniqueMailId, 
                     Date sentAfterDate) throws MailReceiveException {
