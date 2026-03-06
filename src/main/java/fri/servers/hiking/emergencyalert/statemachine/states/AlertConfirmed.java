@@ -15,7 +15,7 @@ public class AlertConfirmed extends HikerRegistered // to inherit activation()
     /** Too late press on "Home Again", let it be legal. */
     @Override
     public AbstractState comingHome(Context context) {
-        return new HomeAgain();
+        return this;
     }
     
     /** Another alert confirmation arrived from another contact. */

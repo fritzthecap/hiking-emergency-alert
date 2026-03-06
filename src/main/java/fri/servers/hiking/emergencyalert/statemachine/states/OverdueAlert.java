@@ -25,6 +25,6 @@ public class OverdueAlert extends AbstractState
         if (context.hikerConfirmedAndHavingMoreDays())
             return new OnTheWay();
         
-        return new AlertConfirmed();
+        return new AlertConfirmed(); // no more polling for confirmations
     }
 }
