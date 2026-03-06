@@ -60,7 +60,7 @@ Below you see a simplified UML activity-diagram of a hike.
 
 ----
 
-Here are screenshots of all wizard-pages of the user-interface:
+Here are screenshots of all wizard-pages of the user-interface (version 1.0):
 
 <img width="900" height="600" alt="Hiking-Emergency-Alert_Language" src="https://github.com/user-attachments/assets/7ec48e7c-0811-4208-b1fb-4060d69e4cda" />
 
