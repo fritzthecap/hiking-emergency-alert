@@ -8,7 +8,6 @@ import fri.servers.hiking.emergencyalert.mail.impl.MailerImpl;
 import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
-import fri.servers.hiking.emergencyalert.statemachine.Event;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.time.HikeTimer;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
@@ -97,18 +96,19 @@ public class AlertHomeServer
 
     /**
      * @param hikeJson required, JSON containing Hike data.
-     * @param user at least a minimal UserInterface that will
+     * @param userInterface at least a minimal UserInterface that will
      *      serve as password authenticator and alert-confirmation notifier.
      * @throws IOException when JSON is invalid.
      */
-    private void runWithMinimalUi(String hikeJson, UserInterface user) throws IOException {
+    private void runWithMinimalUi(String hikeJson, UserInterface userInterface) throws IOException {
         // read hike data
         final Hike hike = new JsonGsonSerializer<Hike>().fromJson(hikeJson, Hike.class);
         
         // configure and start a StateMachine
-        final StateMachine stateMachine = new StateMachine(hike, new MailerImpl(), new HikeTimer(), user);
-        stateMachine.dispatchEvent(Event.REGISTRATION, hike);
-        stateMachine.dispatchEvent(Event.ACTIVATION, hike); // starts timer
+        @SuppressWarnings("unused")
+        final StateMachine stateMachine = new StateMachine(hike, new MailerImpl(), new HikeTimer(), userInterface);
+        userInterface.registerHiker(hike);
+        userInterface.activateHike(hike);
         
         // app ends when last timer-thread terminates, 
         // so no "while (stateMachine.isRunning())" loop is needed

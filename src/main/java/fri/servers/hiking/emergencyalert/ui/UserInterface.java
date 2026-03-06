@@ -53,7 +53,7 @@ public abstract class UserInterface
     public abstract void showConfirmMail(Mail alertConfirmationMail);
     
     /** Gives the StateMachine the hiker's personal data. */
-    public void registerHike(Hike hike) {
+    public void registerHiker(Hike hike) {
         eventDispatcher.dispatchEvent(Event.REGISTRATION, hike);
     }
     

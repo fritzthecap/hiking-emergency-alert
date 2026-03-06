@@ -13,8 +13,9 @@ import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 
 /**
- * This INBOX visitation won't find any mail that was sent by the application itself, 
- * (<code>sendResultsLive</code>) or was sent before given <code>minimumSentTime</code>.
+ * This INBOX visitation won't find any mail that was sent by the application itself 
+ * (<code>sendResultsLive</code>), or was sent before given <code>minimumSentTime</code>,
+ * or doesn't contain the correct MAIL-ID.
  */
 public class InboxVisitorConnection extends ReceiveConnection implements InboxVisitor
 {

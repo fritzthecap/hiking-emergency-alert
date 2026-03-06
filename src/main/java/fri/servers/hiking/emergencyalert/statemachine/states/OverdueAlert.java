@@ -22,7 +22,7 @@ public class OverdueAlert extends AbstractState
     /** The first ALERT_CONFIRMED arrived. */
     @Override
     public AbstractState alertConfirmed(Context context) {
-        if (context.hikerMailAndMoreDays())
+        if (context.hikerConfirmedAndHavingMoreDays())
             return new OnTheWay();
         
         return new AlertConfirmed();

@@ -121,7 +121,7 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
     private boolean loadDefaultHike() {
         final HikeFactory.Result newHikeResult = new HikeFactory().newHike();
         
-        stateMachine.getUserInterface().registerHike(newHikeResult.hike());
+        stateMachine.getUserInterface().registerHiker(newHikeResult.hike());
         
         if (newHikeResult.jsonException() != null)
             JOptionPane.showMessageDialog(frame, newHikeResult.jsonException().toString());

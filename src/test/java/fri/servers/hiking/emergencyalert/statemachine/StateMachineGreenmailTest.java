@@ -51,7 +51,7 @@ class StateMachineGreenmailTest extends AbstractGreenmailTest
         };
         
         final StateMachine stateMachine = new StateMachine(hike, mailer, timer, user);
-        user.registerHike(hike); // save data
+        user.registerHiker(hike); // save data
         user.activateHike(hike); // save data and start timer
         
         // from here on timer should spool further events, wait for stateMachine to terminate

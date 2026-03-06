@@ -50,7 +50,7 @@ class StateMachineFakeMailTest
         
         // do not change number of contacts, see numberOfContacts above!
         changedHike.getAlert().setAddressOfHiker("Walkerstreet 1, D-1234 Walkertown, Germany");
-        user.registerHike(changedHike); // publish alert change
+        user.registerHiker(changedHike); // publish alert change
         
         changedHike.currentDay().setRoute("From Kilimanjaro to Mount Everest via Greenland");
         user.activateHike(changedHike); // publish hike change

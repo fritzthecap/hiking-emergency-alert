@@ -271,7 +271,7 @@ public class ObservationPage extends AbstractWizardPage
         {
             final Hike newHike = new HikeFactory().newHike(getHike());
             
-            getStateMachine().getUserInterface().registerHike(newHike);
+            getStateMachine().getUserInterface().registerHiker(newHike);
             
             getTrolley().gotoPage(RouteAndTimesPage.class); // go back to RouteAndTimesPage
             getTrolley().setHikeFile(null, newHike); // forget old file name

@@ -16,16 +16,16 @@ public class OnTheWay extends AbstractState
     @Override
     public AbstractState overdueAlert(Context context) {
         final Boolean alertsStoppedByHiker = context.alertsStoppedByHiker();
+        final boolean notStopped = (alertsStoppedByHiker == null);
+        if (notStopped) {
+            context.sendAlertMessage();
+            return new OverdueAlert();
+        }
         
-        final boolean stoppedAndNoMoreHikeDays = (alertsStoppedByHiker == null);
-        if (stoppedAndNoMoreHikeDays) // hiker is alive, hike finished
+        final boolean noMoreHikeDays = Boolean.TRUE.equals(alertsStoppedByHiker);
+        if (noMoreHikeDays) // hiker is alive, hike finished
             return new HomeAgain(); // timer was stopped
         
-        final boolean stoppedButMoreHikeDays = Boolean.TRUE.equals(alertsStoppedByHiker);
-        if (stoppedButMoreHikeDays) // hiker is alive, hike continues
-            return this; // timer was restarted
-        
-        context.sendAlertMessage();
-        return new OverdueAlert();
+        return this; // hiker is alive, hike continues, timer was restarted
     } 
 }

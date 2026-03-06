@@ -86,7 +86,10 @@ public class Context
         System.out.println("Updated Hike. MAIL-ID will be "+hike.uniqueMailId);
     }
     
-    /** ACTIVATION, starts the timer that observes the planned hike times and fires time-events. */
+    /**
+     * ACTIVATION event in HikerRegistered state,
+     * starts the timer that observes the planned hike times and fires time-events.
+     */
     public void startHikeTimer() {
         new Validation().assertHike(hike);
         
@@ -127,22 +130,22 @@ public class Context
      * by an activation reply. Mind that this can be called just once per hike day,
      * because the activation reply will be deleted from INBOX when found.
      * @return if found a confirmation mail (from hiker),
-     *      returns TRUE when having more hike days, or null when not,
-     *      else returns FALSE when no confirmation mail (from hiker) was found.
+     *      returns FALSE when having more hike days, or TRUE when not,
+     *      else returns null when no confirmation mail (from hiker) was found.
      */
     public Boolean alertsStoppedByHiker() {
         if (findAlertStopReply()) {
             if (hike.hasMoreDays()) {
                 timerContinue();
-                return Boolean.TRUE; // stay OnTheWay
+                return Boolean.FALSE; // stay OnTheWay
             }
             else {
                 stop();
                 System.out.println("You have prevented alerts on last day, detected at "+DateUtil.nowString());
-                return null;
+                return Boolean.TRUE;
             }
         }
-        return Boolean.FALSE;
+        return null;
     }
     
     /**
@@ -192,11 +195,11 @@ public class Context
     }
 
     /**
-     * ALERT_CONFIRMED, alert-confirmation mail arrived from polling.
-     * @return false when mail came from hiker himself and hike has more days,
-     *      true when mail came from a contact.
+     * ALERT_CONFIRMED event in OverdueAlert state, alert-confirmation mail arrived from polling.
+     * @return true when mail came from hiker himself and hike has more days,
+     *      false when mail came from a contact or there are no more hike days.
      */
-    public boolean hikerMailAndMoreDays() {
+    public boolean hikerConfirmedAndHavingMoreDays() {
         stop(); // stops timer and confirmation polling
         
         final Mail confirmation = (Mail) eventParameter;
@@ -209,7 +212,7 @@ public class Context
         }
         
         userInterface.showConfirmMail(confirmation);
-        return true; // no more hike days, or one of the contacts replied
+        return false; // no more hike days, or one of the contacts replied
     }
 
     /** 'Home Again' button pushed in OnTheWay state. */
