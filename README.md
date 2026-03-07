@@ -52,6 +52,10 @@ This directory can be changed by adding commandline argument _-Dhike.home=/mydir
 
 You can also pass any mail-property to the application via _-D...._ commandline arguments, e.g. _-Dmail.smtp.ssl.enable=true_ or _-Dmail.smtp.port=465_.
 
+If you call the application with a commandline argument (e.g. "_java -jar hiking-emergency-alert.jar myhike.json_"),
+it will execute the given JSON file without opening a graphical user-interface.
+But I bet you will lose patience on editing the long JSON text lines (JSON does not support line breaks:-).
+
 To get rid of the application, delete the _hiking-emergency-alert.jar_ file and the _hiking-emergency-alert_ directory. There are no registry entries or other magic tricks.
 
 ----
