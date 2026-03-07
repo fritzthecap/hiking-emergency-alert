@@ -74,10 +74,11 @@ For German readers, I have written a [Blog article](https://fritzthecat-retired.
 
 ----
 
-Below you see a simplified UML activity-diagram of a hike.
+Below you see a simplified **UML activity-diagram** of a hike.
 
 <img width="658" height="825" alt="hiking-emergency-alert_states" src="https://github.com/user-attachments/assets/73278624-7f67-4b3d-a16f-3c1f15f51712" />
 
+There is also a more precise **[State/Transition-Table](https://html-preview.github.io/?url=https://github.com/fritzthecap/hiking-emergency-alert/blob/main/src/main/resources/fri/servers/hiking/emergencyalert/statemachine/state-transition-diagram.html)**.
 
 # Screenshots
 
