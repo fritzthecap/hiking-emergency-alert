@@ -7,7 +7,7 @@
 
     <groupId>fri.servers</groupId>
     <artifactId>hiking-emergency-alert</artifactId>
-    <version>1.9</version>
+    <version>1.10-SNAPSHOT</version>
     
     <organization>
         <name>Fritz Ritzberger</name>
