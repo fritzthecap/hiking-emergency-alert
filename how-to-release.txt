@@ -29,6 +29,6 @@
 - For major releases, create a release on github ("Releases" - "Draft a New Release"),
    attach the hiking-emergency-alert.jar file to the release.
    
-- Edit pom.xml, increase version number and add '-SNAPSHOT', save file
+- Increase version number in pom.xml, add '-SNAPSHOT', save file
 
 - Commit and push new SNAPSHOT version number in pom.xml to github
