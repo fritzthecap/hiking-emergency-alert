@@ -106,16 +106,13 @@ public class MailerImpl implements Mailer
 
     @Override
     public boolean isConfirmationPolling() {
-        return confirmationPolling != null && confirmationPolling.isRunning();
+        return isPolling(confirmationPolling);
     }
 
     @Override
     public void stopConfirmationPolling() {
-        if (confirmationPolling != null) {
-            confirmationPolling.stop();
-            confirmationPolling = null;
-            System.out.println("Polling for alert confirmations stopped at "+DateUtil.nowString());
-        }
+        stopPolling(confirmationPolling, "alert confirmation");
+        confirmationPolling = null;
     }
     
 
@@ -142,16 +139,13 @@ public class MailerImpl implements Mailer
 
     @Override
     public boolean isActivationPolling() {
-        return activationPolling != null && activationPolling.isRunning();
+        return isPolling(activationPolling);
     }
 
     @Override
     public void stopActivationPolling() {
-        if (activationPolling != null) {
-            activationPolling.stop();
-            activationPolling = null;
-            System.out.println("Polling for activation stopped at "+DateUtil.nowString());
-        }
+        stopPolling(activationPolling, "activation");
+        activationPolling = null;
     }
 
     
@@ -194,9 +188,9 @@ public class MailerImpl implements Mailer
     
     /**
      * Responsibility of <code>alertSendResults</code> in polling:
-     * the <code>uniqueMailId</code> from Hike can be contained in a self-alert mail too, so collect
-     * and check against Message-IDs of all mails that were sent to own mail account,
-     * and don't consider an self-alert to be an alert-confirmation!
+     * the <code>uniqueMailId</code> from Hike can be contained in a self-alert mail too,
+     * so collect and check against Message-IDs of all mails that were sent to own mail account,
+     * and don't consider a self-alert to be an alert-confirmation!
      */
     private void sendMail(Mail mail, MailConfiguration mailConfiguration) throws MailSendException {
         final SendConnection sendConnection = newSendConnection(mailConfiguration, authenticator);
@@ -204,4 +198,16 @@ public class MailerImpl implements Mailer
         if (sendResult != null)
             alertSendResults.add(sendResult);
     }
+    
+    private boolean isPolling(AbstractPolling polling) {
+        return polling != null && polling.isRunning();
+    }
+
+    private void stopPolling(AbstractPolling polling, String pollingType) {
+        if (polling != null) {
+            polling.stop();
+            System.out.println("Polling for "+pollingType+" stopped at "+DateUtil.nowString());
+        }
+    }
+
 }

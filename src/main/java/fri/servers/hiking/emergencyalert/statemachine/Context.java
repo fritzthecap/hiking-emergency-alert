@@ -37,7 +37,12 @@ public class Context
     protected Context(Hike hike, StateMachine stateMachine, Mailer mailer, HikeTimer timer, UserInterface user) {
         this.hike = Objects.requireNonNull(hike);
         this.stateMachine = Objects.requireNonNull(stateMachine);
-        (this.mailer = Objects.requireNonNull(mailer)).stopConfirmationPolling();
+        
+        final Mailer theMailer =  Objects.requireNonNull(mailer);
+        theMailer.stopConfirmationPolling();
+        theMailer.stopActivationPolling();
+        this.mailer = theMailer;
+        
         (this.timer = Objects.requireNonNull(timer)).stop(); // make sure it is not running due to crash
         (this.userInterface = Objects.requireNonNull(user)).setEventDispatcher(stateMachine);
     }
@@ -109,11 +114,7 @@ public class Context
                 : DateUtil.now(); // make sure SET_OFF event is fired
         final Date home = hike.currentDay().getPlannedHome();
         
-        final boolean remoteActivation = hike.isRemoteActivation();
-        
-        sendActivationMessage(home, 0, remoteActivation);
-        
-        if (remoteActivation)
+        if (hike.isRemoteActivation())
             startHikeTimerDeferred(begin, home);
         else
             startHikeTimer(begin, home);
@@ -121,12 +122,13 @@ public class Context
         
     /** @return true when timer is running, i.e. ACTIVATION already took place. */
     public boolean isRunning() {
-        return timer.isRunning() || mailer.isConfirmationPolling();
+        return timer.isRunning() || mailer.isActivationPolling() || mailer.isConfirmationPolling();
     }
     
     /** COMING_HOME or ALERT_CONFIRMED, stops all timers and thus all observations. */
     public void stop() {
         timer.stop();
+        mailer.stopActivationPolling();
         mailer.stopConfirmationPolling();
     }
     
@@ -140,12 +142,13 @@ public class Context
      */
     public Boolean alertsStoppedByHiker() {
         if (findAlertStopReply()) {
+            stop();
+            
             if (hike.hasMoreDays()) {
                 timerContinue();
                 return Boolean.FALSE; // stay OnTheWay
             }
             else {
-                stop();
                 System.out.println("You have prevented alerts on last day, detected at "+DateUtil.nowString());
                 return Boolean.TRUE;
             }
@@ -236,16 +239,22 @@ public class Context
 
     // privates
     
-    /** This is called just on first hike-day when remote activation was chosen. */
+    /** Called just on first hike-day when remote activation was chosen. */
     private void startHikeTimerDeferred(final Date begin, final Date home) {
+        sendActivationMessage(home, 0, true);
+        
         mailer.startActivationPolling(
-                (mail) -> startHikeTimer(begin, home),
+                (mail) -> {
+                    mailer.stopActivationPolling();
+                    startHikeTimer(begin, home);
+                },
                 hike.uniqueMailId,
                 hike.getAlert().getMailConfiguration(),
                 hike.getAlert().getConfirmationPollingMinutes(),
                 home);
     }
 
+    /** Called just on first hike-day, either from remote activation or when NO remote activation was chosen. */
     private void startHikeTimer(Date begin, Date home) {
         activationOutputs(); // just once per hike
         timerStart(begin, home, 0); // 0 is first day
@@ -254,8 +263,8 @@ public class Context
     private void timerStart(Date begin, Date home, int dayIndex) {
         activationTime = DateUtil.now();
         
-        if (dayIndex > 0) // on first day activation mail already has been sent
-            sendActivationMessage(home, dayIndex, false); // give the hiker a chance to stop alerts before overdue time
+        sendActivationMessage(home, dayIndex, false);
+        // this gives the hiker a chance to stop alerts at any time before overdue time
         
         timer.start(
                 begin,
@@ -264,21 +273,19 @@ public class Context
                 stateMachine);
     }
     
-    private void timerContinue() { // check for further hike days, see issue #1
+    private void timerContinue() { // make sure stop() was called before!
         contactIndex = 0; // reset contact list to head
-        final int dayIndex = hike.skipDay(); // switch to next hike day
         
-        if (isRunning())
-            stop();
+        final int dayIndex = hike.skipDay(); // switch to next hike day, 0-n
         
         final Date home = hike.currentDay().getPlannedHome();
-        System.out.println("Skipping to next hike day that ends at "+DateUtil.toString(home));
+        System.out.println("Skipping to next hike day "+(dayIndex + 1)+" that ends at "+DateUtil.toString(home));
         
         timerStart(null, home, dayIndex);
     }
 
     private void sendActivationMessage(Date home, int dayIndex, boolean remoteActivation) {
-        System.out.println("Trying to send activation mail at "+DateUtil.nowString());
+        System.out.println("Trying to send "+(remoteActivation ? "remote" : "")+" activation mail at "+DateUtil.nowString());
         try {
             mailer.sendActivation(hike, home, dayIndex, remoteActivation);
             
@@ -286,8 +293,10 @@ public class Context
         }
         catch (MailSendException e) {
             System.out.println("Sending activation mail failed, error was "+e);
-            // as this is sent immediately after activating the hike, 
-            // it is assumed that the mail connection works and no send-repeat is needed
+            // As this is sent immediately after activating the hike, 
+            // it is assumed that the mail connection works and no send-repeat is needed.
+            // For follower days there may be other mails in INBOX that can be used to reply,
+            // the needed MAIL-ID is the same for all.
         }
     }
     

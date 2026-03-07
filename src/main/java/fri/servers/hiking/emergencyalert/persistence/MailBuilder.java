@@ -39,35 +39,35 @@ public class MailBuilder
     
     /** This is sent when hike is activated. */
     public Mail buildActivationMail(Date plannedHome, int dayIndex, boolean remoteActivation) {
-        final String subject = i18n("Your hike started!");
-        
         final StringBuilder textBuilder = new StringBuilder();
         
         textBuilder.append(getContactTitle(contact)+" !\n\n");
         
-        if (dayIndex > 0)
-            textBuilder.append(i18n("Day")+" "+(dayIndex + 1)+".\n");
-            
+        final String subject;
+        
         if (remoteActivation == true) {
+            subject = i18n("Your hike still needs to be activated!");
+            
             textBuilder.append(
-                    i18n("You must activate your hike by responding to this mail."+"\n"+
-                    i18n("The MAIL-ID below must be contained as text or attachment.")+"\n\n"));
+                    i18n("You must activate your hike by responding to this mail.")+"\n"+
+                    i18n("The MAIL-ID below must be contained as text or attachment.")+"\n\n");
             textBuilder.append("MAIL-ID: "+hike.uniqueMailId);
-            textBuilder.append("\n\n");
+            textBuilder.append("\n");
         }
-        
-        final String overdueDate = DateUtil.toString(plannedHome);
-        textBuilder.append(
-                i18n("You can block alert mails by responding to this mail before")+" "+overdueDate+".\n");
-        
-        if (remoteActivation == false) {
+        else {
+            subject = i18n("Your hike started!");
+            
+            if (dayIndex > 0)
+                textBuilder.append(i18n("Day")+" "+(dayIndex + 1)+".\n");
+            
+            final String overdueDate = DateUtil.toString(plannedHome);
             textBuilder.append(
+                    i18n("You can block alert mails by responding to this mail before")+" "+overdueDate+".\n"+
                     i18n("The MAIL-ID below must be contained as text or attachment.")+"\n\n");
             textBuilder.append("MAIL-ID: "+hike.uniqueMailId);
             textBuilder.append("\n\n");
+            textBuilder.append(i18n("Good luck!")+"\n");
         }
-        
-        textBuilder.append(i18n("Good luck!")+"\n");
         
         footerBottom(textBuilder);
         

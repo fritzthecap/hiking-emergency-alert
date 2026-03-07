@@ -170,7 +170,7 @@ public class ActivationPage extends AbstractWizardPage
     protected boolean commit(boolean goingForward) {
         if (goingForward) {
             final String message = i18n("Would you like to activate your hike later via start e-mail or right now?");
-            final String[] options = { i18n("Now"), i18n("Later"), i18n("Cancel") };
+            final String[] buttons = { i18n("Now"), i18n("Later"), i18n("Cancel") };
             
             final int answer = JOptionPane.showOptionDialog(
                     getFrame(),
@@ -179,14 +179,14 @@ public class ActivationPage extends AbstractWizardPage
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.QUESTION_MESSAGE,
                     null,
-                    options,
+                    buttons,
                     null);
             
             if (answer == JOptionPane.CLOSED_OPTION || answer == 2) // cancel
                 return false;
             
-            if (answer == 1) // activate later
-                getHike().setRemoteActivation(true);
+            getHike().setRemoteActivation(answer == 1); // 1 = activate later array index
+            // always set this flag, it could be true from a former run!
         }
         
         return true; // nothing else to commit here

@@ -46,7 +46,7 @@ public class StateMachine implements
      */
     public StateMachine(Hike hike, Mailer mailer, HikeTimer timer, UserInterface user) {
         Objects.requireNonNull(user).setEventDispatcher(this);
-        context = newContext(hike, this, mailer, timer, user);
+        context = new Context(hike, this, mailer, timer, user);
     }
     
     /** Sets given event into context and then calls the event's transition. */
@@ -60,10 +60,11 @@ public class StateMachine implements
         System.out.println("-> New state is "+state.getClass().getSimpleName());
         
         // end states need a new initialization
-        if (state instanceof AlertConfirmed || state instanceof HomeAgain) {
+        final boolean endedWithAccident = (state instanceof AlertConfirmed);
+        if (endedWithAccident || state instanceof HomeAgain) {
             context = new Context(context);
             
-            System.out.println("StateMachine finished.");
+            System.out.println("StateMachine finished "+(endedWithAccident ? "overdue" : "correctly")+".");
         }
     }
     
@@ -72,16 +73,6 @@ public class StateMachine implements
     public void dispatchEvent(Event event, Object parameter) {
         context.setEventParameter(parameter);
         dispatchEvent(event);
-    }
-    
-    /** Factory method that enables derived Context classes. Called from constructor. */
-    protected Context newContext(Hike hike, StateMachine stateMachine, Mailer mailer, HikeTimer timer, UserInterface user) {
-        return new Context(hike, stateMachine, mailer, timer, user);
-    }
-    
-    /** @return the current state. */
-    public final AbstractState getState() {
-        return state;
     }
     
     /** @return the observed Hike. */
@@ -104,13 +95,22 @@ public class StateMachine implements
         return context.isRunning();
     }
     
+    /** @return true when state is HikeActivated. */
     public boolean notYetOnTheWay() {
-        return getState().getClass().equals(HikeActivated.class);
+        return state.getClass().equals(HikeActivated.class);
     }
+    /** @return true when state is OnTheWay. */
     public boolean onTheWay() {
-        return getState().getClass().equals(OnTheWay.class);
+        return state.getClass().equals(OnTheWay.class);
     }
+    /** @return true when state is OverdueAlert. */
     public boolean overdueAlert() {
-        return getState().getClass().equals(OverdueAlert.class);
+        return state.getClass().equals(OverdueAlert.class);
+    }
+    
+    /** Hard reset, to be called for reusing StateMachine when end-state was OverdueAlert. */
+    public void reset() {
+        state = new HikerRegistered();
+        context = new Context(context);
     }
 }

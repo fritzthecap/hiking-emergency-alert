@@ -140,9 +140,7 @@ public class ObservationPage extends AbstractWizardPage
         
         final String instructions = 
                 i18n("This window can be closed only by the 'Home Again' button.")+" "+
-                i18n("Click it as soon as you return."); //+" "+
-//                i18n("Emergency alert mails will be sent starting from")+" "+allHomes+". "+
-//                i18n("Number of contacts")+": "+hike.getAlert().getAlertContacts().size()+".";
+                i18n("Click it as soon as you return.");
         instructionsArea.setText(instructions);
         
         alertPlan.setText(ActivationPage.buildAlertInfos(hike));
@@ -216,9 +214,9 @@ public class ObservationPage extends AbstractWizardPage
             String message = null;
             if (stateMachine.notYetOnTheWay()) // hike has not even started
                 message = i18n("You want to cancel the hike?");
-            else if (onTheWay && inTime) // home before planned end
+            else if (onTheWay && inTime) // home before end-time
                 message = i18n("Welcome back, you are in time!");
-            else if (stateMachine.overdueAlert()) // home after first alert mail
+            else if (stateMachine.overdueAlert()) // home after end-time and before polling-end
                 message = i18n("Welcome back, you are late!");
             
             if (message != null) {
@@ -246,6 +244,9 @@ public class ObservationPage extends AbstractWizardPage
         }
         else {
             endState(false);
+            
+            if (stateMachine.overdueAlert()) // home after end-time and after polling-end
+                stateMachine.reset(); // no way back to initial state, needs hard reset
         }
     }
     

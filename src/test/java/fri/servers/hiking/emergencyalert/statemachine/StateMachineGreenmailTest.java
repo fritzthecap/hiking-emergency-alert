@@ -13,7 +13,6 @@ import fri.servers.hiking.emergencyalert.persistence.Mail;
 import fri.servers.hiking.emergencyalert.persistence.TestData;
 import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
-import fri.servers.hiking.emergencyalert.statemachine.states.OverdueAlert;
 import fri.servers.hiking.emergencyalert.time.HikeTimer;
 import fri.servers.hiking.emergencyalert.time.ImpatientTimer;
 import fri.servers.hiking.emergencyalert.ui.UserInterface;
@@ -59,7 +58,7 @@ class StateMachineGreenmailTest extends AbstractGreenmailTest
             Thread.sleep(1000);
         
         // no confirmation mail was sent/received in this test, so end state is "Having no more contacts"
-        assertEquals(OverdueAlert.class, stateMachine.getState().getClass());
+        assertTrue(stateMachine.overdueAlert());
         
         assertResults(hike);
     }
