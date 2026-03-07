@@ -19,14 +19,14 @@ When you are not back within the scheduled time and push the "Home Again" button
 The first contact will receive it at your scheduled home-time. If this contact does not send a reply mail within an hour, the next contact will be alerted.
 This goes on until either a contact replied, or there are no more contacts. Of course all intervals and mail texts are configurable.
 
-It makes sense that you configure yourself as first contact. That way you can stop the alert chain if you are just late but not helpless in a ditch without phone connection. That will work in case you have your phone with you and can receive and send e-mail on it. The response e-mail must either contain the original e-mail as attachment, or the MAIL-ID that can be found in the original's content text.
+It makes sense that you configure yourself as first contact. That way you can stop the alert chain if you are just late but not helpless in a ditch without phone connection. That will work in case you have your phone with you and can receive and send e-mail on it.
 
 Starting with version **1.5** you can stop the alert chain at any time by replying to the set-off mail that gets sent to you on activation. 
 
 Starting with version **1.9** you can activate the hike observation remotely, see [issue #28](https://github.com/fritzthecap/hiking-emergency-alert/issues/28).
 On last "Forward" click you will be asked whether you want to activate the hike "Now" or "Later". If you click "Later", you can activate it when you safely arrived at your hiking trail. You will receive a reminder mail, and answering it would activate the hike observation. 
 
-**IMPORTANT:** Any of these reply mails must contain the received MAIL-ID either in text or in attachment!
+**IMPORTANT:** Any of these reply mails must contain the received MAIL-ID either in text or as attachment of the original mail!
 
 Supported languages:
 - German
