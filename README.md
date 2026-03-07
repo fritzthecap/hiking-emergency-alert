@@ -26,7 +26,7 @@ Starting with version **1.5** you can stop the alert chain at any time by replyi
 Starting with version **1.9** you can activate the hike observation remotely, see [issue #28](https://github.com/fritzthecap/hiking-emergency-alert/issues/28).
 On last "Forward" click you will be asked whether you want to activate the hike "Now" or "Later". If you click "Later", you can activate it when you safely arrived at your hiking trail. You will receive a reminder mail, and answering it would activate the hike observation. 
 
-**IMPORTANT:** Any of these reply mails must contain the received MAIL-ID either in text or as attachment of the original mail!
+**IMPORTANT:** Any of these reply mails must contain the received MAIL-ID either in content-text or as attachment of the original mail!
 
 Supported languages:
 - German
@@ -39,7 +39,7 @@ Supported languages:
 
 To use this application you need at least **Java 17** installed on your computer. Java is available for nearly any operating-system.
 You can download it from the [Open Java website](https://jdk.java.net/25/), or [from Oracle](https://www.oracle.com/de/java/technologies/downloads/). If you are on a 32-bit platform, the [bellsoft JDK downloads](https://fritzthecat-blog.blogspot.com/2026/02/installing-java-17-on-32-bit-linux.html)  may help you.
-As soon as you have installed the Java Runtime Environment, put the _java_ interpreter into your execution PATH and [download hiking-emergency-alert.jar](https://github.com/fritzthecap/hiking-emergency-alert/raw/refs/heads/main/hiking-emergency-alert.jar), then launch
+As soon as you have installed the Java Runtime Environment, make sure the _java_ interpreter is in your execution PATH and [download hiking-emergency-alert.jar](https://github.com/fritzthecap/hiking-emergency-alert/raw/refs/heads/main/hiking-emergency-alert.jar). Then launch
 
     java -jar hiking-emergency-alert.jar
 
@@ -50,7 +50,7 @@ Following JVM-argument would give you bigger fonts:
 The application stores your hike-data by default in _$HOME/hiking-emergency-alert/hike.json_ directory.
 This directory can be changed by adding commandline argument _-Dhike.home=/mydirectory_, the name of the file can be changed by  _-Dhike.file=myhike.json_.
 
-You can also pass any mail-property to the application via _-D...._ commandline arguments, e.g. _-Dmail.smtp.ssl.enable=true_.
+You can also pass any mail-property to the application via _-D...._ commandline arguments, e.g. _-Dmail.smtp.ssl.enable=true_ or _-Dmail.smtp.port=465_.
 
 To get rid of the application, delete the _hiking-emergency-alert.jar_ file and the _hiking-emergency-alert_ directory. There are no registry entries or other magic tricks.
 
