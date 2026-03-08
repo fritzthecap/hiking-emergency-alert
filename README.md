@@ -28,7 +28,7 @@ Starting with version **1.3** you can create additional hike-days on route-and-t
 Starting with version **1.9** you can activate the hike observation remotely, see [issue #28](https://github.com/fritzthecap/hiking-emergency-alert/issues/28).
 On last "Forward" click you will be asked whether you want to activate the hike "Now" or "Later". If you click "Later", you can activate it when you safely arrived at your hiking trail. You will receive a reminder mail, and answering it would activate the hike observation. 
 
-**IMPORTANT:** Any of these reply mails must contain the received MAIL-ID either in content-text or as attachment of the original mail!
+**IMPORTANT:** Any of these reply mails must contain the received MAIL-ID either in content-text or in the attached original mail!
 
 Supported languages:
 - German
