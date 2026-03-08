@@ -21,9 +21,9 @@ This goes on until either a contact replied, or there are no more contacts. Of c
 
 It makes sense that you configure yourself as first contact. That way you can stop the alert chain if you are just late but not helpless in a ditch without phone connection. That will work in case you have your phone with you and can receive and send e-mail on it.
 
-Starting with version **1.2** you can stop the alert chain at any time by replying to the set-off mail that gets sent to you on activation, see [issue #15](https://github.com/fritzthecap/hiking-emergency-alert/issues/15). 
+Starting with version **1.2** you can stop the alert chain at any time by replying to the mail that gets sent to you on activation, see [issue #15](https://github.com/fritzthecap/hiking-emergency-alert/issues/15). 
 
-Starting with version **1.3** you can create additional hike-days on route-and-times page, see [issue #1](https://github.com/fritzthecap/hiking-emergency-alert/issues/1). Each day has its own route description, including images. There is only one start-date/time, but every day has its own end-date/time. The mail communication would be the same on each day. 
+Starting with version **1.3** you can create additional hike-days on route-and-times page, see [issue #1](https://github.com/fritzthecap/hiking-emergency-alert/issues/1). Each day has its own route description, including images. There is only one start-date/time, but every day has its own end-date/time. The mail communication would be the same on each day. "Days" are not bound to to natural days, more precisely they are "hike sections".
 
 Starting with version **1.9** you can activate the hike observation remotely, see [issue #28](https://github.com/fritzthecap/hiking-emergency-alert/issues/28).
 On last "Forward" click you will be asked whether you want to activate the hike "Now" or "Later". If you click "Later", you can activate it when you safely arrived at your hiking trail. You will receive a reminder mail, and answering it would activate the hike observation. 
