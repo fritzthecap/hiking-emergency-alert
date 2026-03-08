@@ -19,7 +19,7 @@ When you are not back within the scheduled time and push the "Home Again" button
 The first contact will receive it at your scheduled home-time. If this contact does not send a reply mail within an hour, the next contact will be alerted.
 This goes on until either a contact replied, or there are no more contacts. Of course all intervals and mail texts are configurable.
 
-It makes sense that you configure yourself as first contact. That way you can stop the alert chain if you are just late but not helpless in a ditch without phone connection. That will work in case you have your phone with you and can receive and send e-mail on it.
+It makes sense that you configure yourself as first contact when you have a mobile phone that can send and receive e-mails. That way you can prevent alert mails using your phone if you are just late but not helpless in a ditch without phone connection.
 
 Starting with version **1.2** you can stop the alert chain at any time by replying to the mail that gets sent to you on activation, see [issue #15](https://github.com/fritzthecap/hiking-emergency-alert/issues/15). 
 
@@ -60,7 +60,12 @@ But I bet you will lose patience on editing the long JSON text lines (JSON does 
 
 To get rid of the application, delete the _hiking-emergency-alert.jar_ file and the _hiking-emergency-alert_ directory. There are no registry entries or other magic tricks.
 
-----
+# Try Out
+
+You can test the aplication easily by providing your own e-mail address several times in contacts list, choose different names. The shortest hike is 2 minutes, because the shortest polling interval is 1 minute, and the hike must be longer than that.
+
+You would get an activation mail immedately after activation of the hike. If you respond to it, no alert mails would be sent. If not, alerts would be sent to all contacts (that would be you). Mind that a "passing-to-next" mail would never be sent to a contact that has the same mail address as the next contact.
+
 <img width="517" height="61" alt="write-to-email" src="https://github.com/user-attachments/assets/8829f9c5-6ef6-4cc1-822d-d94ca6133d44" />
 
 ----
