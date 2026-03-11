@@ -48,13 +48,16 @@ public class FileChooser
     }
     
     /** @return the file the user chose for saving data. */
-    public File saveFile(File suggestedFile) {
+    public File saveFile(File suggestedFile, String extension) {
         final String directory = suggestedFile.getParent();
         
         final JFileChooser fileChooser = new JFileChooser(directory != null ? directory : currentDirectory);
         fileChooser.setMultiSelectionEnabled(false);
         fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         fileChooser.setSelectedFile(suggestedFile);
+        
+        if (StringUtil.isNotEmpty(extension))
+            fileChooser.setFileFilter(new FileNameExtensionFilter("."+extension, extension));
         
         if (fileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION) {
             final File file = fileChooser.getSelectedFile();
