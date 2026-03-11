@@ -217,6 +217,7 @@ public class ActivationPage extends AbstractWizardPage
         final StringBuilder alertInfos = new StringBuilder();
         
         alertInfos.append(i18n("Polling Minutes")+": "+hike.getAlert().getConfirmationPollingMinutes()+"\n");
+        alertInfos.append(i18n("Alert Times")+":\n");
         
         for (Day day : hike.getDays()) {
             Date alertDateTime = day.getPlannedHome();
