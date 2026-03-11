@@ -22,6 +22,7 @@ import fri.servers.hiking.emergencyalert.persistence.entities.Day;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
 import fri.servers.hiking.emergencyalert.ui.swing.Log;
+import fri.servers.hiking.emergencyalert.ui.swing.util.Clock;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.AbstractWizardPage;
 import fri.servers.hiking.emergencyalert.util.DateUtil;
@@ -38,7 +39,7 @@ public class ObservationPage extends AbstractWizardPage
     private ActionListener homeAgainListener;
     private JTextArea instructionsArea;
     private JTextArea alertPlan;
-    private JLabel timePanel;
+    private JLabel fromToDisplay;
     private JTextArea consoleOut;
     private JTextArea consoleErr;
     
@@ -72,7 +73,10 @@ public class ObservationPage extends AbstractWizardPage
     @Override
     protected void buildUi() {
         // top
-        timePanel = (JLabel) SwingUtil.increaseFontSize(new JLabel("", JLabel.CENTER), 160, true, false);
+        fromToDisplay = (JLabel) SwingUtil.increaseFontSize(new JLabel("", JLabel.CENTER), 160, true, false);
+        final JPanel timePanel = new JPanel(new BorderLayout());
+        timePanel.add(fromToDisplay, BorderLayout.CENTER);
+        timePanel.add(new Clock(), BorderLayout.EAST);
         
         instructionsArea = new JTextArea();
         final int BORDER = 12; // empty border space
@@ -145,7 +149,7 @@ public class ObservationPage extends AbstractWizardPage
         
         alertPlan.setText(ActivationPage.buildAlertInfos(hike));
         
-        timePanel.setText(plannedBegin+"   \u2192   "+lastHome); // arrow right
+        fromToDisplay.setText(plannedBegin+"   \u2192   "+lastHome); // arrow right
         
         getTrolley().setBackwardEnabled(canClose = false); // block window close
         
