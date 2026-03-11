@@ -106,7 +106,7 @@ public class SendConnection extends MailSessionFactory
         MailcapCommandMap mailcapCommandMap = (MailcapCommandMap) CommandMap.getDefaultCommandMap();
         CommandInfo[] jakartaMailMultipartCommand = mailcapCommandMap.getAllCommands("multipart/*");
         if (jakartaMailMultipartCommand == null || jakartaMailMultipartCommand.length <= 0) {
-            System.err.println("Fixing due to missing 'multipart/*' mailcap command ...");
+            System.err.println("Fixing missing 'multipart/*' mailcap command ...");
             // following entries were copied from
             // .m2/repository/org/eclipse/angus/jakarta.mail/2.0.5/jakarta.mail-2.0.5.jar/META-INF/jakarta.mailcap
             mailcapCommandMap.addMailcap("text/plain;;        x-java-content-handler=org.eclipse.angus.mail.handlers.text_plain");
@@ -118,7 +118,7 @@ public class SendConnection extends MailSessionFactory
         
         CommandInfo[] dsnDeliveryStatusCommand = mailcapCommandMap.getAllCommands("message/delivery-status");
         if (dsnDeliveryStatusCommand == null || dsnDeliveryStatusCommand.length <= 0) {
-            System.err.println("Fixing due to missing 'message/delivery-status' mailcap command ...");
+            System.err.println("Fixing missing 'message/delivery-status' mailcap command ...");
             // following entries were copied from
             // .m2/repository/org/eclipse/angus/dsn/2.0.5/dsn-2.0.5.jar/META-INF/jakarta.mailcap
             mailcapCommandMap.addMailcap("multipart/report;;  x-java-content-handler=org.eclipse.angus.mail.dsn.multipart_report");

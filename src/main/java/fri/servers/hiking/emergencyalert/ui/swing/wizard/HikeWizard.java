@@ -4,20 +4,26 @@ import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.event.MouseInputAdapter;
 import fri.servers.hiking.emergencyalert.persistence.HikeFactory;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
+import fri.servers.hiking.emergencyalert.ui.swing.Log;
+import fri.servers.hiking.emergencyalert.ui.swing.util.ConsoleDialog;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingLanguage;
 import fri.servers.hiking.emergencyalert.ui.swing.util.SwingUtil;
 import fri.servers.hiking.emergencyalert.ui.swing.wizard.pages.ActivationPage;
@@ -37,7 +43,8 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
 {
     private final StateMachine stateMachine;
     
-    private final JFrame frame;
+    private final JTextArea console;
+    
     private final JPanel contentPanel;
     private final JPanel glassPane;
     private final DescriptionArea descriptionArea;
@@ -57,21 +64,21 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
     };
     private int pageIndex;
     
-    public HikeWizard(JFrame frame, StateMachine stateMachine) {
+    public HikeWizard(JFrame frame, StateMachine stateMachine, JTextArea console, BufferedWriter logWriter) {
         super(new BorderLayout());
         
-        this.frame = frame;
         this.stateMachine = stateMachine;
+        this.console = console;
         
         this.contentPanel = new JPanel(new BorderLayout());
         SwingUtil.makeComponentFocusable(contentPanel); // lets focus shift away from input fields
         
-        frame.setGlassPane(this.glassPane = buildGlassPane());
+        frame.setGlassPane(this.glassPane = buildGlassPane(frame));
         
         this.descriptionArea = new DescriptionArea();
         
         // START keep order of statements!
-        final boolean fileLoaded = loadDefaultHike();
+        final boolean fileLoaded = loadDefaultHike(frame);
         
         // before building UI, load a language resource-bundle
         final String hikeLanguage = stateMachine.getHike().getAlert().getIso639Language();
@@ -86,25 +93,11 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         if (fileLoaded) // language was loaded from persistent hike
             pageIndex = 1; // skip language/file page
         
-        changePage(pageIndex, true);
+        changePage(pageIndex, frame);
         // END keep order of statements!
         
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                glassPane.setVisible(true);
-                try {
-                    if (page().windowClosing()) {
-                        frame.dispose(); // exits only when no thread is running!
-                        System.exit(0);
-                    }
-                }
-                finally {
-                    glassPane.setVisible(false);
-                }
-            }
-        });
+        installWindowClose(frame, logWriter);
     }
 
     /**
@@ -118,7 +111,7 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
     }
 
     
-    private boolean loadDefaultHike() {
+    private boolean loadDefaultHike(JFrame frame) {
         final HikeFactory.Result newHikeResult = new HikeFactory().newHike();
         
         stateMachine.getUserInterface().registerHiker(newHikeResult.hike());
@@ -152,7 +145,7 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
                 try {
                     final boolean next = (e.getSource() == forwardButton);
                     final int newIndex = (next ? pageIndex + 1 : pageIndex - 1);
-                    changePage(newIndex, false);
+                    changePage(newIndex, null);
                 }
                 finally {
                     glassPane.setVisible(false);
@@ -179,13 +172,38 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         contentPanel.add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private void changePage(int newIndex, boolean isFirstCall) {
+    private void installWindowClose(final JFrame frame, final BufferedWriter logWriter) {
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                glassPane.setVisible(true);
+                try {
+                    if (page().windowClosing()) { // wizard page allows window close, maybe through save-dialog
+                        Log.restoreOutErr(); // flush
+                        try {
+                            logWriter.close();
+                        }
+                        catch (IOException ex) { // ignore
+                        }
+                        frame.dispose(); // exits only when no thread is running ...
+                        System.exit(0); // ... thus do a hard exit here
+                    }
+                }
+                finally {
+                    glassPane.setVisible(false);
+                }
+            }
+        });
+    }
+
+    private void changePage(int newIndex, JFrame frame) {
+        final boolean isFirstCall = (frame != null);
         final boolean goingForward = (isFirstCall || pageIndex < newIndex);
         final AbstractWizardPage oldPage = page();
         
         final Trolley trolley;
         if (isFirstCall) // application startup
-            trolley = createTrolley(); // travels through all pages
+            trolley = createTrolley(frame); // travels through all pages
         else
             if ((trolley = oldPage.leave(goingForward)) != null) // can leave
                 contentPanel.remove(oldPage.getAddablePanel());
@@ -209,14 +227,15 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         contentPanel.repaint();
     }
     
-    private Trolley createTrolley() {
+    private Trolley createTrolley(Frame frame) {
         return new Trolley(
                 stateMachine, 
+                new ConsoleDialog(frame, console),
                 descriptionArea,
                 new Trolley.PageRequestListener() {
                     @Override
                     public void gotoPage(Class<? extends AbstractWizardPage> requestedPage) {
-                        changePage(determinePageIndex(requestedPage), false);
+                        changePage(determinePageIndex(requestedPage), null);
                     }
                 },
                 forwardButton, 
@@ -240,7 +259,7 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         return pages[pageIndex];
     }
     
-    private JPanel buildGlassPane() {
+    private JPanel buildGlassPane(JFrame frame) {
         final JPanel glassPane = new JPanel();
         glassPane.setOpaque(false); // else windowClosing() shows gray window
         final MouseInputAdapter adapter = new MouseInputAdapter() { };

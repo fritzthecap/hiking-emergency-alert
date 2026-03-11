@@ -52,7 +52,7 @@ public class StateMachine implements
     /** Sets given event into context and then calls the event's transition. */
     @Override
     public void dispatchEvent(Event event) {
-        System.out.println("-> Dispatching event "+event+" at "+DateUtil.nowString());
+        System.out.println("-> Dispatching event "+event+" at "+DateUtil.now4Log());
         
         context.setEvent(event);
         state = event.transition(state, context);
@@ -60,8 +60,8 @@ public class StateMachine implements
         System.out.println("-> New state is "+state.getClass().getSimpleName());
         
         // end states need a new initialization
-        final boolean endedWithAccident = (state instanceof AlertConfirmed);
-        if (endedWithAccident || state instanceof HomeAgain) {
+        final boolean endedWithAccident = state.getClass().equals(AlertConfirmed.class);
+        if (endedWithAccident || state.getClass().equals(HomeAgain.class)) {
             context = new Context(context);
             
             System.out.println("StateMachine finished "+(endedWithAccident ? "overdue" : "correctly")+".");

@@ -56,6 +56,7 @@ public class HikeFileManager
         return part1 + (part1.endsWith(File.separator) ? "" : File.separator) + part2;
     }
     
+    
     public String load() throws IOException {
         return load(DEFAULT_JSON_FILEPATH);
     }
@@ -66,9 +67,9 @@ public class HikeFileManager
             final String hikeJson = Files.readString(jsonFile, Platform.CHARSET);
             System.out.println("Loaded hike from file "+jsonFile);
             
-            if (JAVA_NEWLINE.equals(Platform.NEWLINE) == false)
-                return hikeJson.replace(Platform.NEWLINE, JAVA_NEWLINE);
-            return hikeJson;
+            return JAVA_NEWLINE.equals(Platform.NEWLINE)
+                    ? hikeJson
+                    : hikeJson.replace(Platform.NEWLINE, JAVA_NEWLINE);
         }
         return null;
     }
@@ -113,14 +114,22 @@ public class HikeFileManager
         return DEFAULT_JSON_PATH;
     }
 
-    /** Delivers the default save path, including file-name. */
+    /** Delivers the default save file name, including directory. */
     public String getSavePathFile() {
         return DEFAULT_JSON_FILEPATH;
     }
 
-    /** Delivers the default save file-name, excluding directory. */
+    /** Delivers the default save file name, excluding directory. */
     public String getSaveFilename() {
         return DEFAULT_JSON_FILE;
+    }
+
+    /** Delivers the default log file name, including directory. */
+    public String getLogPathFile() {
+        final String fileName = 
+                DEFAULT_JSON_FILE.substring(0, DEFAULT_JSON_FILE.length() - ".json".length())+
+                ".log";
+        return joinPathParts(DEFAULT_JSON_PATH, fileName);
     }
 
     /**

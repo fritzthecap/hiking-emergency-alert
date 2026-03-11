@@ -147,11 +147,7 @@ public class ObservationPage extends AbstractWizardPage
         
         timePanel.setText(plannedBegin+"   \u2192   "+lastHome); // arrow right
         
-        consoleOut.setText("");
-        consoleErr.setText("");
-        
-        canClose = false;
-        getTrolley().setBackwardEnabled(false);
+        getTrolley().setBackwardEnabled(canClose = false); // block window close
         
         homeAgain.setForeground(Color.RED);
         homeAgain.setEnabled(true);
@@ -167,8 +163,7 @@ public class ObservationPage extends AbstractWizardPage
                     getStateMachine().getMailer().setCheckedAuthenticator(authenticator);
                 
                 // no more UI-exceptions possible here, redirect System outputs to UI now
-                Log.redirectOut(consoleOut);
-                Log.redirectErr(consoleErr);
+                Log.addToOutErr(consoleOut, consoleErr);
                 
                 // change to state HikeActivated, this triggers a final validation
                 getStateMachine().getUserInterface().activateHike(hike);
@@ -254,12 +249,9 @@ public class ObservationPage extends AbstractWizardPage
         homeAgain.setEnabled(false); // can not press button another time
         homeAgain.removeActionListener(homeAgainListener); // will be added again on populateUi()
         
-        canClose = true; // allow to close the window
+        getTrolley().setBackwardEnabled(canClose = true); // allow to close the window
         
-        getTrolley().setBackwardEnabled(true);
-        
-        Log.restoreOut();
-        Log.restoreErr();
+        Log.removeFromOutErr(consoleOut, consoleErr);
         
         // ask for new hike and initialize it when Yes
         if (startNewHike && 

@@ -214,7 +214,9 @@ public class ActivationPage extends AbstractWizardPage
     
     static String buildAlertInfos(Hike hike) {
         final List<Contact> contacts = hike.getAlert().getNonAbsentContacts();
-        final StringBuilder contactsText = new StringBuilder();
+        final StringBuilder alertInfos = new StringBuilder();
+        
+        alertInfos.append(i18n("Polling Minutes")+": "+hike.getAlert().getConfirmationPollingMinutes()+"\n");
         
         for (Day day : hike.getDays()) {
             Date alertDateTime = day.getPlannedHome();
@@ -225,16 +227,16 @@ public class ActivationPage extends AbstractWizardPage
             for (Contact contact : contacts) {
                 final String alertDay = DateUtil.toDateString(alertDateTime);
                 if (alertDay.equals(currentDay) == false) // write day header
-                    contactsText.append((currentDay = alertDay)+"\n");
+                    alertInfos.append((currentDay = alertDay)+"\n");
                 
                 final String time = DateUtil.toTimeString(alertDateTime);
-                contactsText.append("    "+time+"    "+contact.getMailAddress()+"\n");
+                alertInfos.append("    "+time+"    "+contact.getMailAddress()+"\n");
                 
                 alertDateTime = DateUtil.addMinutes(alertDateTime, intervalModel.nextIntervalMinutes());
             }
         }
         
-        return contactsText.toString().trim();
+        return alertInfos.toString().trim();
     }
     
     

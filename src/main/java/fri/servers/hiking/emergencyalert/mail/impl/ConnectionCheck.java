@@ -94,7 +94,7 @@ public class ConnectionCheck extends InboxVisitorConnection
     }
     
     private boolean receiveAndDeleteTestMail() throws MailReceiveException {
-        System.out.println("Now trying to receive and delete the sent message ... "+DateUtil.nowString(true));
+        System.out.println("Now trying to receive and delete the sent message ... ");
         
         // poll until mail arrives at server
         boolean success = false;
@@ -109,7 +109,7 @@ public class ConnectionCheck extends InboxVisitorConnection
             if (success == false)
                 try { Thread.sleep(sleepSeconds * 1000); } catch (InterruptedException e) {}
         }
-        System.out.println("... Receive success is "+success+", at "+DateUtil.nowString(true));
+        System.out.println("... Receive success is "+success+" at "+DateUtil.nowString(true));
         return success;
     }
 }

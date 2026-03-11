@@ -9,6 +9,7 @@ public final class DateUtil
 {
     public static final String DATE_FORMAT_MINUTES = "yyyy-MM-dd HH:mm";
     private static final String DATE_FORMAT_SECONDS = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATE_FORMAT_MILLIS = "yyyy-MM-dd HH:mm:ss:SSS";
     
     /** @return the millisecond-precise now-date. */
     public static Date now() {
@@ -23,6 +24,12 @@ public final class DateUtil
     /** @return the minute- or second-precise now-date as text. */
     public static String nowString(boolean withSeconds) {
         return DateUtil.toString(DateUtil.now(), withSeconds);
+    }
+    
+    /** @return a current millisecond-precise time for logging-output. */
+    public static String now4Log() {
+        final DateFormat format = new SimpleDateFormat(DATE_FORMAT_MILLIS);
+        return format.format(DateUtil.now());
     }
     
     /** @return the minute of given date. */

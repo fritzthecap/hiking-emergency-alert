@@ -50,7 +50,10 @@ public class MailBuilder
             
             textBuilder.append(
                     i18n("You must activate your hike by responding to this mail.")+"\n"+
-                    i18n("The MAIL-ID below must be contained as text or attachment.")+"\n\n");
+                    i18n("The MAIL-ID below must be contained as text or attachment.")+"\n"+
+                    i18n("You would receive answer after")+" "+
+                        hike.getAlert().getConfirmationPollingMinutes()
+                        +" "+i18n("minutes")+".\n\n");
             textBuilder.append("MAIL-ID: "+hike.uniqueMailId);
             textBuilder.append("\n");
         }

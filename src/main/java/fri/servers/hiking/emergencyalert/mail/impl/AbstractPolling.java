@@ -47,7 +47,7 @@ public abstract class AbstractPolling extends Scheduler
         
         System.out.println(
                 "Polling for "+pollingType()+" will start in "+pollingMinutes+
-                " minute(s), now it is "+DateUtil.nowString());
+                " minute(s), now it is "+DateUtil.now4Log());
     }
     
     /**
@@ -105,7 +105,7 @@ public abstract class AbstractPolling extends Scheduler
             final Mail confirmation = receiveConnection.searchNonSelfSentMailHavingMailId();
             
             if (confirmation != null) { // found an alert confirmation in INBOX
-                System.out.println("Received "+pollingType()+" from "+confirmation.from()+" at "+DateUtil.nowString());
+                System.out.println("Received "+pollingType()+" from "+confirmation.from()+" at "+DateUtil.now4Log());
                 
                 processConfirmation(confirmation);
             }
@@ -122,7 +122,7 @@ public abstract class AbstractPolling extends Scheduler
         if (e != null)
             System.out.println("ERROR: "+e.toString());
         else
-            System.out.println("Found no "+pollingType()+" at "+DateUtil.nowString());
+            System.out.println("Found no "+pollingType()+" at "+DateUtil.now4Log());
 
         if (shouldContinuePolling()) {
             System.out.println("Trying again in "+pollingMinutes+" minutes.");

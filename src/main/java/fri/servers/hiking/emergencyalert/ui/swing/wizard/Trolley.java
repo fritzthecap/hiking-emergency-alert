@@ -8,6 +8,7 @@ import fri.servers.hiking.emergencyalert.persistence.HikeFileManager;
 import fri.servers.hiking.emergencyalert.persistence.JsonGsonSerializer;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
 import fri.servers.hiking.emergencyalert.statemachine.StateMachine;
+import fri.servers.hiking.emergencyalert.ui.swing.util.ConsoleDialog;
 import jakarta.mail.Authenticator;
 
 /**
@@ -30,6 +31,8 @@ public class Trolley
     }
     
     public final StateMachine stateMachine;
+    public final ConsoleDialog console;
+    
     private final DescriptionArea descriptionArea;
     private final PageRequestListener pageRequestListener;
     private final JButton forwardButton, backwardButton;
@@ -42,6 +45,7 @@ public class Trolley
     
     public Trolley(
             StateMachine stateMachine, 
+            ConsoleDialog console, 
             DescriptionArea descriptionArea,
             PageRequestListener pageRequestListener,
             JButton forwardButton, 
@@ -49,6 +53,7 @@ public class Trolley
             WizardOutline wizardOutline)
     {
         this.stateMachine = Objects.requireNonNull(stateMachine);
+        this.console = console;
         this.descriptionArea = descriptionArea;
         this.pageRequestListener = pageRequestListener;
         this.forwardButton = forwardButton;

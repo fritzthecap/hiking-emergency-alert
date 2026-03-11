@@ -109,9 +109,14 @@ public class Context
             throw new RuntimeException(e); // assuming user is still at the computer and sees the error
         }
         
-        final Date begin = (hike.getPlannedBegin() != null) 
-                ? hike.getPlannedBegin()
-                : DateUtil.now(); // make sure SET_OFF event is fired
+        final Date begin;
+        // begin will fire SETTING_OFF event and MUST BE AFTER activation, else state-exception, see issue #30
+        final Date plannedBegin = hike.getPlannedBegin();
+        final Date nowPlus4Seconds = DateUtil.addSeconds(
+                DateUtil.now(), 
+                Math.max(4, hike.getAlert().getMailConfiguration().getMaximumConnectionTestSeconds())); 
+        begin = (plannedBegin != null && plannedBegin.after(nowPlus4Seconds)) ? plannedBegin : nowPlus4Seconds;
+        
         final Date home = hike.currentDay().getPlannedHome();
         
         if (hike.isRemoteActivation())
@@ -149,7 +154,7 @@ public class Context
                 return Boolean.FALSE; // stay OnTheWay
             }
             else {
-                System.out.println("You have prevented alerts on last day, detected at "+DateUtil.nowString());
+                System.out.println("You have prevented alerts via mail, detected at "+DateUtil.now4Log());
                 return Boolean.TRUE;
             }
         }
@@ -198,7 +203,7 @@ public class Context
         }
         else { // here it is 1 hour after last contact, it makes no sense to poll anymore
             stop();
-            System.out.println("Having no more contacts to alert at "+DateUtil.nowString());
+            System.out.println("Having no more contacts to alert at "+DateUtil.now4Log());
         }
     }
 
@@ -226,7 +231,7 @@ public class Context
     /** 'Home Again' button pushed in OnTheWay state. */
     public void comingHomeInTime() {
         stop();
-        System.out.println("You are back in time, congratulations! It is "+DateUtil.nowString());
+        System.out.println("You are back in time, congratulations! It is "+DateUtil.now4Log());
     }
 
     /** 'Home Again' button pushed in OverdueAlert state. */
@@ -241,7 +246,7 @@ public class Context
     
     /** Called just on first hike-day when remote activation was chosen. */
     private void startHikeTimerDeferred(final Date begin, final Date home) {
-        sendActivationMessage(home, 0, true);
+        sendActivationMessage(home, 0, true); // throws exception when not sent
         
         mailer.startActivationPolling(
                 (mail) -> {
@@ -256,8 +261,12 @@ public class Context
 
     /** Called just on first hike-day, either from remote activation or when NO remote activation was chosen. */
     private void startHikeTimer(Date begin, Date home) {
-        activationOutputs(); // just once per hike
+        activationOutputs(begin, home); // just once per hike
+        
         timerStart(begin, home, 0); // 0 is first day
+        
+        System.out.println("Do NOT terminate this application before you are back!");
+        System.out.println("Wish you luck, please click 'Home Again' as soon as you are back.");
     }
 
     private void timerStart(Date begin, Date home, int dayIndex) {
@@ -285,18 +294,24 @@ public class Context
     }
 
     private void sendActivationMessage(Date home, int dayIndex, boolean remoteActivation) {
-        System.out.println("Trying to send "+(remoteActivation ? "remote" : "")+" activation mail at "+DateUtil.nowString());
+        final String mailType = (remoteActivation ? "remote" : "")+" activation";
+        System.out.println("Trying to send "+mailType+" mail at "+DateUtil.now4Log());
         try {
             mailer.sendActivation(hike, home, dayIndex, remoteActivation);
             
-            System.out.println("Sending succeeded!");
+            System.out.println("Sending succeeded at "+DateUtil.now4Log());
+            if (remoteActivation)
+                System.out.println("Do not forget to reply to this mail, else observation would NOT start!");
         }
         catch (MailSendException e) {
-            System.out.println("Sending activation mail failed, error was "+e);
-            // As this is sent immediately after activating the hike, 
-            // it is assumed that the mail connection works and no send-repeat is needed.
-            // For follower days there may be other mails in INBOX that can be used to reply,
-            // the needed MAIL-ID is the same for all.
+            if (remoteActivation) // Remote activation requires the actionvation-mail!
+                throw new IllegalStateException(e);
+            else
+                System.out.println("Sending "+mailType+" mail failed, error was "+e);
+                // As this is sent immediately when activating the hike, 
+                // it is assumed that the mail connection works and no send-repeat is needed.
+                // For follower days there may be other mails in INBOX that can be used to reply,
+                // the needed MAIL-ID is the same for all.
         }
     }
     
@@ -308,18 +323,18 @@ public class Context
                     activationTime);
             
             if (hikerPreventedAlerts)
-                System.out.println("Hiker prevented alerts by replying to activation mail, detected at "+DateUtil.nowString());
+                System.out.println("Hiker prevented alerts by replying to activation mail, detected at "+DateUtil.now4Log());
             
             return hikerPreventedAlerts;
         }
         catch (MailReceiveException e) {
-            System.err.println("ERROR: failed to find activation reply, at "+DateUtil.nowString()+", error: "+e.toString());
+            System.err.println("ERROR: failed to find activation reply, at "+DateUtil.now4Log()+", error: "+e.toString());
             return false;
         }
     }
     
     private boolean sendAlertMessage(Contact contact) {
-        System.out.println("Trying to send alert mail to "+contact.getMailAddress()+" at "+DateUtil.nowString());
+        System.out.println("Trying to send alert mail to "+contact.getMailAddress()+" at "+DateUtil.now4Log());
         try {
             mailer.sendAlert(contact, hike);
             
@@ -346,7 +361,7 @@ public class Context
     }
     
     private void sendPassingToNext(Contact previousContact) {
-        System.out.println("Trying to send passing-to-next mail to "+previousContact.getMailAddress()+" at "+DateUtil.nowString());
+        System.out.println("Trying to send passing-to-next mail to "+previousContact.getMailAddress()+" at "+DateUtil.now4Log());
         try {
             mailer.sendPassingToNext(previousContact, hike);
             
@@ -358,11 +373,12 @@ public class Context
         }
     }
     
-    private void activationOutputs() {
-        if (hike.getPlannedBegin() != null)
-            System.out.println("Planned hike set-off is "+DateUtil.toString(hike.getPlannedBegin()));
-        System.out.println("Emergency alerts would start at "+DateUtil.toString(hike.currentDay().getPlannedHome()));
-        System.out.println("Do NOT terminate this application before you are back!");
-        System.out.println("Wish you luck, please click 'Home Again' as soon as you are back.");
+    private void activationOutputs(Date begin, Date home) {
+        System.out.println("Hike set-off will be at "+DateUtil.toString(begin, true));
+        System.out.println("Emergency alerts would start at "+DateUtil.toString(home, true));
+        
+        final int pollingMinutes = hike.getAlert().getConfirmationPollingMinutes();
+        System.out.println("Reply polling interval is "+pollingMinutes+" minutes.");
+        System.out.println("First receive attempt would be at "+DateUtil.addMinutes(home, pollingMinutes)+".");
     }
 }

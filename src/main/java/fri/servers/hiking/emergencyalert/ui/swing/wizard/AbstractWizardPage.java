@@ -42,6 +42,7 @@ public abstract class AbstractWizardPage
     
     private Trolley trolley;
     
+    private JButton consoleButton;
     private JButton saveButton;
     private FileChooser saveFileChooser;
     private UninstallableFocusListener focusListener;
@@ -111,7 +112,7 @@ public abstract class AbstractWizardPage
         contentPanel.removeAll();
         
         titleField.setText(getTitle());
-        ensureSaveButton(); // i18n is available now
+        ensureConsoleAndSaveButtons(); // i18n is available now
         
         buildUi();
         populateUi(getHike());
@@ -346,7 +347,7 @@ public abstract class AbstractWizardPage
                 ? hikeFile
                 : createFilenameFromHike(directory, hikeFileManager.getSaveFilename());
         
-        return saveFileChooser.saveFile(suggestedFile); // opens dialog to browse file-system
+        return saveFileChooser.saveFile(suggestedFile, "json"); // opens dialog to browse file-system
     }
 
     private File createFilenameFromHike(String directory, String saveFilename) {
@@ -367,9 +368,21 @@ public abstract class AbstractWizardPage
                 JOptionPane.ERROR_MESSAGE);
     }
     
-    private void ensureSaveButton() { /// called from enter()
+    private void ensureConsoleAndSaveButtons() { /// called from enter()
         if (shouldShowSaveButton() == false)
             return;
+        
+        if (this.consoleButton == null) {
+            this.consoleButton = new JButton(i18n("Console"));
+            final JPanel titleAndError = (JPanel) titleField.getParent();
+            titleAndError.add(consoleButton, BorderLayout.WEST);
+            consoleButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    getTrolley().console.toggleVisibility();
+                }
+            });
+        }
         
         if (this.saveButton == null) {
             this.saveButton = new JButton(i18n("Save"));

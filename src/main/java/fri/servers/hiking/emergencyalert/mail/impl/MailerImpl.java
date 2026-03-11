@@ -52,7 +52,8 @@ public class MailerImpl implements Mailer
         hikerContact.setLastName(hike.getAlert().getNameOfHiker());
         hikerContact.setMailAddress(hike.getAlert().getMailConfiguration().getMailFromAddress());
         
-        final Mail mail = new MailBuilder(hikerContact, hike).buildActivationMail(plannedHome, dayIndex, remoteActivation);
+        final Mail mail = new MailBuilder(hikerContact, hike)
+                .buildActivationMail(plannedHome, dayIndex, remoteActivation);
         
         sendMail(mail, hike.getAlert().getMailConfiguration());
     }
@@ -206,7 +207,7 @@ public class MailerImpl implements Mailer
     private void stopPolling(AbstractPolling polling, String pollingType) {
         if (polling != null) {
             polling.stop();
-            System.out.println("Polling for "+pollingType+" stopped at "+DateUtil.nowString());
+            System.out.println("Polling for "+pollingType+" stopped at "+DateUtil.now4Log());
         }
     }
 
