@@ -11,7 +11,9 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/fritzthecap/hiking-emergency-alert?color=pink)
 ![GitHub last commit](https://img.shields.io/github/last-commit/fritzthecap/hiking-emergency-alert?color=pink)
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/fritzthecap/hiking-emergency-alert/total?color=pink)
- 
+
+- **CAUTION: Bad bug detected, see issue #30, wait for version 1.10 release!**
+
 A desktop application that runs at home while you are hiking. It starts to send alert e-mails when you are overdue.
 
 You need an e-mail account and Internet connection at your home. You run this application before you leave for a hike.
