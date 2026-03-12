@@ -114,6 +114,7 @@ class StateMachineFakeMailTest
             }
             @Override
             public void afterNextUnsuccessfulConfirmationPoll(Supplier<Boolean> pollingStopper) {
+                pollingStopper.get();
             }
             @Override
             public void stopConfirmationPolling() {
