@@ -35,7 +35,7 @@ public class SwingUserInterface extends UserInterface
         return null;
     }
 
-    /** Called by StateMachine, renders the contact confirmation mail. */
+    /** ALERT_CONFIRMED event, called by StateMachine, renders the contact's confirmation mail. */
     @Override
     public void showConfirmMail(final Mail alertConfirmationMail) {
         System.out.println(

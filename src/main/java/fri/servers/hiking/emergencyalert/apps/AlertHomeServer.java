@@ -84,12 +84,13 @@ public class AlertHomeServer
     /** @param hikeJson JSON containing the hike to start, or null to run Swing UI. */
     public AlertHomeServer(String hikeJson) throws IOException {
         final String title = "Hiking-Emergency-Alert "+Version.get();
+        System.out.println(title);
         
         if (hikeJson == null)
             new SwingAlertHomeServer().show(title);
             // complete UserInterface to edit and run Hike
         else
-            runWithMinimalUi(hikeJson, new SwingUserInterface(), title);
+            runWithMinimalUi(hikeJson, new SwingUserInterface());
             // minimal = interactive password dialog
     }
 
@@ -99,9 +100,7 @@ public class AlertHomeServer
      *      serve as password authenticator and alert-confirmation notifier.
      * @throws IOException when JSON is invalid.
      */
-    private void runWithMinimalUi(String hikeJson, UserInterface userInterface, String title) throws IOException {
-        System.out.println(title);
-        
+    private void runWithMinimalUi(String hikeJson, UserInterface userInterface) throws IOException {
         // read hike data
         final Hike hike = new JsonGsonSerializer<Hike>().fromJson(hikeJson, Hike.class);
         
