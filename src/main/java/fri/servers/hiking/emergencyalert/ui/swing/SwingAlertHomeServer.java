@@ -1,11 +1,13 @@
 package fri.servers.hiking.emergencyalert.ui.swing;
 
+import static fri.servers.hiking.emergencyalert.util.Language.i18n;
 import java.awt.Dimension;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -34,11 +36,7 @@ public class SwingAlertHomeServer extends SwingUserInterface
     
     /** Required call to show the window on screen. */
     public void show(String title) {
-        System.out.println(title); // write to OS console
-        
-        initialize();
-        
-        System.out.println(title); // write again to log-file and Swing-console
+        initialize(title);
         
         frame.setTitle(title);
         frame.pack();
@@ -58,13 +56,14 @@ public class SwingAlertHomeServer extends SwingUserInterface
     }
 
     
-    private void initialize() {
-        // do some UI corrections
-        UiAdjustments.adjust();
-        
+    private void initialize(String title) {
         // redirect System outputs to UI and log-file
-        final BufferedWriter logWriter;
-        final File logFile = new File(new HikeFileManager().getLogPathFile());
+        final String logPathFile = new HikeFileManager().getLogPathFile();
+        final File logFile = new File(logPathFile);
+        
+        System.out.println("You can find stdout and stderr in "+logPathFile); // write to OS console
+        
+        final Writer logWriter;
         try {
             logWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(logFile)));
         }
@@ -73,7 +72,15 @@ public class SwingAlertHomeServer extends SwingUserInterface
         }
         final JTextArea console = new JTextArea();
         console.setEditable(false);
-        Log.redirectOutErr(console, logWriter);
+        
+        // START keep order of statements
+        Log.redirectOutErr(console, logWriter); // redirect outputs to console and log
+        System.out.println(title); // write title and version to log-file and Swing-console
+        Log.activateOriginalStreams(true); // now activate System.out and System.err
+        // END keep order of statements
+        
+        // do some UI corrections
+        UiAdjustments.adjust();
         
         // create StateMachine
         final StateMachine stateMachine = new StateMachine(
@@ -83,8 +90,11 @@ public class SwingAlertHomeServer extends SwingUserInterface
                 this);
         
         // build content pane
-        final HikeWizard hikeInputWizard = new HikeWizard(frame, stateMachine, console, logWriter);
-        frame.getContentPane().add(hikeInputWizard);
+        // START keep order of statements
+        frame.getContentPane().add(new HikeWizard(frame, stateMachine, console, logWriter));
+        
+        console.setToolTipText(i18n("This text can also be found in")+" "+logPathFile);
+        // END keep order of statements
     }
     
     private HikeWizard getHikeWizard() {
