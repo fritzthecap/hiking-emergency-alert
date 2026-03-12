@@ -1,6 +1,6 @@
 package fri.servers.hiking.emergencyalert.ui.swing.util;
 
-import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,7 +19,7 @@ public class Clock extends JPanel
     
     public Clock() {
         setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+        setBorder(BorderFactory.createEmptyBorder(4, 8, 0, 8));
         
         add(hour = newLabel("00"));
         add(newLabel(":"));
@@ -27,7 +27,7 @@ public class Clock extends JPanel
         add(newLabel(":"));
         add(second = newLabel("00"));
         
-        final Timer timer = new Timer(1000, new ActionListener() {
+        final ActionListener timeRenderer = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final Calendar currentTime = Calendar.getInstance();
@@ -35,27 +35,34 @@ public class Clock extends JPanel
                 minute.setText(pad(currentTime.get(Calendar.MINUTE)));
                 second.setText(pad(currentTime.get(Calendar.SECOND)));
             }
-        });
+        };
+        timeRenderer.actionPerformed(null); // put initial values
+        
+        final Timer timer = new Timer(1000, timeRenderer);
         timer.setRepeats(true);
         timer.setCoalesce(true);
         timer.start();
     }
     
     private JLabel newLabel(String text) {
-        return (JLabel) SwingUtil.increaseFontSize(new JLabel(text), 120, true, false);
+        final JLabel label = new JLabel(text);
+        label.setForeground(Color.GRAY);
+        return (JLabel) SwingUtil.increaseFontSize(label, 124, true, false);
     }
 
     private String pad(int value) {
-        final String number = String.valueOf(value);
+        final String number = Integer.toString(value);
         return (number.length() < 2) ? "0"+number : number;
     }
     
     
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(new Clock(), BorderLayout.NORTH);
-        frame.setSize(200, 200);
+        frame.getContentPane().setLayout(new FlowLayout());
+        frame.getContentPane().add(new Clock());
+        frame.setSize(200, 100);
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-    }
+    }*/
 }
