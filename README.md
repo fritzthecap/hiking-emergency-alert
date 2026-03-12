@@ -50,7 +50,7 @@ Following JVM-argument would give you bigger fonts:
     java -DfontPercent=120 -jar hiking-emergency-alert.jar
 
 The application stores your hike-data by default in _$HOME/hiking-emergency-alert/hike.json_ directory.
-This directory can be changed by adding commandline argument _-Dhike.home=/mydirectory_, the name of the file can be changed by  _-Dhike.file=myhike.json_.
+This directory can be changed by adding commandline argument _-Dhike.home=/mydirectory_, the name of the file can be changed by  _-Dhike.file=myhike.json_. Since version 1.10 logging output can be found in a console window and in _hike.log_ in the _hike.home_ directory.
 
 You can also pass any mail-property to the application via _-D...._ commandline arguments, e.g. _-Dmail.smtp.ssl.enable=true_ or _-Dmail.smtp.port=465_.
 
@@ -62,7 +62,7 @@ To get rid of the application, delete the _hiking-emergency-alert.jar_ file and 
 
 # Try Out
 
-You can test the aplication easily by providing your own e-mail address several times in contacts list, choose a different name for each. The shortest alert interval is 2 minutes, because the shortest polling interval is 1 minute, and the alert interval must be longer than that. Thus a hike of 3 minutes is possible, and everything would land in your own INBOX.
+You can test the application easily by providing your own e-mail address several times in contacts list, choose a different name for each. The shortest alert interval is 2 minutes, because the shortest polling interval is 1 minute, and the alert interval must be longer than that. Thus a hike of 3 minutes is possible, and everything would land in your own INBOX.
 
 You would get an activation mail immedately after activation of the hike. If you respond to it, no alert mails would be sent. If not, alerts would be sent to all contacts (that would be you). Mind that a "passing-to-next" mail would never be sent to a contact that has the same mail address as the next contact.
 
