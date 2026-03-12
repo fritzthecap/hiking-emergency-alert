@@ -19,7 +19,7 @@
     cp target/hiking-emergency-alert-*-jar-with-dependencies.jar ./hiking-emergency-alert.jar
     
 - Remove the unneeded smaller JAR file from target directory:
-    rm target/hiking-emergency-alert-1.?.jar
+    rm target/hiking-emergency-alert-2.?.jar
     
 - Check that correct version is in title-bar of application by launching it:
     java -jar hiking-emergency-alert.jar
