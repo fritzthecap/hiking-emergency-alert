@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import fri.servers.hiking.emergencyalert.mail.MailException;
 import fri.servers.hiking.emergencyalert.mail.MailReceiveException;
 import fri.servers.hiking.emergencyalert.mail.MailSendException;
@@ -103,6 +104,12 @@ public class MailerImpl implements Mailer
                 pollingMinutes,
                 alertSendResults,
                 eventDispatcher);
+    }
+    
+    @Override
+    public void afterNextUnsuccessfulConfirmationPoll(Supplier<Boolean> pollingStopper) {
+        if (confirmationPolling != null)
+            confirmationPolling.afterNextUnsuccessfulConfirmationPoll(pollingStopper);
     }
 
     @Override

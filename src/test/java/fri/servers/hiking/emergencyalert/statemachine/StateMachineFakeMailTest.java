@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import fri.servers.hiking.emergencyalert.mail.MailException;
 import fri.servers.hiking.emergencyalert.mail.MailReceiveException;
@@ -110,6 +111,9 @@ class StateMachineFakeMailTest
             {
                 polling = true;
                 System.err.println("Confirmation polling starts ...");
+            }
+            @Override
+            public void afterNextUnsuccessfulConfirmationPoll(Supplier<Boolean> pollingStopper) {
             }
             @Override
             public void stopConfirmationPolling() {

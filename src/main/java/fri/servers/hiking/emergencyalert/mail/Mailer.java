@@ -2,6 +2,7 @@ package fri.servers.hiking.emergencyalert.mail;
 
 import java.util.Date;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import fri.servers.hiking.emergencyalert.persistence.Mail;
 import fri.servers.hiking.emergencyalert.persistence.entities.Contact;
 import fri.servers.hiking.emergencyalert.persistence.entities.Hike;
@@ -72,7 +73,8 @@ public interface Mailer
     
     /**
      * Tries to receive an alert-confirmation-mail containing the 
-     * <code>uniqueMailId</code> of given hike.
+     * <code>uniqueMailId</code> of given hike until it finds one.
+     * Thus this must be stopped from outside!
      * @param eventDispatcher the StateMachine that will receive Event.ALERT_CONFIRMED.
      * @param uniqueMailId the <code>uniqueMailId</code> or "MAIL-ID" from Hike.
      * @param mailConfiguration the MailConfiguration from Hike Alert.
@@ -83,6 +85,12 @@ public interface Mailer
             String uniqueMailId, 
             MailConfiguration mailConfiguration,
             int pollingMinutes);
+
+    /**
+     * Register a boolean function to be used after the next unsuccessful
+     * confirmation receive attempt for deciding whether polling should continue.
+     */
+    public void afterNextUnsuccessfulConfirmationPoll(Supplier<Boolean> pollingStopper);
 
     /** Stops confirmation receive-polling, or does nothing when not polling. */
     public void stopConfirmationPolling();

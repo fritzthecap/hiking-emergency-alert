@@ -2,6 +2,7 @@ package fri.servers.hiking.emergencyalert.mail.impl;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import fri.servers.hiking.emergencyalert.mail.Mailer;
 import fri.servers.hiking.emergencyalert.persistence.Mail;
 import fri.servers.hiking.emergencyalert.persistence.entities.MailConfiguration;
@@ -14,9 +15,10 @@ import jakarta.mail.Authenticator;
  * Fires an ALERT_CONFIRMED event when received a confirmation
  * and stops polling then.
  */
-public class ConfirmationPolling extends AbstractPolling
+public final class ConfirmationPolling extends AbstractPolling
 {
     private Mailer.EventDispatcher eventDispatcher;
+    private Supplier<Boolean> pollingStopper;
     
     public void start(
             String uniqueMailId, 
@@ -31,13 +33,24 @@ public class ConfirmationPolling extends AbstractPolling
         this.eventDispatcher = Objects.requireNonNull(eventDispatcher);
     }
     
+    public synchronized void afterNextUnsuccessfulConfirmationPoll(Supplier<Boolean> pollingStopper) {
+        this.pollingStopper = pollingStopper;
+    }
+    
     @Override
-    protected String pollingType() {
+    protected final String pollingType() {
         return "alert confirmation";
     }
     
     @Override
-    protected void processConfirmation(Mail confirmation) {
+    protected final void processConfirmation(Mail confirmation) {
         eventDispatcher.dispatchEvent(Event.ALERT_CONFIRMED, confirmation);
+    }
+    
+    @Override
+    protected final synchronized boolean shouldContinuePolling() {
+        return (pollingStopper != null) 
+                ? pollingStopper.get() 
+                : super.shouldContinuePolling();
     }
 }

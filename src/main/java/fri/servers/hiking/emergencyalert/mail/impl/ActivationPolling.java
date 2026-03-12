@@ -14,7 +14,7 @@ import jakarta.mail.Authenticator;
  * this polling stops at least 1 minute before the hike's home-time.
  * This happens just on the first day of a hike, not on any subsequent.
  */
-public class ActivationPolling extends AbstractPolling
+public final class ActivationPolling extends AbstractPolling
 {
     private Consumer<Mail> toBeCalledWhenReceived;
     private Date stopTime;
@@ -35,17 +35,17 @@ public class ActivationPolling extends AbstractPolling
     }
     
     @Override
-    protected String pollingType() {
+    protected final String pollingType() {
         return "activation mail";
     }
     
     @Override
-    protected void processConfirmation(Mail confirmation) {
+    protected final void processConfirmation(Mail confirmation) {
         toBeCalledWhenReceived.accept(confirmation);
     }
     
     @Override
-    protected boolean shouldContinuePolling() {
+    protected final boolean shouldContinuePolling() {
         return DateUtil.now().before(stopTime);
     }
 }

@@ -202,8 +202,11 @@ public class Context
             }
         }
         else { // here it is 1 hour after last contact, it makes no sense to poll anymore
-            stop();
-            System.out.println("Having no more contacts to alert at "+DateUtil.now4Log());
+            mailer.afterNextUnsuccessfulConfirmationPoll(() -> {
+                stop();
+                System.out.println("Having no more contacts to alert at "+DateUtil.now4Log());
+                return Boolean.FALSE;
+            });
         }
     }
 
