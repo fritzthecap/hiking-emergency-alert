@@ -25,7 +25,7 @@ Starting with version **1.2** you can stop the alert chain at any time by replyi
 
 Starting with version **1.3** you can create additional hike-days on route-and-times page, see [issue #1](https://github.com/fritzthecap/hiking-emergency-alert/issues/1). Each day has its own route description, including images. There is only one start-date/time, but every day has its own end-date/time. The mail communication would be the same on each day. These hike-days are not bound to natural days, more precisely they are "hike periods".
 
-Starting with version **1.9** you can activate the hike observation remotely, see [issue #28](https://github.com/fritzthecap/hiking-emergency-alert/issues/28).
+Starting with version **1.10** you can activate the hike observation remotely, see [issue #28](https://github.com/fritzthecap/hiking-emergency-alert/issues/28).
 On last "Forward" click you will be asked whether you want to activate the hike "Now" or "Later". If you click "Later", you can activate it when you safely arrived at your hiking trail. You will receive a reminder mail, and answering it would activate the hike observation. 
 
 **IMPORTANT:** Any of these reply mails must contain the received MAIL-ID either in content-text or in the attached original mail!
@@ -50,7 +50,7 @@ Following JVM-argument would give you bigger fonts:
     java -DfontPercent=120 -jar hiking-emergency-alert.jar
 
 The application stores your hike-data by default in _$HOME/hiking-emergency-alert/hike.json_ directory.
-This directory can be changed by adding commandline argument _-Dhike.home=/mydirectory_, the name of the file can be changed by  _-Dhike.file=myhike.json_.
+This directory can be changed by adding commandline argument _-Dhike.home=/mydirectory_, the name of the file can be changed by  _-Dhike.file=myhike.json_. Since version 1.10 logging output can be found in a console window and in _hike.log_ in the _hike.home_ directory.
 
 You can also pass any mail-property to the application via _-D...._ commandline arguments, e.g. _-Dmail.smtp.ssl.enable=true_ or _-Dmail.smtp.port=465_.
 
@@ -62,7 +62,7 @@ To get rid of the application, delete the _hiking-emergency-alert.jar_ file and 
 
 # Try Out
 
-You can test the aplication easily by providing your own e-mail address several times in contacts list, choose a different name for each. The shortest alert interval is 2 minutes, because the shortest polling interval is 1 minute, and the alert interval must be longer than that. Thus a hike of 3 minutes is possible, and everything would land in your own INBOX.
+You can test the application easily by providing your own e-mail address several times in contacts list, choose a different name for each. The shortest alert interval is 2 minutes, because the shortest polling interval is 1 minute, and the alert interval must be longer than that. Thus a hike of 3 minutes is possible, and everything would land in your own INBOX.
 
 You would get an activation mail immedately after activation of the hike. If you respond to it, no alert mails would be sent. If not, alerts would be sent to all contacts (that would be you). Mind that a "passing-to-next" mail would never be sent to a contact that has the same mail address as the next contact.
 
