@@ -10,8 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.Writer;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -64,7 +64,7 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
     };
     private int pageIndex;
     
-    public HikeWizard(JFrame frame, StateMachine stateMachine, JTextArea console, BufferedWriter logWriter) {
+    public HikeWizard(JFrame frame, StateMachine stateMachine, JTextArea console, Writer logWriter) {
         super(new BorderLayout());
         
         this.stateMachine = stateMachine;
@@ -84,6 +84,7 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         final String hikeLanguage = stateMachine.getHike().getAlert().getIso639Language();
         Language.load(hikeLanguage);
         // resource bundle is loaded, can use i18n() from now on
+        
         SwingLanguage.setJOptionPaneButtonLabels();
         
         this.wizardOutline = new WizardOutline(pages);
@@ -172,7 +173,7 @@ public class HikeWizard extends JPanel // must be a JComponent to be found by Sw
         contentPanel.add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private void installWindowClose(final JFrame frame, final BufferedWriter logWriter) {
+    private void installWindowClose(final JFrame frame, final Writer logWriter) {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
