@@ -15,7 +15,7 @@ import jakarta.mail.Authenticator;
  * Fires an ALERT_CONFIRMED event when received a confirmation
  * and stops polling then.
  */
-public final class ConfirmationPolling extends AbstractPolling
+public class ConfirmationPolling extends AbstractPolling
 {
     private Mailer.EventDispatcher eventDispatcher;
     private Supplier<Boolean> pollingStopper;

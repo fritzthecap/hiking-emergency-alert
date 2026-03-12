@@ -14,7 +14,7 @@ import jakarta.mail.Authenticator;
  * this polling stops at least 1 minute before the hike's home-time.
  * This happens just on the first day of a hike, not on any subsequent.
  */
-public final class ActivationPolling extends AbstractPolling
+public class ActivationPolling extends AbstractPolling
 {
     private Consumer<Mail> toBeCalledWhenReceived;
     private Date stopTime;
