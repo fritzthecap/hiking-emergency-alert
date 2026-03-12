@@ -1,34 +1,47 @@
 package fri.servers.hiking.emergencyalert.ui.swing;
 
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 /**
- * Redirect System.out and System.err to some UI window.
+ * Redirect System.out and System.err to UI-windows and log-file.
  */
 public final class Log 
 {
     private static PrintStream originalOut;
     private static PrintStream originalErr;
+    private static boolean originalStreamsActive = false;
     
-    public static void redirectOutErr(JTextArea outputErrorArea, BufferedWriter logFile) {
+    /**
+     * Redirects System.out and System.err to given text-areas.
+     * @param outputErrorArea optional, area for both out and err.
+     * @param logFile optional, log file for both out and err.
+     */
+    public static void redirectOutErr(JTextArea outputErrorArea, Writer logFile) {
         if (outputErrorArea != null) {
             redirect(true, outputErrorArea, logFile);
             redirect(false, outputErrorArea, logFile);
         }
     }
     
+    /** Removes all text-areas from System.out and System.err and restores original streams. */
     public static void restoreOutErr() {
         restore(true);
         restore(false);
     }
     
+    /** @param originalStreamsActive when true, also original streams would receive any output, default is false. */
+    public static void activateOriginalStreams(boolean originalStreamsActive) {
+        Log.originalStreamsActive = originalStreamsActive;
+    }
+    
+    /** Sets given text-areas as or adds them to outputs, both can be null. */
     public static void addToOutErr(JTextArea outputArea, JTextArea errorArea) {
         if (outputArea != null)
             redirect(true, outputArea, null);
@@ -36,6 +49,7 @@ public final class Log
             redirect(false, errorArea, null);
     }
     
+    /** Removes given text-areas from outputs, both can be null. */
     public static void removeFromOutErr(JTextArea outputArea, JTextArea errorArea) {
         if (outputArea != null)
             removeFrom(true, outputArea);
@@ -44,16 +58,16 @@ public final class Log
     }
     
     
-    private static void redirect(boolean isOut, JTextArea textArea, BufferedWriter logFile) {
-        final PrintStream streamBackup = (isOut ? originalOut : originalErr);
+    private static void redirect(boolean isOut, JTextArea textArea, Writer logFile) {
+        final PrintStream streamBackup = getStreamBackup(isOut);
         if (streamBackup == null) {
             if (isOut) {
                 System.out.flush(); // write all pending text to console
-                originalOut = System.out;
+                Log.originalOut = System.out;
             }
             else {
                 System.err.flush();
-                originalErr = System.err;
+                Log.originalErr = System.err;
             }
         }
         
@@ -72,7 +86,7 @@ public final class Log
     }
     
     private static void restore(boolean isOut) {
-        final PrintStream streamBackup = (isOut ? originalOut : originalErr);
+        final PrintStream streamBackup = getStreamBackup(isOut);
         if (streamBackup != null) {
             final RedirectingPrintStream printStream = getFlushedRedirectingPrintStream(isOut);
             if (printStream != null) {
@@ -92,6 +106,10 @@ public final class Log
             printStream.getStream().remove(textArea);
     }
     
+    private static PrintStream getStreamBackup(boolean isOut) {
+        return (isOut ? Log.originalOut : Log.originalErr);
+    }
+    
     private static RedirectingPrintStream getFlushedRedirectingPrintStream(boolean isOut) {
         final PrintStream streamInCharge = (isOut ? System.out : System.err);
         if ((streamInCharge instanceof RedirectingPrintStream) == false)
@@ -104,7 +122,7 @@ public final class Log
     
     private static class RedirectingPrintStream extends PrintStream
     {
-        RedirectingPrintStream(boolean isOut, JTextArea textArea, BufferedWriter logFile) {
+        RedirectingPrintStream(boolean isOut, JTextArea textArea, Writer logFile) {
             super(new RedirectingOutputStream(isOut, textArea, logFile), true); // true: autoFlush on newlines
         }
         
@@ -117,9 +135,9 @@ public final class Log
     {
         private final boolean isOut;
         private final List<JTextArea> textAreas = new ArrayList<>();
-        private final BufferedWriter logFile;
+        private final Writer logFile;
         
-        RedirectingOutputStream(boolean isOut, JTextArea textArea, BufferedWriter logFile) {
+        RedirectingOutputStream(boolean isOut, JTextArea textArea, Writer logFile) {
             this.isOut = isOut;
             this.logFile = logFile;
             textAreas.add(textArea);
@@ -140,18 +158,23 @@ public final class Log
         @Override
         public void flush() throws IOException {
             final String line = toString(); // ends with newline
-            
             reset(); // else next toString() would give all output again
             
+            if (line.length() > 0)
+                writeLine(line);
+        }
+
+        private void writeLine(final String line) throws IOException {
             if (logFile != null) {
                 logFile.write(line);
                 logFile.flush();
             }
             
-            if (isOut)
-                originalOut.print(line);
-            else
-                originalErr.print(line);
+            if (Log.originalStreamsActive)
+                if (isOut)
+                    Log.originalOut.print(line);
+                else
+                    Log.originalErr.print(line);
             
             if (SwingUtilities.isEventDispatchThread())
                 writeToAllTextAreas(line);
