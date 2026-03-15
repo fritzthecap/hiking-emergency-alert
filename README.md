@@ -107,15 +107,9 @@ Here are screenshots of all wizard-pages of the user-interface:
 
 ----
 
-<img width="477" height="698" alt="hiking-SecureMailProperties" src="https://github.com/user-attachments/assets/f6c283a4-7de8-4731-8145-a9442e0de18e" />
-
-----
-
 <img width="1028" height="629" alt="hiking-TimesAndRoute" src="https://github.com/user-attachments/assets/6b7dc3b2-66f2-4675-81d0-b232701374ac" />
 
 ----
-
-<img width="1028" height="629" alt="hiking-Activation" src="https://github.com/user-attachments/assets/0c9d4150-9a74-4b6a-99a4-c4ba1d08fbc9" />
 
 <img width="993" height="597" alt="hiking-ActivationDialog" src="https://github.com/user-attachments/assets/e82d0ac5-307b-4e98-af01-b5c6711d46e6" />
 
