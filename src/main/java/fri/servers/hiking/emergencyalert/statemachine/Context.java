@@ -297,7 +297,7 @@ public class Context
     }
 
     private void sendActivationMessage(Date home, int dayIndex, boolean remoteActivation) {
-        final String mailType = (remoteActivation ? "remote " : "day "+(dayIndex + 1)+" ")+"activation";
+        final String mailType = (remoteActivation ? "remote" : "day "+(dayIndex + 1))+" activation";
         System.out.println("Trying to send "+mailType+" mail at "+DateUtil.now4Log());
         try {
             mailer.sendActivation(hike, home, dayIndex, remoteActivation);
