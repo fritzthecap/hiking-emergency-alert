@@ -152,7 +152,7 @@ public class MailerImpl implements Mailer
 
     @Override
     public void stopActivationPolling() {
-        stopPolling(activationPolling, "activation");
+        stopPolling(activationPolling, "remote activation");
         activationPolling = null;
     }
 
@@ -214,7 +214,7 @@ public class MailerImpl implements Mailer
     private void stopPolling(AbstractPolling polling, String pollingType) {
         if (polling != null) {
             polling.stop();
-            System.out.println("Polling for "+pollingType+" stopped at "+DateUtil.now4Log());
+            System.out.println("Stopping polling for "+pollingType+" at "+DateUtil.now4Log());
         }
     }
 

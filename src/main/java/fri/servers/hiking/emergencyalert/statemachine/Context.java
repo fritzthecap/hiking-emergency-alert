@@ -297,7 +297,7 @@ public class Context
     }
 
     private void sendActivationMessage(Date home, int dayIndex, boolean remoteActivation) {
-        final String mailType = (remoteActivation ? "remote" : "")+" activation";
+        final String mailType = (remoteActivation ? "remote " : "day "+(dayIndex + 1)+" ")+"activation";
         System.out.println("Trying to send "+mailType+" mail at "+DateUtil.now4Log());
         try {
             mailer.sendActivation(hike, home, dayIndex, remoteActivation);
@@ -377,11 +377,10 @@ public class Context
     }
     
     private void activationOutputs(Date begin, Date home) {
-        System.out.println("Hike set-off will be at "+DateUtil.toString(begin, true));
         System.out.println("Emergency alerts would start at "+DateUtil.toString(home, true));
         
         final int pollingMinutes = hike.getAlert().getConfirmationPollingMinutes();
-        System.out.println("Reply polling interval is "+pollingMinutes+" minutes.");
+        System.out.println("Confirmation reply polling interval is "+pollingMinutes+" minutes.");
         System.out.println("First receive attempt would be at "+DateUtil.addMinutes(home, pollingMinutes)+".");
     }
 }

@@ -36,7 +36,7 @@ public class ActivationPolling extends AbstractPolling
     
     @Override
     protected final String pollingType() {
-        return "activation mail";
+        return "remote activation";
     }
     
     @Override

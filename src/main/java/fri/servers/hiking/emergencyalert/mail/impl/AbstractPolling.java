@@ -102,12 +102,12 @@ public abstract class AbstractPolling extends Scheduler
     
     private void receiveAlertConfirmation() {
         try {
-            final Mail confirmation = receiveConnection.searchNonSelfSentMailHavingMailId();
+            final Mail mail = receiveConnection.searchNonSelfSentMailHavingMailId();
             
-            if (confirmation != null) { // found an alert confirmation in INBOX
-                System.out.println("Received "+pollingType()+" from "+confirmation.from()+" at "+DateUtil.now4Log());
+            if (mail != null) { // found an alert confirmation in INBOX
+                System.out.println("Received "+pollingType()+" from "+mail.from()+" at "+DateUtil.now4Log());
                 
-                processConfirmation(confirmation);
+                processConfirmation(mail);
             }
             else {
                 continuePolling(null);
