@@ -112,7 +112,7 @@ public abstract class AbstractWizardPage
         contentPanel.removeAll();
         
         titleField.setText(getTitle());
-        ensureConsoleAndSaveButtons(); // i18n is available now
+        ensureConsoleAndSaveButtons((JPanel) titleField.getParent()); // i18n is available now
         
         buildUi();
         populateUi(getHike());
@@ -306,6 +306,7 @@ public abstract class AbstractWizardPage
     /**
      * Called by windowClose() on any page, and from global "Save" button.
      * @param letChooseTargetFile true when <code>trolley.getHikeFile() != null</code>.
+     * @return true when data were saved, false when file-chooser was canceled or exception occurred.
      */
     private boolean saveHikeToFile(boolean letChooseTargetFile) {
         final File hikeFile = trolley.getHikeFile();
@@ -368,14 +369,15 @@ public abstract class AbstractWizardPage
                 JOptionPane.ERROR_MESSAGE);
     }
     
-    private void ensureConsoleAndSaveButtons() { /// called from enter()
+    /** Called from enter() when i18n is available. */
+    private void ensureConsoleAndSaveButtons(JPanel titleAndError) {
         if (shouldShowSaveButton() == false)
             return;
         
         if (this.consoleButton == null) {
             this.consoleButton = new JButton(i18n("Console"));
-            final JPanel titleAndError = (JPanel) titleField.getParent();
             titleAndError.add(consoleButton, BorderLayout.WEST);
+            
             consoleButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -386,13 +388,20 @@ public abstract class AbstractWizardPage
         
         if (this.saveButton == null) {
             this.saveButton = new JButton(i18n("Save"));
-            final JPanel titleAndError = (JPanel) titleField.getParent();
             titleAndError.add(saveButton, BorderLayout.EAST);
+            
             saveButton.addActionListener(new ActionListener() {
+                private boolean fileWasChosen; // = false
+                
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     commit(false); // false: do not test mail connection
-                    saveHikeToFile(trolley.getHikeFile() == null); // ignore commit result, save also invalid data
+                    // ignore commit result, save even invalid data
+                    final boolean letChooseTargetFile =
+                            (fileWasChosen == false || trolley.getHikeFile() == null);
+                            // first save call, or no explicit file was loaded
+                    if (saveHikeToFile(letChooseTargetFile))
+                        fileWasChosen = true;
                 }
             });
         }
