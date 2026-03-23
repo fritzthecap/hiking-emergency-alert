@@ -129,7 +129,7 @@ public class HikeFileManager
         final String fileName = 
                 DEFAULT_JSON_FILE.substring(0, DEFAULT_JSON_FILE.length() - ".json".length())+
                 ".log";
-        return joinPathParts(DEFAULT_JSON_PATH, fileName);
+        return joinPathParts(getSavePath(), fileName);
     }
 
     /**
