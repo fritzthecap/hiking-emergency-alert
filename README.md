@@ -83,7 +83,7 @@ For German readers, I have written a [Blog article](https://fritzthecat-retired.
 
 ----
 
-Below you see a simplified **UML activity-diagram** of a hike.
+Below you see a simplified **UML state-diagram** of a hike.
 
 <img width="658" height="825" alt="hiking-emergency-alert_states" src="https://github.com/user-attachments/assets/73278624-7f67-4b3d-a16f-3c1f15f51712" />
 
