@@ -77,6 +77,8 @@ It was implemented using _Java 21_ (compatible with 17), the UI is good old _Swi
 Persisted hike data are in _JSON_ format (_gson 2.13.2_).
 E-mail goes with _jakarta-mail 2.1.5_ and _angus-mail 2.0.5_ libraries.
 
+First **stable release** was **2.1**.
+
 For German readers, I have written a [Blog article](https://fritzthecat-retired.blogspot.com/2025/12/wandern-notfallmeldung.html) about this idea.
 
 ----
