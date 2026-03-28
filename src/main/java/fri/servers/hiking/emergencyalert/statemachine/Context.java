@@ -3,6 +3,7 @@ package fri.servers.hiking.emergencyalert.statemachine;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 import fri.servers.hiking.emergencyalert.mail.MailException;
 import fri.servers.hiking.emergencyalert.mail.MailReceiveException;
 import fri.servers.hiking.emergencyalert.mail.MailSendException;
@@ -202,11 +203,14 @@ public class Context
             }
         }
         else { // here it is 1 hour after last contact, it makes no sense to poll anymore
-            mailer.afterNextUnsuccessfulConfirmationPoll(() -> {
+            // make confirmation polling stop all timers after next receive attempt
+            final Supplier<Boolean> pollingStopper = () -> {
                 stop();
                 System.out.println("Having no more contacts to alert at "+DateUtil.now4Log());
-                return Boolean.FALSE;
-            });
+                return Boolean.FALSE; // returns false to NOT continue polling
+            };
+            if (mailer.afterNextUnsuccessfulConfirmationPoll(pollingStopper) == false)
+                pollingStopper.get(); // stop timers here if pollingStopper won't be called
         }
     }
 

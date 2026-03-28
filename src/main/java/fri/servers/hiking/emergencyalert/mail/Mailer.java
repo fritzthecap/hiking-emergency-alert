@@ -89,8 +89,10 @@ public interface Mailer
     /**
      * Register a boolean function to be used after the next unsuccessful
      * confirmation receive attempt for deciding whether polling should continue.
+     * @param pollingStopper required, the function to be called after next unsuccessful polling attempt.
+     * @return true if polling is still going on and supplier function will be called, false when not.
      */
-    public void afterNextUnsuccessfulConfirmationPoll(Supplier<Boolean> pollingStopper);
+    public boolean afterNextUnsuccessfulConfirmationPoll(Supplier<Boolean> pollingStopper);
 
     /** Stops confirmation receive-polling, or does nothing when not polling. */
     public void stopConfirmationPolling();

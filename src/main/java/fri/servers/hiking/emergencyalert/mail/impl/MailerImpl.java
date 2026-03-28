@@ -107,9 +107,12 @@ public class MailerImpl implements Mailer
     }
     
     @Override
-    public void afterNextUnsuccessfulConfirmationPoll(Supplier<Boolean> pollingStopper) {
-        if (confirmationPolling != null)
-            confirmationPolling.afterNextUnsuccessfulConfirmationPoll(pollingStopper);
+    public boolean afterNextUnsuccessfulConfirmationPoll(Supplier<Boolean> pollingStopper) {
+        if (isConfirmationPolling() == false)
+            return false;
+        
+        confirmationPolling.afterNextUnsuccessfulConfirmationPoll(pollingStopper);
+        return true;
     }
 
     @Override
