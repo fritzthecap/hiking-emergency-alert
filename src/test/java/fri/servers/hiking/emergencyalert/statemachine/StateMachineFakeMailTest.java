@@ -113,8 +113,9 @@ class StateMachineFakeMailTest
                 System.err.println("Confirmation polling starts ...");
             }
             @Override
-            public void afterNextUnsuccessfulConfirmationPoll(Supplier<Boolean> pollingStopper) {
+            public boolean afterNextUnsuccessfulConfirmationPoll(Supplier<Boolean> pollingStopper) {
                 pollingStopper.get();
+                return true;
             }
             @Override
             public void stopConfirmationPolling() {
