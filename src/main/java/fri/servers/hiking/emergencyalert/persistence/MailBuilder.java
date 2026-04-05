@@ -200,11 +200,11 @@ public class MailBuilder
     }
 
     private String getContactName(Contact contact) {
-        final String fullName = 
+        final String fullName = (
                 (StringUtil.isNotEmpty(contact.getFirstName()) ? contact.getFirstName() : "")+
                 " "+
                 (StringUtil.isNotEmpty(contact.getLastName()) ? contact.getLastName() : "")
-            .trim();
+            ).trim();
         return StringUtil.isNotEmpty(fullName) ? fullName : contact.getMailAddress();
     }
 
