@@ -64,7 +64,7 @@ To get rid of the application, delete the _hiking-emergency-alert.jar_ file and 
 
 You can test the application easily by providing your own e-mail address several times in contacts list, choose a different name for each. The shortest alert interval is 2 minutes, because the shortest polling interval is 1 minute, and the alert interval must be longer than that. Thus a hike of 3 minutes is possible, and everything would land in your own INBOX.
 
-You would get an activation mail immedately after activation of the hike. If you respond to it, no alert mails would be sent. If not, alerts would be sent to all contacts (that would be you). Mind that a "passing-to-next" mail would never be sent to a contact that has the same mail address as the next contact.
+You would get an activation mail immedately after activation of the hike (or, for remote activation, one polling-interval afterwards). If you respond to it, no alert mails would be sent ever. If not, alerts would be sent after the planned home-time to all contacts (that would be you in this test-case). Mind that a "passing-to-next" mail would never be sent to a contact that has the same mail address as the next contact!
 
 <img width="517" height="61" alt="write-to-email" src="https://github.com/user-attachments/assets/8829f9c5-6ef6-4cc1-822d-d94ca6133d44" />
 
